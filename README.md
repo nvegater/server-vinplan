@@ -1,4 +1,4 @@
-# Server: Apollo, MikroOrm, Redis, Express, Postgresql
+# Server: Apollo, TypeORM, Redis, Express, Postgresql
 
 Followed [Ben Awads's tutorial](https://www.youtube.com/watch?v=I6ypD7qv3Z8&ab_channel=BenAwad)
 and "improved" some stuff.
@@ -7,7 +7,7 @@ and "improved" some stuff.
 
 * Redis to create cookies and sessions. Sort of secure DB in the client.
 * Apollo is arguably the most curated graphql library.
-* MikroOrm is a new ORM created with Graphql-Typescript in mind. Maybe replaceable with TypeORM.
+* TypeORM is a new ORM created with Graphql-Typescript in mind. Maybe replaceable with TypeORM.
 * Express and Postgres are just safe.
 
 TODO: Pack this and the [nextjs frontend server](https://github.com/nvegater/client-nextjs-react)
@@ -39,8 +39,8 @@ The magic happens in `index.ts`, TLDR:
 1. Initialize Express.
 2. Configure CORS's whitelist for easy Development.
 3. Initialize Redis to access req/resp headers from the Express app.
-4. Initialize MikroOrm and configure the Postgresql driver.
-5. Customize Apollo configuration to connect it with Redis and MikroOrm.
+4. Initialize TypeORM and configure the Postgresql driver.
+5. Customize Apollo configuration to connect it with Redis and TypeORM.
 6. Initialize server
 
 ## Custom Apollo Context
