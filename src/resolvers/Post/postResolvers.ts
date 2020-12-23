@@ -1,4 +1,4 @@
-import {Arg, Ctx, Int, Mutation, Query, Resolver, UseMiddleware} from "type-graphql"
+import {Arg, Ctx, FieldResolver, Int, Mutation, Query, Resolver, Root, UseMiddleware} from "type-graphql"
 import {Post} from "../../entities/Post";
 import {CreatePostInputs, validateCreatePostInputs} from "./postResolversInputs";
 import {FieldError} from "../User/userResolversOutputs";
@@ -7,8 +7,16 @@ import {PostResponse} from "./postResolversOutputs";
 import {isAuth} from "../Universal/utils";
 import {getConnection} from "typeorm";
 
-@Resolver()
+@Resolver(Post)
 export class PostResolver {
+
+    @FieldResolver(()=>String)
+    textSnippet( // Extra graphql Field, but not from the DB-> Main entity.
+        @Root() root:Post
+    ){
+        return root.text.slice(0,50)
+    }
+
     @Query(() => [Post])
     posts(
         @Arg('limit', () => Int,{
