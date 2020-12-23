@@ -9,7 +9,7 @@ import connectRedis, {RedisStore} from 'connect-redis';
 import Redis, {Redis as RedisType} from 'ioredis';
 import {buildRedisSession} from "./redis-config";
 
-import {createConnection} from "typeorm";
+import {Connection, createConnection} from "typeorm";
 import typeOrmPostgresConfig from "./typeorm.config"
 
 import {ApolloServer} from "apollo-server-express";
@@ -35,7 +35,8 @@ const start_server = async () => {
     app.use(redisRequestHandler);
 
     // TypeORM
-    await createConnection(typeOrmPostgresConfig);
+    const postgresConnection:Connection = await createConnection(typeOrmPostgresConfig);
+    await postgresConnection.runMigrations();
 
     // Apollo
     const apolloConfig: ApolloServerExpressConfig = await apolloExpressRedisContext(redisClient);

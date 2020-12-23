@@ -4,7 +4,7 @@ import {ConnectionOptions} from "typeorm";
 
 export default {
     type: 'postgres',
-    database: 'altreddit',
+    database: 'db-vinplan',
     port: 5433,
     logging: true, // log SQL
     synchronize: true,
