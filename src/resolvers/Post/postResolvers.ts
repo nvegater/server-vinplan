@@ -3,23 +3,23 @@ import {Post} from "../../entities/Post";
 import {CreatePostInputs, validateCreatePostInputs} from "./postResolversInputs";
 import {FieldError} from "../User/userResolversOutputs";
 import {ApolloRedisContext} from "../../apollo-config";
-import {PostResponse} from "./postResolversOutputs";
+import {PaginatedPosts, PostResponse} from "./postResolversOutputs";
 import {isAuth} from "../Universal/utils";
 import {getConnection} from "typeorm";
 
 @Resolver(Post)
 export class PostResolver {
 
-    @FieldResolver(()=>String)
+    @FieldResolver(() => String)
     textSnippet( // Extra graphql Field, but not from the DB-> Main entity.
-        @Root() root:Post
-    ){
-        return root.text.slice(0,50)
+        @Root() root: Post
+    ) {
+        return root.text.slice(0, 50)
     }
 
-    @Query(() => [Post])
-    posts(
-        @Arg('limit', () => Int,{
+    @Query(() => PaginatedPosts)
+    async posts(
+        @Arg('limit', () => Int, {
             description: "For pagination." +
                 "Max number of posts. Default is 50"
         }) limit: number,
@@ -31,18 +31,24 @@ export class PostResolver {
                 "The cursor accepts a string timestamp, the createdAt." +
                 "Returns all the posts after the given timestamp"
         }) cursor: string | null,
-    ): Promise<Post[]> {
+    ): Promise<PaginatedPosts> {
         const realLimit = Math.min(50, limit);
         const queryBuilder = getConnection()
             .getRepository(Post)
             .createQueryBuilder("posts")
             .orderBy('"createdAt"', "DESC")
-            .take(realLimit);
+            // One More to see if there are no more posts available
+            // E.G. requests 20 posts, take UP TO 21 (limit to 21)
+            .take(realLimit + 1);
         if (cursor) {
             queryBuilder
                 .where('"createdAt" < :cursor', {cursor: new Date(parseInt(cursor))})
         }
-        return queryBuilder.getMany();
+        const posts = await queryBuilder.getMany();
+        return {
+            paginatedPosts: posts.slice(0, realLimit), // return only the requested posts
+            morePostsAvailable: posts.length === (realLimit + 1) // DB has more posts than requested
+        };
     }
 
     @Query(() => Post, {nullable: true})

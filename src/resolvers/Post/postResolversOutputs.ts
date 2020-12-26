@@ -9,3 +9,11 @@ export class PostResponse {
     @Field(() => Post, {nullable: true})
     post?: Post
 }
+
+@ObjectType()
+export class PaginatedPosts {
+    @Field(() => [Post])
+    paginatedPosts: Post[];
+    @Field()
+    morePostsAvailable: boolean;
+}
