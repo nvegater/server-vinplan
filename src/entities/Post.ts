@@ -34,7 +34,7 @@ export class Post extends BaseEntity {
     @Column()
     creatorId: number;
 
-    // Multiple posts can belong to one user
+    @Field()
     @ManyToOne(() => User, user => user.post)
     creator: User;
 

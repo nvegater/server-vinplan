@@ -23,6 +23,16 @@ import {isAuth} from "../Universal/utils";
 @Resolver()
 export class UserResolver {
 
+
+    /*
+    TODO Display email only if the logged in user is the one that requested its own user.
+    @FieldResolver(() => String)
+    email( // Extra graphql Field, but not from the DB-> Main entity.
+        @Root() user: User, @
+    ) {
+        return root.text.slice(0, 50)
+    }*/
+
     @Query(() => UserResponse, {nullable: true})
     @UseMiddleware(isAuth)
     async me(
