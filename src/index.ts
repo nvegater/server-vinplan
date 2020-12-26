@@ -38,6 +38,9 @@ const start_server = async () => {
     const postgresConnection:Connection = await createConnection(typeOrmPostgresConfig);
     await postgresConnection.runMigrations();
 
+    //await Post.delete({});
+    // npx typeorm migration:create -n FakePosts <----for migrations
+
     // Apollo
     const apolloConfig: ApolloServerExpressConfig = await apolloExpressRedisContext(redisClient);
 
