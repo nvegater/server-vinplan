@@ -1,4 +1,4 @@
-import {Arg, Ctx, Mutation, Query, Resolver, UseMiddleware} from "type-graphql"
+import {Arg, Ctx, FieldResolver, Mutation, Query, Resolver, Root, UseMiddleware} from "type-graphql"
 import {User} from "../../entities/User";
 import argon2 from 'argon2'
 import {FieldError, UserResponse} from "./userResolversOutputs";
@@ -20,18 +20,23 @@ import userResolversErrors from "./userResolversErrors";
 import {isAuth} from "../Universal/utils";
 
 
-@Resolver()
+@Resolver(User)
 export class UserResolver {
 
 
-    /*
-    TODO Display email only if the logged in user is the one that requested its own user.
     @FieldResolver(() => String)
     email( // Extra graphql Field, but not from the DB-> Main entity.
-        @Root() user: User, @
+        @Root() user: User,
+        @Ctx() {req}: ApolloRedisContext
     ) {
-        return root.text.slice(0, 50)
-    }*/
+        // this is the current user and its okay to show them their own email
+        // @ts-ignore
+        if (req.session.userId === user.id){
+            return user.email;
+        }
+        // current user wants to see someone elses email
+        return "";
+    }
 
     @Query(() => UserResponse, {nullable: true})
     @UseMiddleware(isAuth)
