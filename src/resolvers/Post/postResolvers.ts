@@ -6,6 +6,7 @@ import {ApolloRedisContext} from "../../apollo-config";
 import {PaginatedPosts, PostResponse} from "./postResolversOutputs";
 import {isAuth} from "../Universal/utils";
 import {getConnection} from "typeorm";
+import {Upvote} from "../../entities/Upvote";
 
 @Resolver(Post)
 export class PostResolver {
@@ -15,6 +16,35 @@ export class PostResolver {
         @Root() root: Post
     ) {
         return root.text.slice(0, 50)
+    }
+
+    @Mutation(() => Boolean)
+    @UseMiddleware(isAuth)
+    async vote(
+        @Arg('postId', () => Int) postId: number,
+        @Arg('value', () => Int) value: number,
+        @Ctx() {req}: ApolloRedisContext
+    ) {
+        const isUpvote = value !== -1;
+        const realValue = isUpvote ? 1 : -1;
+
+        // @ts-ignore
+        const {userId} = req.session;
+
+        await Upvote.insert({
+            userId: userId,
+            postId,
+            value: realValue
+        })
+
+        await getConnection().query(`
+            update post
+            set points = points + $1
+            where id = $2
+        `, [realValue, postId]);
+
+        return true;
+
     }
 
     @Query(() => PaginatedPosts)

@@ -1,5 +1,4 @@
-import {Field, ObjectType} from "type-graphql";
-import {BaseEntity, Column, Entity, ManyToOne} from "typeorm";
+import {BaseEntity, Column, Entity, ManyToOne, PrimaryColumn} from "typeorm";
 import {User} from "./User";
 import {Post} from "./Post";
 
@@ -8,22 +7,22 @@ import {Post} from "./Post";
 // user <--- join table ---> posts
 // user <--- upvote ----> posts
 
-@ObjectType()
 @Entity()
 export class Upvote extends BaseEntity {
-    @Field()
-    @Column()
+
+    @PrimaryColumn()
     userId: number;
 
-    @Field()
+    @PrimaryColumn()
+    postId: number;
+
+    @Column({type: "int"})
+    value: number;
+
+
     @ManyToOne(() => User, (user) => user.upvotes)
     user: User;
 
-    @Field()
-    @Column()
-    postId: number;
-
     @ManyToOne(() => Post, (post)=> post.upvotes)
-    @Column()
     post: Post;
 }
