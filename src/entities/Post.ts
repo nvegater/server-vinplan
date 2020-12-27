@@ -28,7 +28,7 @@ export class Post extends BaseEntity {
 
     @Field()
     @Column({type: "int", default: 0})
-    points!: string;
+    points!: number;
 
     // Post receives multiple upvotes. Each upvote done by user.
     @OneToMany(() => Upvote, upvote => upvote.post)
