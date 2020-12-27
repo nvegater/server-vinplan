@@ -3,11 +3,12 @@ import {
     BaseEntity,
     Column,
     CreateDateColumn,
-    Entity, ManyToOne,
+    Entity, ManyToOne, OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
 import {User} from "./User";
+import {Upvote} from "./Upvote";
 
 @ObjectType()
 @Entity()
@@ -28,6 +29,10 @@ export class Post extends BaseEntity {
     @Field()
     @Column({type: "int", default: 0})
     points!: string;
+
+    // Post receives multiple upvotes. Each upvote done by user.
+    @OneToMany(() => Upvote, upvote => upvote.post)
+    upvotes: Upvote[];
 
     //FK
     @Field()

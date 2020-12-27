@@ -9,6 +9,7 @@ import {
     UpdateDateColumn
 } from "typeorm";
 import {Post} from "./Post";
+import {Upvote} from "./Upvote";
 
 @ObjectType()
 @Entity()
@@ -31,9 +32,13 @@ export class User extends BaseEntity {
     @Column({unique: true})
     password!: string;
 
-    // One user can create multiple posts.
+    // User create multiple posts.
     @OneToMany(() => Post, post => post.creator)
     post: Post[];
+
+    // User upvote many posts
+    @OneToMany(() => Upvote, upvote => upvote.user)
+    upvotes: Upvote[];
 
     @Field(() => String)
     @CreateDateColumn()
