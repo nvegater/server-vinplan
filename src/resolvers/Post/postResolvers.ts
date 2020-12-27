@@ -6,7 +6,6 @@ import {ApolloRedisContext} from "../../apollo-config";
 import {PaginatedPosts, PostResponse} from "./postResolversOutputs";
 import {isAuth} from "../Universal/utils";
 import {getConnection} from "typeorm";
-import {Upvote} from "../../entities/Upvote";
 
 @Resolver(Post)
 export class PostResolver {
@@ -31,17 +30,20 @@ export class PostResolver {
         // @ts-ignore
         const {userId} = req.session;
 
-        await Upvote.insert({
-            userId: userId,
-            postId,
-            value: realValue
-        })
-
+        // Insert upvote entry in a transaction together with the post update
+        // If one fails, both should fail
         await getConnection().query(`
+            START TRANSACTION;
+            
+            insert into upvote ("userId", "postId", value)
+            values (${userId}, ${postId}, ${realValue});
+            
             update post
-            set points = points + $1
-            where id = $2
-        `, [realValue, postId]);
+            set points = points + ${realValue}
+            where id = ${postId};
+            
+            COMMIT;
+        `);
 
         return true;
 
