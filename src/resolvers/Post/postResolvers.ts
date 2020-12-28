@@ -9,7 +9,7 @@ import {getConnection} from "typeorm";
 import {Upvote} from "../../entities/Upvote";
 import {
     SQL_QUERY_INSERT_NEW_UPVOTE,
-    SQL_QUERY_SELECT_PAGINATED_POSTS,
+    SQL_QUERY_SELECT_PAGINATED_POSTS, SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR,
     SQL_QUERY_UPDATE_POST_POINTS,
     SQL_QUERY_UPDATE_UPVOTE
 } from "../Universal/queries";
@@ -76,14 +76,19 @@ export class PostResolver {
         }) cursor: string | null,
     ): Promise<PaginatedPosts> {
         const realLimit = Math.min(50, limit);
-        let replacements: any = [realLimit + 1];
+        let resultPosts: Post[];
+
         if (cursor) {
-            replacements.push(new Date(parseInt(cursor)))
+            const replacements: any = [realLimit + 1, new Date(parseInt(cursor))];
+            resultPosts = await getConnection().query(SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR, replacements);
+        } else {
+            const replacements: any = [realLimit + 1];
+            resultPosts = await getConnection().query(SQL_QUERY_SELECT_PAGINATED_POSTS, replacements);
         }
-        const posts = await getConnection().query(SQL_QUERY_SELECT_PAGINATED_POSTS(cursor), replacements);
+
         return {
-            paginatedPosts: posts.slice(0, realLimit), // return only the requested posts
-            morePostsAvailable: posts.length === (realLimit + 1) // DB has more posts than requested
+            paginatedPosts: resultPosts.slice(0, realLimit), // return only the requested posts
+            morePostsAvailable: resultPosts.length === (realLimit + 1) // DB has more posts than requested
         };
     }
 
