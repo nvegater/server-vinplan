@@ -1,6 +1,6 @@
 export const SQL_QUERY_UPDATE_UPVOTE = `
     update upvote
-    set value = value + $1
+    set value = $1
     where "postId" = $2
       and "userId" = $3
 `;
@@ -24,12 +24,14 @@ export const SQL_QUERY_SELECT_PAGINATED_POSTS = `
                    'email', u.email,
                    'createdAt', u."createdAt",
                    'updatedAt', u."updatedAt"
-               ) creator
+               ) creator,
+           null as "voteStatus"
     from post p
              inner join public.user u on u.id = p."creatorId"
     order by p."createdAt" DESC
     limit $1
 `;
+
 
 export const SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR = `
     select p.*,
@@ -39,10 +41,47 @@ export const SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR = `
                    'email', u.email,
                    'createdAt', u."createdAt",
                    'updatedAt', u."updatedAt"
-               ) creator
+               ) creator,
+            null as "voteStatus"
     from post p
              inner join public.user u on u.id = p."creatorId"
     where p."createdAt" < $2
     order by p."createdAt" DESC
     limit $1
 `;
+
+export const SQL_QUERY_SELECT_PAGINATED_POSTS_USER_LOGGED_IN = `
+    select p.*,
+           json_build_object(
+                   'id', u.id,
+                   'username', u.username,
+                   'email', u.email,
+                   'createdAt', u."createdAt",
+                   'updatedAt', u."updatedAt"
+               ) creator,
+   (select value from upvote where "userId" = $2 and "postId" = p.id) "voteStatus"
+    from post p
+             inner join public.user u on u.id = p."creatorId"
+    order by p."createdAt" DESC
+    limit $1
+`;
+
+
+export const SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR_USER_LOGGED_IN = `
+    select p.*,
+           json_build_object(
+                   'id', u.id,
+                   'username', u.username,
+                   'email', u.email,
+                   'createdAt', u."createdAt",
+                   'updatedAt', u."updatedAt"
+               ) creator,
+    (select value from upvote where "userId" = $2 and "postId" = p.id) "voteStatus"
+    from post p
+             inner join public.user u on u.id = p."creatorId"
+    where p."createdAt" < $3
+    order by p."createdAt" DESC
+    limit $1
+`;
+
+

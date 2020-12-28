@@ -9,7 +9,9 @@ import {getConnection} from "typeorm";
 import {Upvote} from "../../entities/Upvote";
 import {
     SQL_QUERY_INSERT_NEW_UPVOTE,
-    SQL_QUERY_SELECT_PAGINATED_POSTS, SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR,
+    SQL_QUERY_SELECT_PAGINATED_POSTS, SQL_QUERY_SELECT_PAGINATED_POSTS_USER_LOGGED_IN,
+    SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR,
+    SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR_USER_LOGGED_IN,
     SQL_QUERY_UPDATE_POST_POINTS,
     SQL_QUERY_UPDATE_UPVOTE
 } from "../Universal/queries";
@@ -29,7 +31,7 @@ export class PostResolver {
     async vote(
         @Arg('postId', () => Int) postId: number,
         @Arg('value', () => Int, {
-            description: "The user can upvote, downvote, or unvote. (reset to 0)"
+            description: "The user can upvote and downvote. null means, user hasnt upvoted/downvoted"
         }) value: number,
         @Ctx() {req}: ApolloRedisContext
     ) {
@@ -47,7 +49,7 @@ export class PostResolver {
             // the user has voted on the post before and they're changing their vote-
             await getConnection().transaction(async transactionManager => {
                 await transactionManager.query(SQL_QUERY_UPDATE_UPVOTE, [realValue, postId, userId])
-                await transactionManager.query(SQL_QUERY_UPDATE_POST_POINTS, [realValue, postId])
+                await transactionManager.query(SQL_QUERY_UPDATE_POST_POINTS, [2*realValue, postId])
             });
         } else if (!upvote) {
             // has never vote before
@@ -74,16 +76,36 @@ export class PostResolver {
                 "The cursor accepts a string timestamp, the createdAt." +
                 "Returns all the posts after the given timestamp"
         }) cursor: string | null,
+        @Ctx() {req}: ApolloRedisContext
     ): Promise<PaginatedPosts> {
+        // @ts-ignore
+        const {userId} = req.session;
+
         const realLimit = Math.min(50, limit);
         let resultPosts: Post[];
 
         if (cursor) {
-            const replacements: any = [realLimit + 1, new Date(parseInt(cursor))];
-            resultPosts = await getConnection().query(SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR, replacements);
+            if (userId) {
+                const replacements: any = [realLimit + 1, userId, new Date(parseInt(cursor))];
+                resultPosts = await getConnection().query(
+                    SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR_USER_LOGGED_IN,
+                    replacements
+                );
+            } else {
+                const replacements: any = [realLimit + 1, new Date(parseInt(cursor))];
+                resultPosts = await getConnection().query(SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR, replacements);
+            }
         } else {
-            const replacements: any = [realLimit + 1];
-            resultPosts = await getConnection().query(SQL_QUERY_SELECT_PAGINATED_POSTS, replacements);
+            if (userId) {
+                const replacements: any = [realLimit + 1, userId];
+                resultPosts = await getConnection().query(
+                    SQL_QUERY_SELECT_PAGINATED_POSTS_USER_LOGGED_IN,
+                    replacements
+                );
+            } else {
+                const replacements: any = [realLimit + 1];
+                resultPosts = await getConnection().query(SQL_QUERY_SELECT_PAGINATED_POSTS, replacements);
+            }
         }
 
         return {
