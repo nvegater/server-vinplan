@@ -6,6 +6,13 @@ import {ApolloRedisContext} from "../../apollo-config";
 import {PaginatedPosts, PostResponse} from "./postResolversOutputs";
 import {isAuth} from "../Universal/utils";
 import {getConnection} from "typeorm";
+import {Upvote} from "../../entities/Upvote";
+import {
+    SQL_QUERY_INSERT_NEW_UPVOTE,
+    SQL_QUERY_SELECT_PAGINATED_POSTS,
+    SQL_QUERY_UPDATE_POST_POINTS,
+    SQL_QUERY_UPDATE_UPVOTE
+} from "../Universal/queries";
 
 @Resolver(Post)
 export class PostResolver {
@@ -21,30 +28,34 @@ export class PostResolver {
     @UseMiddleware(isAuth)
     async vote(
         @Arg('postId', () => Int) postId: number,
-        @Arg('value', () => Int) value: number,
+        @Arg('value', () => Int, {
+            description: "The user can upvote, downvote, or unvote. (reset to 0)"
+        }) value: number,
         @Ctx() {req}: ApolloRedisContext
     ) {
-        const isUpvote = value !== -1;
-        const realValue = isUpvote ? 1 : -1;
-
         // @ts-ignore
         const {userId} = req.session;
 
-        // Insert upvote entry in a transaction together with the post update
-        // If one fails, both should fail
-        await getConnection().query(`
-            START TRANSACTION;
-            
-            insert into upvote ("userId", "postId", value)
-            values (${userId}, ${postId}, ${realValue});
-            
-            update post
-            set points = points + ${realValue}
-            where id = ${postId};
-            
-            COMMIT;
-        `);
+        const isUpvote = value !== -1;
+        const realValue = isUpvote ? 1 : -1;
 
+        const upvote = await Upvote.findOne({where: {postId, userId}});
+        console.log("Sent value: real value: ", realValue);
+        console.log(upvote?.value)
+
+        if (upvote && upvote.value !== realValue) {
+            // the user has voted on the post before and they're changing their vote-
+            await getConnection().transaction(async transactionManager => {
+                await transactionManager.query(SQL_QUERY_UPDATE_UPVOTE, [realValue, postId, userId])
+                await transactionManager.query(SQL_QUERY_UPDATE_POST_POINTS, [realValue, postId])
+            });
+        } else if (!upvote) {
+            // has never vote before
+            await getConnection().transaction(async transactionManager => {
+                await transactionManager.query(SQL_QUERY_INSERT_NEW_UPVOTE, [userId, postId, realValue]);
+                await transactionManager.query(SQL_QUERY_UPDATE_POST_POINTS, [realValue, postId])
+            });
+        }
         return true;
 
     }
@@ -69,21 +80,7 @@ export class PostResolver {
         if (cursor) {
             replacements.push(new Date(parseInt(cursor)))
         }
-        const posts = await getConnection().query(
-            `select p.*, 
-            json_build_object(
-                'id',u.id,
-                'username',u.username,
-                'email',u.email,
-                'createdAt', u."createdAt",
-                'updatedAt', u."updatedAt"
-            ) creator
-            from post p
-            inner join public.user u on u.id = p."creatorId"
-            ${cursor ? `where p."createdAt" < $2` : ''}
-            order by p."createdAt" DESC
-            limit $1
-            `, replacements);
+        const posts = await getConnection().query(SQL_QUERY_SELECT_PAGINATED_POSTS(cursor), replacements);
         return {
             paginatedPosts: posts.slice(0, realLimit), // return only the requested posts
             morePostsAvailable: posts.length === (realLimit + 1) // DB has more posts than requested
@@ -103,6 +100,9 @@ export class PostResolver {
         @Arg('options') createPostInputs: CreatePostInputs,
         @Ctx() {req}: ApolloRedisContext
     ): Promise<PostResponse> {
+        // @ts-ignore
+        const {userId} = req.session;
+
         const inputErrors: FieldError[] = validateCreatePostInputs(createPostInputs);
         if (inputErrors.length > 0) {
             return {errors: inputErrors}
@@ -110,8 +110,7 @@ export class PostResolver {
         const postPromise = await Post
             .create({
                 ...createPostInputs,
-                // @ts-ignore
-                creatorId: req.session.userId,
+                creatorId: userId,
             }).save();
         return {post: postPromise};
     }
