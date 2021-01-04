@@ -10,6 +10,8 @@ import {
 } from "typeorm";
 import {Post} from "./Post";
 import {Upvote} from "./Upvote";
+import {Winery} from "./Winery";
+import {WineEvent} from "./WineEvent";
 
 @ObjectType()
 @Entity()
@@ -31,6 +33,16 @@ export class User extends BaseEntity {
     // No field() annotation so no queriable by graphql
     @Column({unique: true})
     password!: string;
+
+    @Column({default: false}) //False: Visitor, True: Owner
+    visitorOrOwner!: boolean;
+
+    // User owns multiple wineries.
+    @OneToMany(() => Winery, winery => winery.creator)
+    winery: Winery[];
+
+    @OneToMany(() => WineEvent, wineEvent => wineEvent.user)
+    wineEvent: WineEvent[];
 
     // User create multiple posts.
     @OneToMany(() => Post, post => post.creator)
