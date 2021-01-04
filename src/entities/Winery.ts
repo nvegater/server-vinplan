@@ -15,7 +15,7 @@ export class Winery extends BaseEntity {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @Column()
+    @Column({unique: true})
     name!: string;
 
     @Column()
@@ -27,6 +27,9 @@ export class Winery extends BaseEntity {
     // Winery posts multiple wineEvents. Each wineEvent done by user.
     @OneToMany(() => WineEvent, wineEvent => wineEvent.winery)
     wineEvent: WineEvent[];
+
+    @Column()
+    googleMapsUrl: string;
 
     //FK
     @Column()

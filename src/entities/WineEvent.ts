@@ -23,6 +23,12 @@ export class WineEvent extends BaseEntity {
     description!: string;
 
     @Column()
+    duration: Date;
+
+    @Column({type: "float"})
+    pricePerPersonInDollars: number;
+
+    @Column()
     startDate: Date;
 
     @Column()
