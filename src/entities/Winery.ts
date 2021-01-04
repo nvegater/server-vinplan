@@ -38,7 +38,7 @@ export class Winery extends BaseEntity {
     @ManyToOne(() => User, user => user.winery)
     creator: User;
 
-    @OneToMany(() => Service, service => service.offeredBy)
+    @OneToMany(() => Service, service => service.winery)
     services: Service[];
 
     @CreateDateColumn()

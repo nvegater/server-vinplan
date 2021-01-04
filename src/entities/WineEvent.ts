@@ -1,43 +1,36 @@
 import {
     BaseEntity, Column,
     Entity,
-    ManyToOne, PrimaryColumn,
+    ManyToOne, PrimaryGeneratedColumn,
 } from "typeorm";
 import {Winery} from "./Winery";
-import {User} from "./User";
-
-// user <--- join table ---> wineries
-// user <--- wineEvents ---> wineries
-
 
 @Entity()
 export class WineEvent extends BaseEntity {
 
-    @PrimaryColumn()
-    userId: number;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
-    @PrimaryColumn()
+    @Column()
     wineryId: number;
+
+    @ManyToOne(() => Winery, (winery)=> winery.wineEvent)
+    winery: Winery;
 
     @Column()
     description!: string;
 
-    @Column()
-    duration: Date;
+    @Column({nullable:false})
+    duration: number;
 
     @Column({type: "float"})
     pricePerPersonInDollars: number;
 
-    @Column()
+    @Column({nullable:true})
     startDate: Date;
 
-    @Column()
+    @Column({nullable:true})
     endDate: Date;
 
-    @ManyToOne(() => User, (user) => user.wineEvent)
-    user: User;
-
-    @ManyToOne(() => Winery, (winery)=> winery.wineEvent)
-    winery: Winery;
 
 }

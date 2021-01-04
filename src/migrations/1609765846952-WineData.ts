@@ -18,21 +18,21 @@ export class WineData1609765846952 implements MigrationInterface {
                                                                                   1,
                                                                                   'https://goo.gl/maps/j8zpSM1GJDAaEr5v7'
                                                                                   );
-        insert into service (id, name, description, "offeredById") values (1, 
+        insert into service (id, name, description, "wineryId") values (1, 
                                                                            'Degustación', 
                                                                            'Degustación de 5 vinos',
                                                                            3);
 
-       insert into service (id, name, description, "offeredById") values (2, 
+       insert into service (id, name, description, "wineryId") values (2, 
                                                                            'Comida', 
                                                                            'Comida de Temporada (sujeto a disponibilidad)',
                                                                            3);
 
-       insert into service (id, name, description, "offeredById") values (3, 
+       insert into service (id, name, description, "wineryId") values (3, 
                                                                            'Recorrido con degustación', 
                                                                            'Recorrido en la bodega con degustación de vinos Santos Brujos',
                                                                            1);
-        insert into service (id, name, description, "offeredById") values (4, 
+        insert into service (id, name, description, "wineryId") values (4, 
                                                                            'Degustación de vinos', 
                                                                            'Degustación básica',
                                                                            2);

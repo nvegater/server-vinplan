@@ -21,7 +21,7 @@ export class Service extends BaseEntity {
     description!: string;
 
     @ManyToOne(() => Winery, (winery) => winery.services)
-    offeredBy: Winery;
+    winery: Winery;
 
     @CreateDateColumn()
     createdAt: Date;
