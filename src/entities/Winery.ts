@@ -31,6 +31,9 @@ export class Winery extends BaseEntity {
     @Column()
     googleMapsUrl: string;
 
+    @Column({nullable: true})
+    yearlyWineProduction: number;
+
     //FK
     @Column()
     creatorId: number;
