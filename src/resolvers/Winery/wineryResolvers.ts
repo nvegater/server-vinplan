@@ -7,7 +7,7 @@ import {Winery} from "../../entities/Winery";
 export class WineryResolver {
     @Query(() => WineryResponse)
     async allWineries(): Promise<WineryResponse> {
-        const wineryDB = await Winery.findOne();
+        const wineryDB = await Winery.findOne({relations: ["wineEvent"]});
         if (wineryDB !== undefined) {
             return {winery: [wineryDB]};
         } else {

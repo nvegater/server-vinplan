@@ -8,7 +8,7 @@ export class WineEventResolver {
 
     @Query(() => WineEventResponse)
     async allWineEvents(): Promise<WineEventResponse> {
-        const wineEventDB = await WineEvent.findOne();
+        const wineEventDB = await WineEvent.findOne({relations: ["winery"]});
         if (wineEventDB !== undefined) {
             return {wineEvents: [wineEventDB]};
         } else {
