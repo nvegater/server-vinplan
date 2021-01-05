@@ -12,8 +12,9 @@ export class EventData1609768943539 implements MigrationInterface {
                                 description, 
                                 "startDate",
                                 "startTime",
-                                "endTime"
-                                ) 
+                                "endTime",
+                                event_type
+        ) 
         VALUES (
                 1,
                 0, 
@@ -22,7 +23,8 @@ export class EventData1609768943539 implements MigrationInterface {
                 'Recorrido en la bodega con degustación de vinos Santos Brujos',
                 '2021-03-01',
                 '2021-03-01 16:00:00',
-                '2021-03-01 18:00:00'
+                '2021-03-01 18:00:00',
+                'Degustación'
                 );
 
         insert into wine_event (
@@ -33,7 +35,8 @@ export class EventData1609768943539 implements MigrationInterface {
             description,
             "startDate",
             "startTime",
-            "endTime"
+            "endTime",
+            event_type
         )
         VALUES (
                    2,
@@ -43,7 +46,8 @@ export class EventData1609768943539 implements MigrationInterface {
                    'Degustación básica $120.00 (2 vinos) duración 30mins ',
                    '2021-03-01',
                    '2021-03-02 15:00:00',
-                   '2021-03-02 15:30:00'
+                   '2021-03-02 15:30:00',
+                   'Degustación'
                );
 
     insert into wine_event (
@@ -54,7 +58,8 @@ export class EventData1609768943539 implements MigrationInterface {
             description,
             "startDate",
             "startTime",
-            "endTime"
+            "endTime",
+            event_type
         )
         VALUES (
                    3,
@@ -64,7 +69,8 @@ export class EventData1609768943539 implements MigrationInterface {
                    'Degustación de 5 vinos $250 (duración 1 hora)',
                    '2021-03-02',
                    '2021-03-02 15:00:00',
-                   '2021-03-02 15:30:00'
+                   '2021-03-02 15:30:00',
+                   'Degustación'
                );
 
 insert into wine_event (
@@ -75,8 +81,9 @@ insert into wine_event (
             description,
             "startDate",
             "startTime",
-            "endTime"
-        )
+            "endTime",
+            event_type
+)
         VALUES (
                    3,
                    250,
@@ -85,7 +92,8 @@ insert into wine_event (
                    'Comida de Temporada $550 (sujeto a disponibilidad)',
                    '2021-03-03',
                    '2021-03-03 15:00:00',
-                   '2021-03-03 15:30:00'
+                   '2021-03-03 15:30:00',
+                   'Comida/Cena Maridaje'
                );
         `)
     }

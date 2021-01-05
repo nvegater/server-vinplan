@@ -8,7 +8,6 @@ import {
 } from "typeorm";
 import {WineEvent} from "./WineEvent";
 import {User} from "./User";
-import {Service} from "./Service";
 import {Field, Int, ObjectType} from "type-graphql";
 
 @ObjectType()
@@ -44,9 +43,6 @@ export class Winery extends BaseEntity {
 
     @ManyToOne(() => User, user => user.winery)
     creator: User;
-
-    @OneToMany(() => Service, service => service.winery)
-    services: Service[];
 
     @CreateDateColumn()
     createdAt: Date;

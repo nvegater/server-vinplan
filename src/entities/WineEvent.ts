@@ -7,6 +7,12 @@ import {Winery} from "./Winery";
 import {Length} from "class-validator";
 import {Field, Int, ObjectType} from "type-graphql";
 
+export enum EventType {
+    COMIDA_CENA_MARIDAJE="Comida/Cena Maridaje",
+    DEGUSTACION="Degustación",
+    CONCIERTO="Concierto"
+}
+
 @ObjectType()
 @Entity()
 export class WineEvent extends BaseEntity {
@@ -22,6 +28,10 @@ export class WineEvent extends BaseEntity {
     @Length(255)
     @Column({ length: 255 })
     description!: string;
+
+    @Column('enum', { name: 'event_type', enum: EventType})
+    eventType: string;
+
 
     @Column()
     startDate!: Date;
