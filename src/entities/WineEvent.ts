@@ -5,10 +5,13 @@ import {
 } from "typeorm";
 import {Winery} from "./Winery";
 import {Length} from "class-validator";
+import {Field, Int, ObjectType} from "type-graphql";
 
+@ObjectType()
 @Entity()
 export class WineEvent extends BaseEntity {
 
+    @Field(() => Int)
     @PrimaryGeneratedColumn()
     id!: number;
 

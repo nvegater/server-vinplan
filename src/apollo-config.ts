@@ -8,6 +8,8 @@ import {Redis as RedisType, Redis} from "ioredis";
 import {ContextFunction} from "apollo-server-core";
 import {Express, Request, Response} from "express";
 import {ServerRegistration} from "apollo-server-express/src/ApolloServer";
+import {WineryResolver} from "./resolvers/Winery/wineryResolvers";
+import {WineEventResolver} from "./resolvers/WineEvent/wineEventResolvers";
 
 const registerServer = (app: Express) => ({
     app, // Http -express server
@@ -23,7 +25,9 @@ const buildSchemas = async () => {
         NonEmptyArray<Function> =
         [
             PostResolver,
-            UserResolver
+            UserResolver,
+            WineryResolver,
+            WineEventResolver
         ];
 
     return await buildSchema({

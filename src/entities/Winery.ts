@@ -9,9 +9,13 @@ import {
 import {WineEvent} from "./WineEvent";
 import {User} from "./User";
 import {Service} from "./Service";
+import {Field, Int, ObjectType} from "type-graphql";
 
+@ObjectType()
 @Entity()
 export class Winery extends BaseEntity {
+
+    @Field(() => Int)
     @PrimaryGeneratedColumn()
     id!: number;
 
