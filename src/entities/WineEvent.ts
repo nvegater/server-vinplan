@@ -32,8 +32,8 @@ export class WineEvent extends BaseEntity {
     description!: string;
 
     @Field(() => String)
-    @Column('enum', { name: 'event_type', enum: EventType})
-    eventType: string;
+    @Column('enum', { name: 'eventType', enum: EventType})
+    eventType: EventType;
 
     @Field(() => String)
     @Column()

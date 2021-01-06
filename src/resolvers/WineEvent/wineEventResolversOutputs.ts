@@ -7,5 +7,7 @@ export class WineEventResponse {
     @Field(() => [FieldError], {nullable: true})
     errors?: FieldError[]
     @Field(() => [WineEvent], {nullable: true})
-    wineEvents?: WineEvent[]
+    paginatedEvents?: WineEvent[]
+    @Field()
+    moreEventsAvailable: boolean;
 }
