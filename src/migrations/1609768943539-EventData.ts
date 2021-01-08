@@ -13,7 +13,7 @@ export class EventData1609768943539 implements MigrationInterface {
                                 "startDate",
                                 "startTime",
                                 "endTime",
-                                event_type
+                                "eventType"
         ) 
         VALUES (
                 1,
@@ -36,7 +36,7 @@ export class EventData1609768943539 implements MigrationInterface {
             "startDate",
             "startTime",
             "endTime",
-            event_type
+            "eventType"
         )
         VALUES (
                    2,
@@ -59,7 +59,7 @@ export class EventData1609768943539 implements MigrationInterface {
             "startDate",
             "startTime",
             "endTime",
-            event_type
+            "eventType"
         )
         VALUES (
                    3,
@@ -82,7 +82,7 @@ insert into wine_event (
             "startDate",
             "startTime",
             "endTime",
-            event_type
+            "eventType"
 )
         VALUES (
                    3,

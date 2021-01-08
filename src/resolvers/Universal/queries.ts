@@ -92,7 +92,7 @@ export const SQL_QUERY_SELECT_WINE_EVENTS_WITH_WINERY = `
                ) winery
     from wine_event we
              inner join public.winery w on w.id = we."wineryId"
-    order by we."startTime" DESC
+    order by we."startDate" DESC 
     limit $1
 `;
 

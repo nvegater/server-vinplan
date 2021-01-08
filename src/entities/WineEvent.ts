@@ -36,13 +36,13 @@ export class WineEvent extends BaseEntity {
     eventType: EventType;
 
     @Field(() => String)
-    @Column()
+    @Column({ type: "date" })
     startDate!: Date;
 
 
     @Field(() => String,{nullable:true})
-    @Column({nullable:true})
-    endDate: Date; // Not needed for recurrent events
+    @Column({type: "date", nullable:true})
+    endDate: Date;
 
     @Field(() => String)
     @Column("timestamp")
