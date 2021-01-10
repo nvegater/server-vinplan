@@ -1,6 +1,20 @@
-import {Field, InputType} from "type-graphql";
+import {Field, InputType, registerEnumType} from "type-graphql";
 import {FieldError} from "./userResolversOutputs";
 import userResolversErrors from "./userResolversErrors";
+
+
+const USER_TYPE_DESCRIPTION = "Al registrarse los visitantes seleccionan una de las siguientes categorias" +
+    "Distinciones virtuales para afinar sugerencias y para proporcionar la informacion a la vinicola"
+
+export enum UserType {
+    TURISTA = "Turista",
+    ENOTURISTA = "Enoturista",
+    PROFESIONAL = "Profesional",
+    EMPRESARIAL = "Empresarial",
+    INTERMEDIARIO = "Intermediario"
+}
+
+registerEnumType(UserType, {name: "UserType", description: USER_TYPE_DESCRIPTION});
 
 @InputType()
 export class RegisterInputs {
@@ -10,6 +24,8 @@ export class RegisterInputs {
     email: string
     @Field()
     password: string
+    @Field(() => UserType)
+    userType: UserType
 }
 
 @InputType()
@@ -27,6 +43,7 @@ export class ChangePasswordInputs {
     @Field()
     token: string
 }
+
 export const validateInputsLogin = (inputs: LoginInputs): FieldError[] => {
     let inputErrors: FieldError[] = [];
     const USERNAME_OR_EMAIL_GIVEN = inputs.usernameOrEmail.length > 0;
@@ -53,7 +70,7 @@ export const validateInputsChangePassword = (inputs: ChangePasswordInputs): Fiel
     }
     return inputErrors;
 }
-export const validateEmail = (email:string): FieldError[] => {
+export const validateEmail = (email: string): FieldError[] => {
     let inputErrors: FieldError[] = [];
     const EMAIL_GIVEN = email.length > 0;
     if (!EMAIL_GIVEN) {
@@ -100,5 +117,10 @@ export const validateInputsRegister = (inputs: RegisterInputs): FieldError[] => 
             inputErrors.push(userResolversErrors.passwordTooShortInputError)
         }
     }
+    const VALID_ENUM = Object.values(UserType).includes(inputs.userType);
+    if (!VALID_ENUM){
+        inputErrors.push(userResolversErrors.invalidUserTypeInputError)
+    }
+    console.log(inputErrors, inputs.userType)
     return inputErrors;
 }

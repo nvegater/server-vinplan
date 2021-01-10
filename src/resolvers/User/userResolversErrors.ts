@@ -5,7 +5,8 @@ enum Fields {
     password = "password",
     usernameOrEmail = "usernameOrEmail",
     token = "token",
-    newPassword = "newPassword"
+    newPassword = "newPassword",
+    userType = "userType"
 }
 
 // User input dependant userResolversErrors
@@ -40,6 +41,11 @@ const passwordTooShortInputError: FieldError = {
 const passwordMissingInputError: FieldError = {
     field: Fields.password,
     message: "password missing" // Dont give the reason of bad password
+}
+
+const invalidUserTypeInputError: FieldError = {
+    field: Fields.userType,
+    message: "invalid User Type" // Dont give the reason of bad password
 }
 
 const newPasswordMissingInputError: FieldError = {
@@ -93,6 +99,7 @@ const userResolversErrors = {
     passwordMissingInputError,
     newPasswordMissingInputError,
     newPasswordTooShortInputError,
+    invalidUserTypeInputError,
     invalidCredentials,
     usernameInUseError,
     emailInUseError,

@@ -70,7 +70,8 @@ export class UserResolver {
                 const user = User.create({
                     username: registerInputs.username,
                     email: registerInputs.email,
-                    password: await argon2.hash(registerInputs.password)
+                    password: await argon2.hash(registerInputs.password),
+                    userType: registerInputs.userType
                 });
                 await user.save();
 

@@ -11,6 +11,7 @@ import {
 import {Post} from "./Post";
 import {Upvote} from "./Upvote";
 import {Winery} from "./Winery";
+import {UserType} from "../resolvers/User/userResolversInputs";
 
 @ObjectType()
 @Entity()
@@ -47,6 +48,10 @@ export class User extends BaseEntity {
     // User upvote many posts
     @OneToMany(() => Upvote, upvote => upvote.user)
     upvotes: Upvote[];
+
+    @Field(() => UserType)
+    @Column('enum', { name: 'userType', enum: UserType})
+    userType: UserType;
 
     @Field(() => String)
     @CreateDateColumn()
