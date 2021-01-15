@@ -158,10 +158,21 @@ export class PostResolver {
     }
 
     @Mutation(() => Boolean)
+    @UseMiddleware(isAuth)
     async deletePost(
-        @Arg('id', () => Int) id: number,
+        @Arg('id',()=>Int, {
+            description: "each user can delete a post they created if theyre logged in"
+        }) id: number, @Ctx() {req}:ApolloRedisContext
     ): Promise<boolean> {
-        await Post.delete(id)
+        // @ts-ignore
+        const {userId} = req.session;
+        const post = await Post.findOne(id)
+
+        if (post && userId !== post.creatorId){
+            throw new Error("Not authorized")
+        }
+
+        await Post.delete({id, creatorId: userId})
         return true;
     }
 }
