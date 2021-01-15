@@ -5,7 +5,7 @@ import {FieldError} from "../User/userResolversOutputs";
 import {ApolloRedisContext} from "../../apollo-config";
 import {PaginatedPosts, PostResponse} from "./postResolversOutputs";
 import {isAuth} from "../Universal/utils";
-import {getConnection} from "typeorm";
+import {getConnection, UpdateResult} from "typeorm";
 import {Upvote} from "../../entities/Upvote";
 import {
     SQL_QUERY_INSERT_NEW_UPVOTE,
@@ -49,7 +49,7 @@ export class PostResolver {
             // the user has voted on the post before and they're changing their vote-
             await getConnection().transaction(async transactionManager => {
                 await transactionManager.query(SQL_QUERY_UPDATE_UPVOTE, [realValue, postId, userId])
-                await transactionManager.query(SQL_QUERY_UPDATE_POST_POINTS, [2*realValue, postId])
+                await transactionManager.query(SQL_QUERY_UPDATE_POST_POINTS, [2 * realValue, postId])
             });
         } else if (!upvote) {
             // has never vote before
@@ -143,32 +143,37 @@ export class PostResolver {
     }
 
     @Mutation(() => Post, {nullable: true})
+    @UseMiddleware(isAuth)
     async updatePost(
         @Arg('id', () => Int) id: number,
-        @Arg('title', () => String, {nullable: true}) title: string,
+        @Arg('title', () => String) title: string,
+        @Arg('text', () => String) text: string,
+        @Ctx() {req}: ApolloRedisContext
     ): Promise<Post | null> {
-        const post = await Post.findOne(id) // or {where:id}
-        if (!post) {
-            return null
-        }
-        if (typeof title !== "undefined") {
-            await Post.update({id}, {title})
-        }
-        return post;
+        // @ts-ignore
+        const {userId} = req.session;
+        const updateProccessObject:UpdateResult = await getConnection()
+            .createQueryBuilder()
+            .update(Post)
+            .set({title,text})
+            .where('id = :id and "creatorId" = :creatorId', {id, creatorId:userId})
+            .returning("*")
+            .execute();
+        return updateProccessObject.raw[0] as Post
     }
 
     @Mutation(() => Boolean)
     @UseMiddleware(isAuth)
     async deletePost(
-        @Arg('id',()=>Int, {
+        @Arg('id', () => Int, {
             description: "each user can delete a post they created if theyre logged in"
-        }) id: number, @Ctx() {req}:ApolloRedisContext
+        }) id: number, @Ctx() {req}: ApolloRedisContext
     ): Promise<boolean> {
         // @ts-ignore
         const {userId} = req.session;
         const post = await Post.findOne(id)
 
-        if (post && userId !== post.creatorId){
+        if (post && userId !== post.creatorId) {
             throw new Error("Not authorized")
         }
 
