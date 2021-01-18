@@ -42,8 +42,6 @@ export class PostResolver {
         const realValue = isUpvote ? 1 : -1;
 
         const upvote = await Upvote.findOne({where: {postId, userId}});
-        console.log("Sent value: real value: ", realValue);
-        console.log(upvote?.value)
 
         if (upvote && upvote.value !== realValue) {
             // the user has voted on the post before and they're changing their vote-

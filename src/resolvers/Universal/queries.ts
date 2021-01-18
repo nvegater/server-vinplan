@@ -16,6 +16,11 @@ export const SQL_QUERY_INSERT_NEW_UPVOTE = `
     values ($1, $2, $3)
 `;
 
+export const SQL_QUERY_INSERT_RESERVATION = `
+    insert into service_reservation ("serviceId", "userId")
+    values ($1, $2)
+`;
+
 export const SQL_QUERY_SELECT_PAGINATED_POSTS = `
     select p.*,
            json_build_object(
