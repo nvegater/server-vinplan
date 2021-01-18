@@ -1,13 +1,13 @@
 import {Field, ObjectType} from "type-graphql";
 import {FieldError} from "../User/userResolversOutputs";
-import {WineEvent} from "../../entities/WineEvent";
+import {Service} from "../../entities/Service";
 
 @ObjectType()
-export class WineEventResponse {
+export class ServiceResponse {
     @Field(() => [FieldError], {nullable: true})
     errors?: FieldError[]
-    @Field(() => [WineEvent], {nullable: true})
-    paginatedEvents?: WineEvent[]
+    @Field(() => [Service], {nullable: true})
+    paginatedServices?: Service[]
     @Field()
-    moreEventsAvailable: boolean;
+    moreServicesAvailable: boolean;
 }

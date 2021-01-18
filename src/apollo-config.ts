@@ -9,7 +9,7 @@ import {ContextFunction} from "apollo-server-core";
 import {Express, Request, Response} from "express";
 import {ServerRegistration} from "apollo-server-express/src/ApolloServer";
 import {WineryResolver} from "./resolvers/Winery/wineryResolvers";
-import {WineEventResolver} from "./resolvers/WineEvent/wineEventResolvers";
+import {ServiceResolver} from "./resolvers/Service/serviceResolvers";
 
 const registerServer = (app: Express) => ({
     app, // Http -express server
@@ -27,7 +27,7 @@ const buildSchemas = async () => {
             PostResolver,
             UserResolver,
             WineryResolver,
-            WineEventResolver
+            ServiceResolver
         ];
 
     return await buildSchema({

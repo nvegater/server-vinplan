@@ -16,7 +16,7 @@ export enum EventType {
 
 @ObjectType()
 @Entity()
-export class WineEvent extends BaseEntity {
+export class Service extends BaseEntity {
 
     @Field(() => Int)
     @PrimaryGeneratedColumn()
@@ -57,7 +57,7 @@ export class WineEvent extends BaseEntity {
     wineryId!: number;
 
     @Field(()=>Winery)
-    @ManyToOne(() => Winery, (winery)=> winery.wineEvent)
+    @ManyToOne(() => Winery, (winery)=> winery.services)
     winery!: Winery;
 
     @Field(() => Int)

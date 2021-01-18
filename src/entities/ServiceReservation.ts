@@ -1,6 +1,6 @@
 import {BaseEntity, Entity, ManyToOne, PrimaryColumn} from "typeorm";
 import {User} from "./User";
-import {WineEvent} from "./WineEvent";
+import {Service} from "./Service";
 
 @Entity()
 export class ServiceReservation extends BaseEntity {
@@ -9,13 +9,13 @@ export class ServiceReservation extends BaseEntity {
     userId: number;
 
     @PrimaryColumn()
-    eventId: number;
+    serviceId: number;
 
     @ManyToOne(() => User, (user) => user.reservedServices)
     user: User;
 
-    @ManyToOne(() => WineEvent, (wineEvent)=> wineEvent.reservations, {
+    @ManyToOne(() => Service, (service)=> service.reservations, {
         onDelete: "CASCADE"
     })
-    service: WineEvent;
+    service: Service;
 }

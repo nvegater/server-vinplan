@@ -6,7 +6,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
-import {WineEvent} from "./WineEvent";
+import {Service} from "./Service";
 import {User} from "./User";
 import {Field, Int, ObjectType} from "type-graphql";
 
@@ -31,9 +31,9 @@ export class Winery extends BaseEntity {
     foundationYear: number;
 
     // Winery posts multiple wineEvents. Each wineEvent done by user.
-    @Field(()=>[WineEvent])
-    @OneToMany(() => WineEvent, wineEvent => wineEvent.winery)
-    wineEvent: WineEvent[];
+    @Field(()=>[Service])
+    @OneToMany(() => Service, service => service.winery)
+    services: Service[];
 
     @Field(() => String)
     @Column()

@@ -4,7 +4,7 @@ export class EventData1609768943539 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         queryRunner.query(`
-        insert into wine_event (
+        insert into service (
                                 "wineryId", 
                                 "pricePerPersonInDollars",
                                 duration,
@@ -27,7 +27,7 @@ export class EventData1609768943539 implements MigrationInterface {
                 'Degustación'
                 );
 
-        insert into wine_event (
+        insert into service (
             "wineryId",
             "pricePerPersonInDollars",
             duration,
@@ -50,7 +50,7 @@ export class EventData1609768943539 implements MigrationInterface {
                    'Degustación'
                );
 
-    insert into wine_event (
+    insert into service (
             "wineryId",
             "pricePerPersonInDollars",
             duration,
@@ -73,7 +73,7 @@ export class EventData1609768943539 implements MigrationInterface {
                    'Degustación'
                );
 
-insert into wine_event (
+insert into service (
             "wineryId",
             "pricePerPersonInDollars",
             duration,

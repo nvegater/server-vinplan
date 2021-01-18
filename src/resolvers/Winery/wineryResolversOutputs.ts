@@ -1,7 +1,7 @@
 import {Field, ObjectType} from "type-graphql";
 import {FieldError} from "../User/userResolversOutputs";
 import {Winery} from "../../entities/Winery";
-import {WineEvent} from "../../entities/WineEvent";
+import {Service} from "../../entities/Service";
 
 @ObjectType()
 export class WineriesResponse {
@@ -14,11 +14,11 @@ export class WineriesResponse {
 }
 
 @ObjectType()
-export class WineryEventsResponse {
+export class WineryServicesResponse {
     @Field(() => [FieldError], {nullable: true})
     errors?: FieldError[]
     @Field(() => Winery)
     winery?: Winery;
-    @Field(()=>[WineEvent])
-    events?: WineEvent[];
+    @Field(()=>[Service])
+    services?: Service[];
 }

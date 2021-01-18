@@ -84,15 +84,15 @@ export const SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR_USER_LOGGED_IN = `
     limit $1
 `;
 
-export const SQL_QUERY_SELECT_WINE_EVENTS_WITH_WINERY = `
-    select we.*,
+export const SQL_QUERY_SELECT_SERVICES_WITH_WINERY = `
+    select ser.*,
            json_build_object(
                    'id', w.id,
                    'name', w.name
                ) winery
-    from wine_event we
-             inner join public.winery w on w.id = we."wineryId"
-    order by we."startDate" DESC 
+    from service ser
+             inner join public.winery w on w.id = ser."wineryId"
+    order by ser."startDate" DESC 
     limit $1
 `;
 

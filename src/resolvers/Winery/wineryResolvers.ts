@@ -1,10 +1,10 @@
 import {Arg, Int, Query, Resolver} from "type-graphql";
 import {FieldError} from "../User/userResolversOutputs";
-import {WineriesResponse, WineryEventsResponse} from "./wineryResolversOutputs";
+import {WineriesResponse, WineryServicesResponse} from "./wineryResolversOutputs";
 import {Winery} from "../../entities/Winery";
 import {getConnection} from "typeorm";
 import {SQL_QUERY_SELECT_WINERIES} from "../Universal/queries";
-import {WineEvent} from "../../entities/WineEvent";
+import {Service} from "../../entities/Service";
 
 @Resolver(Winery)
 export class WineryResolver {
@@ -36,23 +36,23 @@ export class WineryResolver {
         }
     }
 
-    @Query(() => WineryEventsResponse)
-    async wineryEvents(
+    @Query(() => WineryServicesResponse)
+    async wineryServices(
         @Arg('wineryId', () => Int) wineryId: number
-    ): Promise<WineryEventsResponse> {
+    ): Promise<WineryServicesResponse> {
 
-        const wineryWithEvents = await WineEvent.find({where: {wineryId:wineryId}})
+        const wineryWithServices = await Service.find({where: {wineryId:wineryId}})
         const winery = await Winery.findOne(wineryId);
 
-        if (wineryWithEvents && winery) {
+        if (wineryWithServices && winery) {
             return {
                 winery: winery,
-                events: wineryWithEvents
+                services: wineryWithServices
             }
         } else {
             const fieldError: FieldError = {
-                field: "Winery with events",
-                message: "Not events found for this winery"
+                field: "Winery with services",
+                message: "Not services found for this winery"
             }
             return {
                 errors: [fieldError]

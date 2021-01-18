@@ -3,7 +3,7 @@ import {User} from "./entities/User";
 import {Upvote} from "./entities/Upvote";
 import {ConnectionOptions} from "typeorm";
 import path from "path";
-import {WineEvent} from "./entities/WineEvent";
+import {Service} from "./entities/Service";
 import {Winery} from "./entities/Winery";
 import {ServiceReservation} from "./entities/ServiceReservation";
 
@@ -14,5 +14,5 @@ export default {
     logging: true, // log SQL
     synchronize: true,
     migrations: [path.join(__dirname, "./migrations/*")],
-    entities: [Post, User, Upvote, WineEvent, Winery,ServiceReservation]
+    entities: [Post, User, Upvote, Service, Winery,ServiceReservation]
 } as ConnectionOptions
