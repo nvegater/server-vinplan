@@ -121,6 +121,12 @@ export class UserResolver {
 
                 // @ts-ignore
                 req.session.userId = user.id;
+                const reservedServicesIds = await getConnection()
+                    .query(SQL_QUERY_GET_RESERVED_SERVICES_IDS, [user.id]);
+
+                if (reservedServicesIds[0].reservedServicesIds.length > 0 && user) {
+                    user.reservedServicesIds = reservedServicesIds[0].reservedServicesIds as number[];
+                }
 
                 return {user: user}
             }

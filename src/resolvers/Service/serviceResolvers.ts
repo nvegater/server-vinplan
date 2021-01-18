@@ -40,6 +40,30 @@ export class ServiceResolver {
         }
     };
 
+    @Query(() => ServiceResponse)
+    @UseMiddleware(isAuth)
+    async servicesUser(
+        @Arg('serviceIds', ()=>[Int]) serviceIds: number[]
+    ): Promise<ServiceResponse> {
+
+        const paginatedServicesDB = await Service.findByIds(serviceIds,{relations: ["winery"]})
+        if (paginatedServicesDB !== undefined) {
+            return {
+                paginatedServices: paginatedServicesDB,
+                moreServicesAvailable: false // DB has more posts than requested
+            };
+        } else {
+            const fieldError: FieldError = {
+                field: "allServices",
+                message: "All allServices finding returns undefined"
+            }
+            return {
+                errors: [fieldError],
+                moreServicesAvailable: false
+            }
+        }
+    };
+
     @Mutation(() => Boolean)
     @UseMiddleware(isAuth)
     async reserve(
