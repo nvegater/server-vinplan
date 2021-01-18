@@ -53,6 +53,9 @@ export class User extends BaseEntity {
     @OneToMany(() => ServiceReservation, serviceReservation => serviceReservation.user)
     reservedServices: ServiceReservation[];
 
+    @Field(()=>[Int], {nullable: true})
+    reservedServicesIds: number[] | null;
+
     @Field(() => UserType)
     @Column('enum', { name: 'userType', enum: UserType})
     userType: UserType;

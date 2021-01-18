@@ -18,6 +18,8 @@ import {sendEmail} from "../../utils/sendEmail";
 import {FORGET_PASSWORD_PREFIX} from "../../constants";
 import userResolversErrors from "./userResolversErrors";
 import {isAuth} from "../Universal/utils";
+import {getConnection} from "typeorm";
+import {SQL_QUERY_GET_RESERVED_SERVICES_IDS} from "../Universal/queries";
 
 
 @Resolver(User)
@@ -31,7 +33,7 @@ export class UserResolver {
     ) {
         // this is the current user and its okay to show them their own email
         // @ts-ignore
-        if (req.session.userId === user.id){
+        if (req.session.userId === user.id) {
             return user.email;
         }
         // current user wants to see someone elses email
@@ -46,7 +48,17 @@ export class UserResolver {
         // @ts-ignore
         const userIdFromSession = req.session.userId;
 
-        return {user: await User.findOne(userIdFromSession)};
+        const userDB = await User.findOne(userIdFromSession);
+        const reservedServicesIds = await getConnection()
+                .query(SQL_QUERY_GET_RESERVED_SERVICES_IDS, [userIdFromSession])
+
+        if (reservedServicesIds[0].reservedServicesIds.length > 0 && userDB) {
+            userDB.reservedServicesIds = reservedServicesIds[0].reservedServicesIds as number[];
+        }
+
+        return {user: userDB};
+
+
     }
 
     @Mutation(() => UserResponse)
