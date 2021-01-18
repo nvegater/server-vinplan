@@ -12,6 +12,7 @@ import {Post} from "./Post";
 import {Upvote} from "./Upvote";
 import {Winery} from "./Winery";
 import {UserType} from "../resolvers/User/userResolversInputs";
+import {ServiceReservation} from "./ServiceReservation";
 
 @ObjectType()
 @Entity()
@@ -48,6 +49,9 @@ export class User extends BaseEntity {
     // User upvote many posts
     @OneToMany(() => Upvote, upvote => upvote.user)
     upvotes: Upvote[];
+
+    @OneToMany(() => ServiceReservation, serviceReservation => serviceReservation.user)
+    reservedServices: ServiceReservation[];
 
     @Field(() => UserType)
     @Column('enum', { name: 'userType', enum: UserType})

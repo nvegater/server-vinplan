@@ -1,11 +1,12 @@
 import {
     BaseEntity, Column, CreateDateColumn,
     Entity,
-    ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn,
+    ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn,
 } from "typeorm";
 import {Winery} from "./Winery";
 import {Length} from "class-validator";
 import {Field, Float, Int, ObjectType} from "type-graphql";
+import {ServiceReservation} from "./ServiceReservation";
 
 export enum EventType {
     COMIDA_CENA_MARIDAJE="Comida/Cena Maridaje",
@@ -66,6 +67,10 @@ export class WineEvent extends BaseEntity {
     @Field(() => Float)
     @Column({type: "float"})
     pricePerPersonInDollars: number;
+
+    // Service receives multiple reservations. Each reservation done by user.
+    @OneToMany(() => ServiceReservation, serviceReservation => serviceReservation.service)
+    reservations: ServiceReservation[];
 
     @Field(() => String)
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
