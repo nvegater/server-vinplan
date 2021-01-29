@@ -1,7 +1,6 @@
 import {Field, InputType, Int, registerEnumType} from "type-graphql";
 import {FieldError} from "./userResolversOutputs";
 import userResolversErrors from "./userResolversErrors";
-import {EventType} from "../../entities/Service";
 
 
 const USER_TYPE_DESCRIPTION = "Al registrarse los visitantes seleccionan una de las siguientes categorias" +
@@ -33,14 +32,11 @@ export class RegisterInputs {
 @InputType()
 export class WineryDataInputs {
     @Field()
-    name: string;
+    name!: string;
     @Field()
     description!: string;
-
-    @Field(() => [String]) // Treat Input enums as strings and validate that theyre enums later
-    eventType: EventType[];
     @Field(() => Int,{nullable:true})
-    yearlyWineProduction: number;
+    yearlyWineProduction?: number;
     // During the creation of the winery, the creator id and user is set after.
     @Field(() => Int, {nullable: true})
     foundationYear?: number;
