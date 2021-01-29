@@ -1,6 +1,7 @@
-import {Field, InputType, registerEnumType} from "type-graphql";
+import {Field, InputType, Int, registerEnumType} from "type-graphql";
 import {FieldError} from "./userResolversOutputs";
 import userResolversErrors from "./userResolversErrors";
+import {EventType} from "../../entities/Service";
 
 
 const USER_TYPE_DESCRIPTION = "Al registrarse los visitantes seleccionan una de las siguientes categorias" +
@@ -11,7 +12,8 @@ export enum UserType {
     ENOTURISTA = "Enoturista",
     PROFESIONAL = "Profesional",
     EMPRESARIAL = "Empresarial",
-    INTERMEDIARIO = "Intermediario"
+    INTERMEDIARIO = "Intermediario",
+    WINERY_OWNER = "Winery_Owner"
 }
 
 registerEnumType(UserType, {name: "UserType", description: USER_TYPE_DESCRIPTION});
@@ -26,6 +28,24 @@ export class RegisterInputs {
     password: string
     @Field(() => UserType)
     userType: UserType
+}
+
+@InputType()
+export class WineryDataInputs {
+    @Field()
+    name: string;
+    @Field()
+    description!: string;
+
+    @Field(() => [String]) // Treat Input enums as strings and validate that theyre enums later
+    eventType: EventType[];
+    @Field(() => Int,{nullable:true})
+    yearlyWineProduction: number;
+    // During the creation of the winery, the creator id and user is set after.
+    @Field(() => Int, {nullable: true})
+    foundationYear?: number;
+    @Field(() => String, {nullable:true})
+    googleMapsUrl?: string;
 }
 
 @InputType()

@@ -27,16 +27,16 @@ export class Winery extends BaseEntity {
     description!: string;
 
     @Field(() => Int,{nullable: true})
-    @Column({type: "int"})
+    @Column({type: "int", nullable: true})
     foundationYear: number;
 
     // Winery posts multiple wineEvents. Each wineEvent done by user.
-    @Field(()=>[Service])
+    @Field(()=>[Service],{nullable: true})
     @OneToMany(() => Service, service => service.winery)
     services: Service[];
 
-    @Field(() => String)
-    @Column()
+    @Field(() => String,{nullable: true})
+    @Column({nullable: true})
     googleMapsUrl: string;
 
     @Field(() => Int,{nullable:true})

@@ -6,10 +6,12 @@ import {
     ChangePasswordInputs,
     LoginInputs,
     RegisterInputs,
+    UserType,
     validateEmail,
     validateInputsChangePassword,
     validateInputsLogin,
-    validateInputsRegister
+    validateInputsRegister,
+    WineryDataInputs
 } from "./userResolversInputs";
 import {SessionCookieName} from "../../redis-config";
 import {ApolloRedisContext} from "../../apollo-config";
@@ -20,6 +22,7 @@ import userResolversErrors from "./userResolversErrors";
 import {isAuth} from "../Universal/utils";
 import {getConnection} from "typeorm";
 import {SQL_QUERY_GET_RESERVED_SERVICES_IDS} from "../Universal/queries";
+import {Winery} from "../../entities/Winery";
 
 
 @Resolver(User)
@@ -50,7 +53,7 @@ export class UserResolver {
 
         const userDB = await User.findOne(userIdFromSession);
         const reservedServicesIds = await getConnection()
-                .query(SQL_QUERY_GET_RESERVED_SERVICES_IDS, [userIdFromSession])
+            .query(SQL_QUERY_GET_RESERVED_SERVICES_IDS, [userIdFromSession])
 
         if (reservedServicesIds[0].reservedServicesIds.length > 0 && userDB) {
             userDB.reservedServicesIds = reservedServicesIds[0].reservedServicesIds as number[];
@@ -91,6 +94,66 @@ export class UserResolver {
                 req.session.userId = user.id;
 
                 return {user: user}
+            }
+        }
+    }
+
+    @Mutation(() => UserResponse)
+    async registerWinery(
+        @Arg("options") registerInputs: RegisterInputs,
+        @Arg("wineryDataInputs") wineryDataInputs: WineryDataInputs,
+        @Ctx() {req}: ApolloRedisContext
+    ): Promise<UserResponse> {
+        // TODO registrate a winery with the current data
+        const inputErrors: FieldError[] = validateInputsRegister(registerInputs);
+        inputErrors.push(...validateInputsRegister(registerInputs)) // TODO add validateWineryDataInputs
+        if (inputErrors.length > 0) {
+            // Level 1: Simple input validation
+            return {errors: inputErrors}
+        }
+        const userWithUsernameExists: User | undefined = await User.findOne({where: {username: registerInputs.username}});
+        if (userWithUsernameExists) {
+            // Level 1
+            return {errors: inputErrors.concat(userResolversErrors.usernameInUseError)}
+        } else {
+            const userWithEmailExists: User | undefined = await User.findOne({where: {email: registerInputs.email}});
+            if (userWithEmailExists) {
+                // Level 2
+                return {errors: inputErrors.concat(userResolversErrors.emailInUseError)}
+            } else {
+                const wineryWithThatNameExists: Winery | undefined = await Winery.findOne({where: {name: wineryDataInputs.name}});
+                if (wineryWithThatNameExists) {
+                    // Level 3
+                    return {errors: inputErrors.concat(userResolversErrors.usernameInUseError)} // TODO add winery errors
+                } else {
+
+                    const user = User.create({
+                        username: registerInputs.username,
+                        email: registerInputs.email,
+                        password: await argon2.hash(registerInputs.password),
+                        visitorOrOwner: true, // From here, logic is different than normal registry
+                        userType: UserType.WINERY_OWNER,
+                    });
+                    await user.save();
+                    const creatorId = user.id;
+                    const winery = Winery.create({
+                            name: wineryDataInputs.name,
+                            description: wineryDataInputs.description,
+                            foundationYear: wineryDataInputs.foundationYear,
+                            googleMapsUrl: !!wineryDataInputs.googleMapsUrl? wineryDataInputs.googleMapsUrl:"",
+                            yearlyWineProduction: wineryDataInputs.yearlyWineProduction,
+                            creatorId: creatorId,
+                        }
+                    )
+                    await winery.save();
+
+
+                    // @ts-ignore
+                    req.session.userId = user.id;
+
+
+                    return {user: user}
+                }
             }
         }
     }

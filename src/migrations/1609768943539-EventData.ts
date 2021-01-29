@@ -16,7 +16,7 @@ export class EventData1609768943539 implements MigrationInterface {
                                 "eventType"
         ) 
         VALUES (
-                1,
+                100,
                 0, 
                 120,
                 'Recorrido: Santos Brujos en Viñas del sol',
@@ -39,7 +39,7 @@ export class EventData1609768943539 implements MigrationInterface {
             "eventType"
         )
         VALUES (
-                   2,
+                   200,
                    120,
                    30,
                    'Degustación Básica en Vinisterra Vinicolas',
@@ -62,7 +62,7 @@ export class EventData1609768943539 implements MigrationInterface {
             "eventType"
         )
         VALUES (
-                   3,
+                   300,
                    250,
                    60,
                    'Degustación en Montaño Benson',
@@ -85,7 +85,7 @@ insert into service (
             "eventType"
 )
         VALUES (
-                   3,
+                   300,
                    250,
                    60,
                    'Comida en Montaño Benson',
