@@ -43,6 +43,14 @@ export class Winery extends BaseEntity {
     @Column({nullable: true})
     yearlyWineProduction: number;
 
+    @Field({nullable:true})
+    @Column({nullable:true})
+    contactEmail: string;
+
+    @Field({nullable:true})
+    @Column({nullable:true})
+    contactPhoneNumber: string;
+
     //FK
     @Column()
     creatorId: number;

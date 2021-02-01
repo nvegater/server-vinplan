@@ -143,6 +143,8 @@ export class UserResolver {
                             googleMapsUrl: !!wineryDataInputs.googleMapsUrl? wineryDataInputs.googleMapsUrl:"",
                             yearlyWineProduction: wineryDataInputs.yearlyWineProduction,
                             creatorId: creatorId,
+                            contactEmail: wineryDataInputs.contactEmail,
+                            contactPhoneNumber: wineryDataInputs.contactPhoneNumber,
                         }
                     )
                     await winery.save();

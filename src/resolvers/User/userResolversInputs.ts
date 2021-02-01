@@ -42,6 +42,10 @@ export class WineryDataInputs {
     foundationYear?: number;
     @Field(() => String, {nullable:true})
     googleMapsUrl?: string;
+    @Field(() => String,{nullable:true})
+    contactEmail?: string;
+    @Field(() => String,{nullable:true})
+    contactPhoneNumber?: string;
 }
 
 @InputType()
