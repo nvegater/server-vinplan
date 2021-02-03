@@ -51,6 +51,10 @@ export class Winery extends BaseEntity {
     @Column({nullable:true})
     contactPhoneNumber: string;
 
+    // TODO add valley Enum (single)
+    // TODO add production Enum (array) -> many to many
+    // TODO add WineType Enum (array) -> many to many
+
     //FK
     @Column()
     creatorId: number;
