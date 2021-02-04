@@ -1,7 +1,9 @@
 import {
     BaseEntity,
     Column,
-    CreateDateColumn, Entity, ManyToOne,
+    CreateDateColumn,
+    Entity,
+    ManyToOne,
     OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
@@ -9,6 +11,19 @@ import {
 import {Service} from "./Service";
 import {User} from "./User";
 import {Field, Int, ObjectType} from "type-graphql";
+import {WineProductionType} from "./WineProductionType";
+import {WineType} from "./WineType";
+
+export enum Valley {
+    "GUADALUPE",
+    "SAN_ANT_MINAS",
+    "ENSENADA",
+    "SANTO_TOMAS",
+    "OJOS_NEGROS",
+    "GRULLA",
+    "SAN_VICENTE",
+    "SAN_QUINTIN"
+}
 
 @ObjectType()
 @Entity()
@@ -51,9 +66,14 @@ export class Winery extends BaseEntity {
     @Column({nullable:true})
     contactPhoneNumber: string;
 
-    // TODO add valley Enum (single)
-    // TODO add production Enum (array) -> many to many
-    // TODO add WineType Enum (array) -> many to many
+    @Column('enum', { name: 'valley', enum: Valley})
+    valley?: Valley;
+
+    @OneToMany(() => WineProductionType, wineProductionType => wineProductionType.winery)
+    productionType: WineProductionType[];
+
+    @OneToMany(() => WineType, wineType => wineType.winery)
+    wineType: WineType[];
 
     //FK
     @Column()
