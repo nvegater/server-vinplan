@@ -2,9 +2,11 @@ import {Arg, Int, Query, Resolver} from "type-graphql";
 import {FieldError} from "../User/userResolversOutputs";
 import {WineriesResponse, WineryServicesResponse} from "./wineryResolversOutputs";
 import {Winery} from "../../entities/Winery";
-import {getConnection} from "typeorm";
+import {getConnection, In} from "typeorm";
 import {SQL_QUERY_SELECT_WINERIES} from "../Universal/queries";
 import {Service} from "../../entities/Service";
+import {WineType} from "../../entities/WineType";
+import {WineProductionType} from "../../entities/WineProductionType";
 
 @Resolver(Winery)
 export class WineryResolver {
@@ -17,13 +19,26 @@ export class WineryResolver {
     ): Promise<WineriesResponse> {
         const realLimit = Math.min(50, limit);
         const replacements = [realLimit + 1]
-        const paginatedWineriesDB = await getConnection()
+        const paginatedWineriesDB: any = await getConnection()
             .query(SQL_QUERY_SELECT_WINERIES, replacements)
-
         if (paginatedWineriesDB !== undefined) {
+            const wineriesIds: number[] = paginatedWineriesDB.map((winery: any) => winery.id);
+            const wineTypesOfWinery: WineType[] | undefined = await WineType.find({
+                where: {wineryId: In(wineriesIds)}
+            });
+            const prodTypesOfWinery: WineProductionType[] | undefined = await WineProductionType.find({
+                where: {wineryId: In(wineriesIds)}
+            });
+            const pagWinsWExtraProps: Winery[] = paginatedWineriesDB.map((winery: Winery) => {
+                return {
+                    ...winery,
+                    productionType: prodTypesOfWinery.filter((wineType) => wineType.wineryId === winery.id).map((prod) => prod.productionType),
+                    wineType: wineTypesOfWinery.filter((wineType) => wineType.wineryId === winery.id).map((wt) => wt.wineType),
+                }
+            });
             return {
-                paginatedWineries: paginatedWineriesDB.slice(0, realLimit),
-                moreWineriesAvailable: paginatedWineriesDB.length === (realLimit + 1) // DB has more posts than requested
+                paginatedWineries: pagWinsWExtraProps.slice(0, realLimit),
+                moreWineriesAvailable: pagWinsWExtraProps.length === (realLimit + 1) // DB has more posts than requested
             };
         } else {
             const fieldError: FieldError = {
@@ -41,12 +56,23 @@ export class WineryResolver {
         @Arg('wineryId', () => Int) wineryId: number
     ): Promise<WineryServicesResponse> {
 
-        const wineryWithServices = await Service.find({where: {wineryId:wineryId}})
-        const winery = await Winery.findOne(wineryId);
+        const wineryWithServices = await Service.find({where: {wineryId: wineryId}})
+        const winery:any = await Winery.findOne(wineryId);
 
         if (wineryWithServices && winery) {
+            const wineTypesOfWinery: WineType[] | undefined = await WineType.find({
+                where: {wineryId: winery.id}
+            });
+            const prodTypesOfWinery: WineProductionType[] | undefined = await WineProductionType.find({
+                where: {wineryId: winery.id}
+            });
+
             return {
-                winery: winery,
+                winery: {
+                    ...winery,
+                    wineType: wineTypesOfWinery.map((wt)=>wt.wineType),
+                    productionType: prodTypesOfWinery.map((pt)=>pt.productionType)
+                },
                 services: wineryWithServices
             }
         } else {

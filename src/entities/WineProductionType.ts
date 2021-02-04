@@ -1,11 +1,17 @@
 import {BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
-import { Winery} from "./Winery";
+import {Winery} from "./Winery";
+import {registerEnumType} from "type-graphql";
 
 export enum ProductionType {
-"COMERCIAL",
-"TRAD_ARTESANAL",
-"ORG_BIO_NAT"
+    "COMERCIAL" = "Comercial",
+    "TRAD_ARTESANAL" = "Tradicional - Artesanal",
+    "ORG_BIO_NAT" = "Orgánico / Biodinámica / Naturales"
 }
+
+registerEnumType(ProductionType, {
+    name: "ProductionType",
+    description: "Types of wine production"
+});
 
 @Entity()
 export class WineProductionType extends BaseEntity {
@@ -16,7 +22,7 @@ export class WineProductionType extends BaseEntity {
     @Column()
     wineryId: number;
 
-    @Column('enum', { name: 'productionType', enum: ProductionType})
+    @Column('enum', {name: 'productionType', enum: ProductionType})
     productionType: ProductionType;
 
     @ManyToOne(() => Winery, (winery) => winery.productionType)

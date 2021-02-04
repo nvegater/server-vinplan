@@ -108,6 +108,12 @@ export const SQL_QUERY_SELECT_WINERIES = `
     limit $1;
 `;
 
+export const SQL_QUERY_SELECT_WINERY_BY_ID = `
+    select w.*
+    from winery w
+    where id = $1;
+`;
+
 export const SQL_QUERY_GET_RESERVED_SERVICES_IDS = `
             select array(select sr."serviceId"
                          from service_reservation sr
