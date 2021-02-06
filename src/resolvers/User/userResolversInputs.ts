@@ -1,6 +1,9 @@
 import {Field, InputType, Int, registerEnumType} from "type-graphql";
 import {FieldError} from "./userResolversOutputs";
 import userResolversErrors from "./userResolversErrors";
+import {Valley} from "../../entities/Winery";
+import {ProductionType} from "../../entities/WineProductionType";
+import {TypeWine} from "../../entities/WineType";
 
 
 const USER_TYPE_DESCRIPTION = "Al registrarse los visitantes seleccionan una de las siguientes categorias" +
@@ -35,6 +38,12 @@ export class WineryDataInputs {
     name!: string;
     @Field()
     description!: string;
+    @Field(()=>Valley)
+    valley!: Valley;
+    @Field(()=>[ProductionType])
+    productionType!: ProductionType[];
+    @Field(()=>[TypeWine])
+    wineType!: TypeWine[];
     @Field(() => Int,{nullable:true})
     yearlyWineProduction?: number;
     // During the creation of the winery, the creator id and user is set after.

@@ -74,7 +74,7 @@ export class Winery extends BaseEntity {
 
     @Field(() => Valley)
     @Column('enum', {name: 'valley', enum: Valley})
-    valley?: Valley;
+    valley: Valley;
 
     @Field(() => [ProductionType])
     @OneToMany(() => WineProductionType, wineProductionType => wineProductionType.winery)

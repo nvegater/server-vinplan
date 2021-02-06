@@ -23,6 +23,8 @@ import {isAuth} from "../Universal/utils";
 import {getConnection} from "typeorm";
 import {SQL_QUERY_GET_RESERVED_SERVICES_IDS} from "../Universal/queries";
 import {Winery} from "../../entities/Winery";
+import {WineType} from "../../entities/WineType";
+import {WineProductionType} from "../../entities/WineProductionType";
 
 
 @Resolver(User)
@@ -140,15 +142,37 @@ export class UserResolver {
                             name: wineryDataInputs.name,
                             description: wineryDataInputs.description,
                             foundationYear: wineryDataInputs.foundationYear,
-                            googleMapsUrl: !!wineryDataInputs.googleMapsUrl? wineryDataInputs.googleMapsUrl:"",
+                            googleMapsUrl: !!wineryDataInputs.googleMapsUrl ? wineryDataInputs.googleMapsUrl : "",
                             yearlyWineProduction: wineryDataInputs.yearlyWineProduction,
                             creatorId: creatorId,
                             contactEmail: wineryDataInputs.contactEmail,
                             contactPhoneNumber: wineryDataInputs.contactPhoneNumber,
+                            valley: wineryDataInputs.valley,
                         }
                     )
                     await winery.save();
 
+                    const wineTypes = wineryDataInputs.wineType.map((wineType) => {
+                        return WineType.create({
+                            wineryId: winery.id,
+                            wineType: wineType,
+                        })
+                    })
+
+                    wineTypes.map(async (wineTypeEntity) => {
+                        await wineTypeEntity.save();
+                    })
+
+                    const productionTypes = wineryDataInputs.productionType.map((productionType) => {
+                        return WineProductionType.create({
+                            wineryId: winery.id,
+                            productionType: productionType
+                        })
+                    })
+
+                    productionTypes.map(async (productionTypeEntity) => {
+                        await productionTypeEntity.save();
+                    })
 
                     // @ts-ignore
                     req.session.userId = user.id;
