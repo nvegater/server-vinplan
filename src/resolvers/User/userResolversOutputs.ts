@@ -1,5 +1,6 @@
 import {Field, ObjectType} from "type-graphql";
 import {User} from "../../entities/User";
+import {Winery} from "../../entities/Winery";
 
 /**
  * This file is for return values of resolvers related to an user
@@ -18,4 +19,12 @@ export class UserResponse {
     errors?: FieldError[]
     @Field(() => User, {nullable: true})
     user?: User
+}
+
+@ObjectType()
+export class WineryResponse {
+    @Field(() => [FieldError], {nullable: true})
+    errors?: FieldError[]
+    @Field(() => User, {nullable: true})
+    winery?: Winery
 }

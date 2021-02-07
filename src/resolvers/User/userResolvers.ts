@@ -1,7 +1,7 @@
 import {Arg, Ctx, FieldResolver, Mutation, Query, Resolver, Root, UseMiddleware} from "type-graphql"
 import {User} from "../../entities/User";
 import argon2 from 'argon2'
-import {FieldError, UserResponse} from "./userResolversOutputs";
+import {FieldError, UserResponse, WineryResponse} from "./userResolversOutputs";
 import {
     ChangePasswordInputs,
     LoginInputs,
@@ -61,6 +61,12 @@ export class UserResolver {
             userDB.reservedServicesIds = reservedServicesIds[0].reservedServicesIds as number[];
         }
 
+        const createdWinery = await Winery.findOne({where: {creatorId: userIdFromSession}})
+        if (createdWinery && userDB) {
+            userDB.wineryId = createdWinery.id;
+        } else if (userDB) {
+            userDB.wineryId = null;
+        }
         return {user: userDB};
 
 
@@ -100,12 +106,12 @@ export class UserResolver {
         }
     }
 
-    @Mutation(() => UserResponse)
+    @Mutation(() => WineryResponse)
     async registerWinery(
         @Arg("options") registerInputs: RegisterInputs,
         @Arg("wineryDataInputs") wineryDataInputs: WineryDataInputs,
         @Ctx() {req}: ApolloRedisContext
-    ): Promise<UserResponse> {
+    ): Promise<WineryResponse> {
         // TODO registrate a winery with the current data
         const inputErrors: FieldError[] = validateInputsRegister(registerInputs);
         inputErrors.push(...validateInputsRegister(registerInputs)) // TODO add validateWineryDataInputs
@@ -178,7 +184,7 @@ export class UserResolver {
                     req.session.userId = user.id;
 
 
-                    return {user: user}
+                    return {winery: winery}
                 }
             }
         }
@@ -215,6 +221,12 @@ export class UserResolver {
 
                 if (reservedServicesIds[0].reservedServicesIds.length > 0 && user) {
                     user.reservedServicesIds = reservedServicesIds[0].reservedServicesIds as number[];
+                }
+                const createdWinery = await Winery.findOne({where: {creatorId: user.id}})
+                if (createdWinery && user) {
+                    user.wineryId = createdWinery.id;
+                } else if (user) {
+                    user.wineryId = null;
                 }
 
                 return {user: user}

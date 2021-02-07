@@ -56,6 +56,9 @@ export class User extends BaseEntity {
     @Field(()=>[Int], {nullable: true})
     reservedServicesIds: number[] | null;
 
+    @Field(()=>Int, {nullable: true})
+    wineryId: number | null;
+
     @Field(() => UserType)
     @Column('enum', { name: 'userType', enum: UserType})
     userType: UserType;
