@@ -59,6 +59,7 @@ export class Service extends BaseEntity {
     @Column({ type: "timestamp", precision: 6, nullable: true })
     endTime: Date;
 
+    @Field(()=>Int)
     @Column()
     wineryId!: number;
 

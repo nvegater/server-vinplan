@@ -11,3 +11,11 @@ export class ServiceResponse {
     @Field()
     moreServicesAvailable: boolean;
 }
+
+@ObjectType()
+export class CreateServiceResponse {
+    @Field(() => [FieldError], {nullable: true})
+    errors?: FieldError[]
+    @Field(() => Service, {nullable: true})
+    service?: Service
+}
