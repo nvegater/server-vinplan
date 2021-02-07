@@ -13,7 +13,7 @@ export class EventData1609768943539 implements MigrationInterface {
                                 "startDate",
                                 "startTime",
                                 "endTime",
-                                "eventType"
+                                "eventType", "creatorId"
         ) 
         VALUES (
                 100,
@@ -24,7 +24,7 @@ export class EventData1609768943539 implements MigrationInterface {
                 '2021-03-01',
                 '2021-03-01 16:00:00',
                 '2021-03-01 18:00:00',
-                'Degustación'
+                'Degustación', 1
                 );
 
         insert into service (
@@ -36,7 +36,7 @@ export class EventData1609768943539 implements MigrationInterface {
             "startDate",
             "startTime",
             "endTime",
-            "eventType"
+            "eventType", "creatorId"
         )
         VALUES (
                    200,
@@ -47,7 +47,7 @@ export class EventData1609768943539 implements MigrationInterface {
                    '2021-03-01',
                    '2021-03-02 15:00:00',
                    '2021-03-02 15:30:00',
-                   'Degustación'
+                   'Degustación', 1
                );
 
     insert into service (
@@ -59,7 +59,7 @@ export class EventData1609768943539 implements MigrationInterface {
             "startDate",
             "startTime",
             "endTime",
-            "eventType"
+            "eventType", "creatorId"
         )
         VALUES (
                    300,
@@ -70,7 +70,7 @@ export class EventData1609768943539 implements MigrationInterface {
                    '2021-03-02',
                    '2021-03-02 15:00:00',
                    '2021-03-02 15:30:00',
-                   'Degustación'
+                   'Degustación', 1
                );
 
 insert into service (
@@ -82,7 +82,7 @@ insert into service (
             "startDate",
             "startTime",
             "endTime",
-            "eventType"
+            "eventType", "creatorId"
 )
         VALUES (
                    300,
@@ -93,7 +93,7 @@ insert into service (
                    '2021-03-03',
                    '2021-03-03 15:00:00',
                    '2021-03-03 15:30:00',
-                   'Comida/Cena Maridaje'
+                   'Comida/Cena Maridaje', 1
                );
         `)
     }

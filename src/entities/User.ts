@@ -13,6 +13,7 @@ import {Upvote} from "./Upvote";
 import {Winery} from "./Winery";
 import {UserType} from "../resolvers/User/userResolversInputs";
 import {ServiceReservation} from "./ServiceReservation";
+import {Service} from "./Service";
 
 @ObjectType()
 @Entity()
@@ -45,6 +46,10 @@ export class User extends BaseEntity {
     // User create multiple posts.
     @OneToMany(() => Post, post => post.creator)
     post: Post[];
+
+    // User create multiple services.
+    @OneToMany(() => Service, service => service.creator)
+    services: Service[];
 
     // User upvote many posts
     @OneToMany(() => Upvote, upvote => upvote.user)

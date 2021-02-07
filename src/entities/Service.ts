@@ -5,14 +5,20 @@ import {
 } from "typeorm";
 import {Winery} from "./Winery";
 import {Length} from "class-validator";
-import {Field, Float, Int, ObjectType} from "type-graphql";
+import {Field, Float, Int, ObjectType, registerEnumType} from "type-graphql";
 import {ServiceReservation} from "./ServiceReservation";
+import {User} from "./User";
 
 export enum EventType {
     COMIDA_CENA_MARIDAJE="Comida/Cena Maridaje",
     DEGUSTACION="Degustación",
     CONCIERTO="Concierto"
 }
+
+registerEnumType(EventType, {
+    name: "EventType",
+    description: "Type of service"
+});
 
 @ObjectType()
 @Entity()
@@ -59,6 +65,15 @@ export class Service extends BaseEntity {
     @Field(()=>Winery)
     @ManyToOne(() => Winery, (winery)=> winery.services)
     winery!: Winery;
+
+    //FK
+    @Field()
+    @Column()
+    creatorId: number;
+
+    @Field(()=>User)
+    @ManyToOne(() => User, user => user.services)
+    creator: User;
 
     @Field(() => Int)
     @Column({nullable:false})

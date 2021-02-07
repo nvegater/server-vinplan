@@ -2,11 +2,13 @@ import {Arg, Ctx, Int, Mutation, Query, Resolver, UseMiddleware} from "type-grap
 import {Service} from "../../entities/Service";
 import {ServiceResponse} from "./serviceResolversOutputs";
 import {FieldError} from "../User/userResolversOutputs";
-import {getConnection} from "typeorm";
+import {getConnection, UpdateResult} from "typeorm";
 import {SQL_QUERY_INSERT_RESERVATION, SQL_QUERY_SELECT_SERVICES_WITH_WINERY} from "../Universal/queries";
 import {isAuth} from "../Universal/utils";
 import {ApolloRedisContext} from "../../apollo-config";
 import {ServiceReservation} from "../../entities/ServiceReservation";
+import {CreateServiceInputs, UpdateServiceInputs} from "./serviceResolversInputs";
+import {Winery} from "../../entities/Winery";
 
 @Resolver(Service)
 export class ServiceResolver {
@@ -43,10 +45,10 @@ export class ServiceResolver {
     @Query(() => ServiceResponse)
     @UseMiddleware(isAuth)
     async servicesUser(
-        @Arg('serviceIds', ()=>[Int]) serviceIds: number[]
+        @Arg('serviceIds', () => [Int]) serviceIds: number[]
     ): Promise<ServiceResponse> {
 
-        const paginatedServicesDB = await Service.findByIds(serviceIds,{relations: ["winery"]})
+        const paginatedServicesDB = await Service.findByIds(serviceIds, {relations: ["winery"]})
         if (paginatedServicesDB !== undefined) {
             return {
                 paginatedServices: paginatedServicesDB,
@@ -80,7 +82,7 @@ export class ServiceResolver {
             // the user has reserved the service already.
             return false
         } else {
-            const serviceToBook = Service.findOne({where: {id:serviceId}})
+            const serviceToBook = Service.findOne({where: {id: serviceId}})
             if (serviceToBook) {
                 // service exist
                 await getConnection().transaction(async transactionManager => {
@@ -93,6 +95,56 @@ export class ServiceResolver {
             }
         }
 
+    }
+
+    @Mutation(() => Service)
+    @UseMiddleware(isAuth)
+    async createService(
+        @Arg('createServiceInputs') createServiceInputs: CreateServiceInputs,
+        @Ctx() {req}: ApolloRedisContext
+    ) {
+        // @ts-ignore
+        const {userId} = req.session;
+        // validate winery
+        const winery = await Winery.findOne(createServiceInputs.wineryId);
+        if (winery) {
+            const service = await Service.create({
+                ...createServiceInputs,
+                creatorId: userId
+            });
+            service.save();
+        }
+
+    }
+
+    @Mutation(() => Service)
+    @UseMiddleware(isAuth)
+    async updateService(
+        @Arg('updateServiceInputs') updateServiceInputs: UpdateServiceInputs,
+        @Ctx() {req}: ApolloRedisContext
+    ): Promise<Service | null> {
+        // @ts-ignore
+        const {userId} = req.session;
+        const {
+            title, id,
+            description,
+            eventType,
+            pricePerPersonInDollars,
+            startDate, endDate, startTime, endTime
+        } = updateServiceInputs;
+        const updateService: UpdateResult = await getConnection().createQueryBuilder()
+            .update(Service)
+            .set({
+                title,
+                description,
+                eventType,
+                pricePerPersonInDollars,
+                startDate, endDate, startTime, endTime
+            })
+            .where('id = :id and "creatorId" = :creatorId', {id, creatorId:userId})
+            .returning("*")
+            .execute();
+        return updateService.raw[0] as Service;
     }
 
 
