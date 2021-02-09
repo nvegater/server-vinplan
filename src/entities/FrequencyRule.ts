@@ -31,11 +31,11 @@ export class FrequencyRule extends BaseEntity {
     @OneToMany(() => Service, service => service.frequencyRule)
     services: Service[];
 
-    @Field(() => String)
+    @Field(() => Date)
     @CreateDateColumn()
     createdAt: Date;
 
-    @Field(() => String)
+    @Field(() => Date)
     @UpdateDateColumn()
     updatedAt: Date;
 

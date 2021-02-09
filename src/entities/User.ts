@@ -68,11 +68,11 @@ export class User extends BaseEntity {
     @Column('enum', { name: 'userType', enum: UserType})
     userType: UserType;
 
-    @Field(() => String)
+    @Field(() => Date)
     @CreateDateColumn()
     createdAt: Date;
 
-    @Field(() => String)
+    @Field(() => Date)
     @UpdateDateColumn()
     updatedAt: Date;
 

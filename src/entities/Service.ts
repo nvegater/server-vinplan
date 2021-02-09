@@ -43,20 +43,20 @@ export class Service extends BaseEntity {
     @Column('enum', {name: 'eventType', enum: EventType})
     eventType: EventType;
 
-    @Field(() => String)
+    @Field(() => Date)
     @Column({type: "date"})
     startDate!: Date;
 
 
-    @Field(() => String, {nullable: true})
+    @Field(() => Date, {nullable: true})
     @Column({type: "date", nullable: true})
     endDate: Date;
 
-    @Field(() => String)
+    @Field(() => Date)
     @Column("timestamp")
     startTime: Date;
 
-    @Field(() => String)
+    @Field(() => Date)
     @Column({type: "timestamp", precision: 6, nullable: true})
     endTime: Date;
 
@@ -98,11 +98,11 @@ export class Service extends BaseEntity {
     @OneToMany(() => ServiceReservation, serviceReservation => serviceReservation.service)
     reservations: ServiceReservation[];
 
-    @Field(() => String)
+    @Field(() => Date)
     @CreateDateColumn({type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)"})
     public createdAt: Date;
 
-    @Field(() => String)
+    @Field(() => Date)
     @UpdateDateColumn({type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)", onUpdate: "CURRENT_TIMESTAMP(6)"})
     public updatedAt: Date;
 

@@ -91,11 +91,11 @@ export class Winery extends BaseEntity {
     @ManyToOne(() => User, user => user.winery)
     creator: User;
 
-    @Field(() => String)
+    @Field(() => Date)
     @CreateDateColumn()
     createdAt: Date;
 
-    @Field(() => String)
+    @Field(() => Date)
     @UpdateDateColumn()
     updatedAt: Date;
 }
