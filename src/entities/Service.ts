@@ -44,12 +44,12 @@ export class Service extends BaseEntity {
     eventType: EventType;
 
     @Field(() => Date)
-    @Column({type: "date"})
+    @Column({type: "timestamp"})
     startDate!: Date;
 
 
     @Field(() => Date, {nullable: true})
-    @Column({type: "date", nullable: true})
+    @Column({type: "timestamp", nullable: true})
     endDate: Date;
 
     @Field(() => Date)
