@@ -8,6 +8,7 @@ import {Winery} from "./entities/Winery";
 import {ServiceReservation} from "./entities/ServiceReservation";
 import {WineProductionType} from "./entities/WineProductionType";
 import {WineType} from "./entities/WineType";
+import {FrequencyRule} from "./entities/FrequencyRule";
 
 export default {
     type: 'postgres',
@@ -16,5 +17,5 @@ export default {
     logging: true, // log SQL
     synchronize: true,
     migrations: [path.join(__dirname, "./migrations/*")],
-    entities: [Post, User, Upvote, Service, Winery,ServiceReservation, WineProductionType, WineType]
+    entities: [Post, User, Upvote, Service, Winery,ServiceReservation, WineProductionType, WineType, FrequencyRule]
 } as ConnectionOptions

@@ -7,8 +7,9 @@ import {SQL_QUERY_INSERT_RESERVATION, SQL_QUERY_SELECT_SERVICES_WITH_WINERY} fro
 import {isAuth} from "../Universal/utils";
 import {ApolloRedisContext} from "../../apollo-config";
 import {ServiceReservation} from "../../entities/ServiceReservation";
-import {CreateServiceInputs, UpdateServiceInputs} from "./serviceResolversInputs";
+import {CreateServiceInputs, FrequencyRuleInputs, UpdateServiceInputs} from "./serviceResolversInputs";
 import {intervalToDuration} from 'date-fns';
+import {FrequencyRule} from "../../entities/FrequencyRule";
 
 
 @Resolver(Service)
@@ -102,27 +103,39 @@ export class ServiceResolver {
     @UseMiddleware(isAuth)
     async createService(
         @Arg('createServiceInputs') createServiceInputs: CreateServiceInputs,
+        @Arg('frequencyRuleInputs', {nullable: true}) frequencyRuleInputs: FrequencyRuleInputs,
         @Ctx() {req}: ApolloRedisContext
     ): Promise<CreateServiceResponse> {
         // @ts-ignore
         const {userId} = req.session;
         // validate winery
-        const service = await Service.findOne({where:{title:createServiceInputs.title}});
+        const service = await Service.findOne({where: {title: createServiceInputs.title}});
         if (!service) {
+            // create Frequency Rule and save it. Copy the ID in the service
+            const frequencyRule = frequencyRuleInputs ? await FrequencyRule.create({
+                frequency: frequencyRuleInputs.frequency
+            }) : null;
+
+            if (frequencyRule) {
+                await frequencyRule.save()
+            }
+            const frequencyRuleId = !!frequencyRule ? frequencyRule.id : undefined;
+
             const service = await Service.create({
                 ...createServiceInputs,
                 creatorId: userId,
                 duration: intervalToDuration({
                     start: createServiceInputs.startTime,
                     end: createServiceInputs.endTime
-                }).minutes
+                }).minutes,
+                frequencyRuleId: frequencyRuleId
             });
             service.save();
-            return {service:service};
+            return {service: service};
         } else {
             const error: FieldError = {
-                field:"createService",
-                message:"Service with that title already exists"
+                field: "createService",
+                message: "Service with that title already exists"
             }
             return {errors: [error]}
         }
@@ -156,10 +169,10 @@ export class ServiceResolver {
             .where('id = :id and "creatorId" = :creatorId', {id, creatorId: userId})
             .returning("*")
             .execute();
-        if (updateService.affected === 0){
+        if (updateService.affected === 0) {
             const error: FieldError = {
-                field:"updateService",
-                message:"no change was made"
+                field: "updateService",
+                message: "no change was made"
             }
             return {errors: [error]}
         }

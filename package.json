@@ -40,6 +40,7 @@
     "ioredis": "^4.19.4",
     "nodemailer": "^6.4.17",
     "pg": "^8.5.1",
+    "rrule": "^2.6.8",
     "type-graphql": "^1.1.1",
     "typeorm": "^0.2.29",
     "uuid": "^8.3.2"

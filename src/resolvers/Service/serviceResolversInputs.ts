@@ -1,5 +1,6 @@
 import {Field, Float, InputType} from "type-graphql";
 import {EventType} from "../../entities/Service";
+import {Frequency} from "rrule";
 
 @InputType()
 export class CreateServiceInputs {
@@ -26,6 +27,12 @@ export class CreateServiceInputs {
     @Field(() => Date)
     endTime!: Date;
 
+}
+
+@InputType()
+export class FrequencyRuleInputs {
+    @Field(()=>Frequency)
+    frequency!: Frequency;
 }
 
 @InputType()
