@@ -17,15 +17,13 @@ export class CreateServiceInputs {
     pricePerPersonInDollars: number;
 
     @Field(() => Date)
-    startDate!: Date;
-    @Field(() => Date,{nullable:true})
-    endDate?: Date;
+    startDateTime!: Date;
 
     @Field(() => Date)
-    startTime!: Date;
-    @Field(() => Date)
-    endTime!: Date;
+    endDateTime!: Date;
 
+    @Field(()=>[String], {nullable:true})
+    rRules: string[];
 }
 
 

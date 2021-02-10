@@ -113,8 +113,8 @@ export class ServiceResolver {
                 ...createServiceInputs,
                 creatorId: userId,
                 duration: intervalToDuration({
-                    start: createServiceInputs.startTime,
-                    end: createServiceInputs.endTime
+                    start: createServiceInputs.startDateTime,
+                    end: createServiceInputs.endDateTime
                 }).minutes,
             });
             service.save();
@@ -151,7 +151,7 @@ export class ServiceResolver {
                 description,
                 eventType,
                 pricePerPersonInDollars,
-                startDate, endDate
+                startDateTime: startDate, endDateTime: endDate
             })
             .where('id = :id and "creatorId" = :creatorId', {id, creatorId: userId})
             .returning("*")

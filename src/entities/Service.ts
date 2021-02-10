@@ -44,11 +44,15 @@ export class Service extends BaseEntity {
 
     @Field(() => Date)
     @Column({type: "timestamp"})
-    startDate!: Date;
+    startDateTime!: Date;
 
-    @Field(() => Date, {nullable: true})
-    @Column({type: "timestamp", nullable: true})
-    endDate: Date;
+    @Field(() => Date)
+    @Column({type: "timestamp"})
+    endDateTime!: Date;
+
+    @Field(()=>[String], {nullable:true})
+    @Column("text", {array: true, nullable: true, default: "{}"})
+    rRules: string[];
 
     @Field(() => Int)
     @Column()
