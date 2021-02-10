@@ -117,7 +117,7 @@ export class ServiceResolver {
                     end: createServiceInputs.endDateTime
                 }).minutes,
             });
-            service.save();
+            await service.save();
             return {service: service};
         } else {
             const error: FieldError = {
