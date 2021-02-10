@@ -43,10 +43,10 @@ export class UpdateServiceInputs {
     @Field(() => Float)
     pricePerPersonInDollars: number;
 
-    @Field(() => Date)
-    startDate!: Date;
+    @Field(() => Date, )
+    startDateTime!: Date;
     @Field(() => Date,{nullable:true})
-    endDate?: Date;
+    endDateTime?: Date;
 
     @Field(() => Date)
     startTime!: Date;

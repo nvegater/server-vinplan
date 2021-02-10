@@ -97,7 +97,7 @@ export const SQL_QUERY_SELECT_SERVICES_WITH_WINERY = `
                ) winery
     from service ser
              inner join public.winery w on w.id = ser."wineryId"
-    order by ser."startDate" DESC 
+    order by ser."startDateTime" DESC 
     limit $1
 `;
 

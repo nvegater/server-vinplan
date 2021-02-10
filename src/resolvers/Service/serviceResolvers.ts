@@ -142,7 +142,7 @@ export class ServiceResolver {
             description,
             eventType,
             pricePerPersonInDollars,
-            startDate, endDate
+            startDateTime, endDateTime
         } = updateServiceInputs;
         const updateService: UpdateResult = await getConnection().createQueryBuilder()
             .update(Service)
@@ -151,7 +151,8 @@ export class ServiceResolver {
                 description,
                 eventType,
                 pricePerPersonInDollars,
-                startDateTime: startDate, endDateTime: endDate
+                startDateTime,
+                endDateTime
             })
             .where('id = :id and "creatorId" = :creatorId', {id, creatorId: userId})
             .returning("*")
