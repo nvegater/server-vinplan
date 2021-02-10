@@ -7,9 +7,8 @@ import {SQL_QUERY_INSERT_RESERVATION, SQL_QUERY_SELECT_SERVICES_WITH_WINERY} fro
 import {isAuth} from "../Universal/utils";
 import {ApolloRedisContext} from "../../apollo-config";
 import {ServiceReservation} from "../../entities/ServiceReservation";
-import {CreateServiceInputs, FrequencyRuleInputs, UpdateServiceInputs} from "./serviceResolversInputs";
+import {CreateServiceInputs, UpdateServiceInputs} from "./serviceResolversInputs";
 import {intervalToDuration} from 'date-fns';
-import {FrequencyRule} from "../../entities/FrequencyRule";
 
 
 @Resolver(Service)
@@ -103,7 +102,6 @@ export class ServiceResolver {
     @UseMiddleware(isAuth)
     async createService(
         @Arg('createServiceInputs') createServiceInputs: CreateServiceInputs,
-        @Arg('frequencyRuleInputs', {nullable: true}) frequencyRuleInputs: FrequencyRuleInputs,
         @Ctx() {req}: ApolloRedisContext
     ): Promise<CreateServiceResponse> {
         // @ts-ignore
@@ -111,16 +109,6 @@ export class ServiceResolver {
         // validate winery
         const service = await Service.findOne({where: {title: createServiceInputs.title}});
         if (!service) {
-            // create Frequency Rule and save it. Copy the ID in the service
-            const frequencyRule = frequencyRuleInputs ? await FrequencyRule.create({
-                frequency: frequencyRuleInputs.frequency
-            }) : null;
-
-            if (frequencyRule) {
-                await frequencyRule.save()
-            }
-            const frequencyRuleId = !!frequencyRule ? frequencyRule.id : undefined;
-
             const service = await Service.create({
                 ...createServiceInputs,
                 creatorId: userId,
@@ -128,7 +116,6 @@ export class ServiceResolver {
                     start: createServiceInputs.startTime,
                     end: createServiceInputs.endTime
                 }).minutes,
-                frequencyRuleId: frequencyRuleId
             });
             service.save();
             return {service: service};
@@ -155,7 +142,7 @@ export class ServiceResolver {
             description,
             eventType,
             pricePerPersonInDollars,
-            startDate, endDate, startTime, endTime
+            startDate, endDate
         } = updateServiceInputs;
         const updateService: UpdateResult = await getConnection().createQueryBuilder()
             .update(Service)
@@ -164,7 +151,7 @@ export class ServiceResolver {
                 description,
                 eventType,
                 pricePerPersonInDollars,
-                startDate, endDate, startTime, endTime
+                startDate, endDate
             })
             .where('id = :id and "creatorId" = :creatorId', {id, creatorId: userId})
             .returning("*")

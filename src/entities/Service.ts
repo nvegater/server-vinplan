@@ -8,7 +8,6 @@ import {Length} from "class-validator";
 import {Field, Float, Int, ObjectType, registerEnumType} from "type-graphql";
 import {ServiceReservation} from "./ServiceReservation";
 import {User} from "./User";
-import {FrequencyRule} from "./FrequencyRule";
 
 export enum EventType {
     COMIDA_CENA_MARIDAJE = "Comida/Cena Maridaje",
@@ -47,18 +46,9 @@ export class Service extends BaseEntity {
     @Column({type: "timestamp"})
     startDate!: Date;
 
-
     @Field(() => Date, {nullable: true})
     @Column({type: "timestamp", nullable: true})
     endDate: Date;
-
-    @Field(() => Date)
-    @Column("timestamp")
-    startTime: Date;
-
-    @Field(() => Date)
-    @Column({type: "timestamp", precision: 6, nullable: true})
-    endTime: Date;
 
     @Field(() => Int)
     @Column()
@@ -76,15 +66,6 @@ export class Service extends BaseEntity {
     @Field(() => User)
     @ManyToOne(() => User, user => user.services)
     creator: User;
-
-    // Frequency Rules are unique. Multiple services can reference the same frequence rule
-    @Field({nullable: true})
-    @Column({nullable: true})
-    frequencyRuleId: number;
-
-    @Field(() => FrequencyRule, {nullable: true})
-    @ManyToOne(() => FrequencyRule, frequencyRule => frequencyRule.services, {nullable: true})
-    frequencyRule?: FrequencyRule;
 
     @Field(() => Int)
     @Column({nullable: false})
