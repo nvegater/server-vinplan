@@ -8,7 +8,7 @@ import {isAuth} from "../Universal/utils";
 import {ApolloRedisContext} from "../../apollo-config";
 import {ServiceReservation} from "../../entities/ServiceReservation";
 import {CreateServiceInputs, UpdateServiceInputs} from "./serviceResolversInputs";
-import {intervalToDuration} from 'date-fns';
+import differenceInMinutes from 'date-fns/differenceInMinutes';
 
 
 @Resolver(Service)
@@ -112,10 +112,7 @@ export class ServiceResolver {
             const service = await Service.create({
                 ...createServiceInputs,
                 creatorId: userId,
-                duration: intervalToDuration({
-                    start: createServiceInputs.startDateTime,
-                    end: createServiceInputs.endDateTime
-                }).minutes,
+                duration: differenceInMinutes(createServiceInputs.endDateTime, createServiceInputs.startDateTime)
             });
             await service.save();
             return {service: service};
