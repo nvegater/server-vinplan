@@ -32,8 +32,6 @@ export class UpdateServiceInputs {
     @Field()
     id!: number
     @Field()
-    wineryId!: number;
-    @Field()
     title!: string
     @Field()
     description!: string
@@ -47,10 +45,5 @@ export class UpdateServiceInputs {
     startDateTime!: Date;
     @Field(() => Date,{nullable:true})
     endDateTime?: Date;
-
-    @Field(() => Date)
-    startTime!: Date;
-    @Field(() => Date)
-    endTime!: Date;
 
 }
