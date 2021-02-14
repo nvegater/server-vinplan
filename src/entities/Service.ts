@@ -75,6 +75,10 @@ export class Service extends BaseEntity {
     @Column({nullable: false})
     duration: number;
 
+    @Field(() => Int, {nullable: true})
+    @Column({type:"int", nullable: true})
+    limitOfAttendees: number;
+
     @Field(() => Float)
     @Column({type: "float"})
     pricePerPersonInDollars: number;
