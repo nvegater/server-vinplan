@@ -7,6 +7,9 @@ export class CreateServiceInputs {
     wineryId!: number;
 
     @Field()
+    limitOfAttendees!: number;
+
+    @Field()
     title!: string
     @Field()
     description!: string
