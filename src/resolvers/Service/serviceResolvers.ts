@@ -1,8 +1,8 @@
 import {Arg, Ctx, Int, Mutation, Query, Resolver, UseMiddleware} from "type-graphql";
 import {Service} from "../../entities/Service";
-import {CreateServiceResponse, ServiceResponse} from "./serviceResolversOutputs";
+import {BookServiceResponse, CreateServiceResponse, ServiceResponse} from "./serviceResolversOutputs";
 import {FieldError} from "../User/userResolversOutputs";
-import {getConnection, UpdateResult} from "typeorm";
+import {getConnection, Not, UpdateResult} from "typeorm";
 import {SQL_QUERY_INSERT_RESERVATION, SQL_QUERY_SELECT_SERVICES_WITH_WINERY} from "../Universal/queries";
 import {isAuth} from "../Universal/utils";
 import {ApolloRedisContext} from "../../apollo-config";
@@ -67,12 +67,13 @@ export class ServiceResolver {
         }
     };
 
-    @Mutation(() => Boolean)
+    @Mutation(() => BookServiceResponse)
     @UseMiddleware(isAuth)
     async reserve(
         @Arg('serviceId', () => Int) serviceId: number,
+        @Arg('noOfAttendees', () => Int) noOfAttendees: number,
         @Ctx() {req}: ApolloRedisContext
-    ) {
+    ): Promise<BookServiceResponse> {
         // @ts-ignore
         const {userId} = req.session;
 
@@ -80,19 +81,55 @@ export class ServiceResolver {
             .findOne({where: {serviceId, userId}});
 
         if (reservation) {
-            // the user has reserved the service already.
-            return false
+            const error: FieldError = {
+                field: "updateService",
+                message: "the user has reserved the service already."
+            }
+            return {errors: [error]}
         } else {
-            const serviceToBook = Service.findOne({where: {id: serviceId}})
+            const serviceToBook = await Service.findOne({
+                where: {id: serviceId, creatorId: Not(userId)} // creator cant book its own service
+            })
+            console.log(serviceToBook)
             if (serviceToBook) {
-                // service exist
-                await getConnection().transaction(async transactionManager => {
-                    await transactionManager.query(SQL_QUERY_INSERT_RESERVATION, [serviceId, userId]);
-                });
-                return true;
+                // check that its not full
+                if (serviceToBook.noOfAttendees < serviceToBook.limitOfAttendees) {
+                    // update the noOfAttendes
+                    const updateService: UpdateResult = await getConnection().createQueryBuilder()
+                        .update(Service)
+                        .set({
+                            noOfAttendees: serviceToBook.noOfAttendees + noOfAttendees
+                        })
+                        .where('id = :id and "creatorId" = :creatorId', {serviceId, creatorId: userId})
+                        .returning("*")
+                        .execute();
+                    // If the update doesnt work dont insert the reservation
+                    if (updateService.affected === 0) {
+                        const error: FieldError = {
+                            field: "updateService",
+                            message: "no change was made"
+                        }
+                        return {errors: [error]}
+                    } else {
+                    // Insert the reservation after service update
+                        await getConnection().transaction(async transactionManager => {
+                            await transactionManager.query(SQL_QUERY_INSERT_RESERVATION, [serviceId, userId, noOfAttendees]);
+                        });
+                        return {service: updateService.raw[0] as Service};
+                    }
+                } else {
+                    const error: FieldError = {
+                        field: "updateService",
+                        message: "service is full"
+                    }
+                    return {errors: [error]}
+                }
             } else {
-                // Service doesnt exist
-                return false
+                const error: FieldError = {
+                    field: "updateService",
+                    message: "youre trying to book a service you created"
+                }
+                return {errors: [error]}
             }
         }
 
