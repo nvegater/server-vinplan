@@ -12,12 +12,20 @@ COPY yarn.lock ./
 
 RUN yarn
 # Run TSC to generate the dist folder
-RUN yarn build
 # If you are building your code for production
 # RUN npm ci --only=production
 
 # Bundle app source
+# Copy files before compiling
 COPY . .
+# Copy the production envs into the main envs so they get read
+COPY .env.production .env
+RUN yarn build
+
+ENV NODE_ENV production
+
 
 EXPOSE 8080
 CMD [ "node", "dist/index.js" ]
+
+USER node

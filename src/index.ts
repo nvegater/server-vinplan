@@ -1,5 +1,7 @@
 import express, {Express, RequestHandler} from "express";
 import "reflect-metadata"
+// Read dotenv file and stick them as variables and throw error if an environment variable is not set
+import "dotenv-safe/config"
 
 import cors from "cors"
 import {corsConfig} from "./express-config";
@@ -30,12 +32,15 @@ const start_server = async () => {
 
     // Redis
     const redisStore: RedisStore = connectRedis(session)
-    const redisClient: RedisType = new Redis()
+    const redisClient: RedisType = new Redis(process.env.REDIS_URL)
+    app.set("proxy", 1);
     const redisRequestHandler: RequestHandler = session(buildRedisSession(redisStore, redisClient));
     app.use(redisRequestHandler);
 
     // TypeORM
     const postgresConnection:Connection = await createConnection(typeOrmPostgresConfig);
+    // when pushing the docker image
+    // this will run everything from the migration folder
     await postgresConnection.runMigrations();
 
     //await Post.delete({});
@@ -48,7 +53,7 @@ const start_server = async () => {
         .applyMiddleware(registerExpressServer(app))
 
     // Start server
-    app.listen(4000, () => {
+    app.listen(process.env.PORT, () => {
         console.log("Server started in localhost: 4000");
     })
 }

@@ -11,10 +11,9 @@ import {WineType} from "./entities/WineType";
 
 export default {
     type: 'postgres',
-    database: 'db-vinplan',
-    port: 5433,
+    url: process.env.DATABASE_URL,
     logging: true, // log SQL
-    synchronize: true,
+    //synchronize: true, // dont set in production npx typeorm migration:create -n InitialDBSetup
     migrations: [path.join(__dirname, "./migrations/*")],
     entities: [Post, User, Upvote, Service, Winery,ServiceReservation, WineProductionType, WineType]
 } as ConnectionOptions

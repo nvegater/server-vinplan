@@ -12,7 +12,8 @@ const redisCookieConfig: CookieOptions = {
     httpOnly: true,
     //This makes cookie not accessible in frontend
     sameSite: 'lax', // csrf related.
-    secure: _prod_ // cookie only works in https when we are in production
+    secure: _prod_, // cookie only works in https when we are in production
+    domain: _prod_ ? '.changeForCustomDomain.com' : undefined
 };
 const generateUuidv4 = (_req: Request) => {
     return uuidv4()
@@ -27,6 +28,6 @@ export const buildRedisSession: (store:RedisStore, redis:Redis) => SessionOption
         disableTouch: true,
     }),
     cookie: redisCookieConfig,
-    secret: 'alsuehfnvieuhfuhkdjhfuie', // TODO sign cookie with env variable
+    secret: process.env.SESSION_SECRET as string,
     resave: false,
 });

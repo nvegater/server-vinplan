@@ -2,7 +2,8 @@ import {MigrationInterface, QueryRunner} from "typeorm";
 
 export class WineData1609765846952 implements MigrationInterface {
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
+    public async up(_: QueryRunner): Promise<void> {
+/*
         queryRunner.query(`
           
         insert into winery (id, name, description, "foundationYear", "creatorId", "googleMapsUrl", valley ) values (100, 
@@ -41,6 +42,7 @@ export class WineData1609765846952 implements MigrationInterface {
         insert into wine_type ("wineryId", "wineType")
         VALUES (300, 'Orgánico');
         `)
+*/
 
     }
 

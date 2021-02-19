@@ -15,6 +15,9 @@
 # production
 /build
 
+.env
+# See .env.example to see how to run the server
+
 # misc
 .DS_Store
 .env.local

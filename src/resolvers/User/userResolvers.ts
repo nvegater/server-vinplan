@@ -306,7 +306,7 @@ export class UserResolver {
             user.id, // access this value
             "ex", // that expires
             THREE_DAYS_MS); // after 3 days
-        await sendEmail(email, `<a href="http://localhost:3000/change-password/${token}"> reset password </a>`)
+        await sendEmail(email, `<a href="${process.env.CORS_ORIGIN_WHITELIST_1}/change-password/${token}"> reset password </a>`)
         return {user: user}
     }
 

@@ -2,7 +2,8 @@ import {MigrationInterface, QueryRunner} from "typeorm";
 
 export class EventData1609768943539 implements MigrationInterface {
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
+    public async up(_: QueryRunner): Promise<void> {
+/*
         queryRunner.query(`
         insert into service (
                                 "wineryId", 
@@ -88,6 +89,7 @@ insert into service (
                    'Comida/Cena Maridaje', 1
                );
         `)
+*/
     }
 
     public async down(_queryRunner: QueryRunner): Promise<void> {
