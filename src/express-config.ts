@@ -3,6 +3,7 @@
 const whiteList = [
     process.env.CORS_ORIGIN_WHITELIST_1 as string,
     process.env.CORS_ORIGIN_WHITELIST_2 as string,
-    process.env.CORS_ORIGIN_WHITELIST_3 as string
+    process.env.CORS_ORIGIN_WHITELIST_3 as string,
+    process.env.CORS_ORIGIN_WHITELIST_4 as string
 ];
 export const corsConfig = {origin: whiteList, credentials: true};
