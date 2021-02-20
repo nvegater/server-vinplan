@@ -33,7 +33,7 @@ const start_server = async () => {
     // Redis
     const redisStore: RedisStore = connectRedis(session)
     const redisClient: RedisType = new Redis(process.env.REDIS_URL)
-    app.set("proxy", 1);
+    app.set("trust proxy", 1);
     const redisRequestHandler: RequestHandler = session(buildRedisSession(redisStore, redisClient));
     app.use(redisRequestHandler);
 
