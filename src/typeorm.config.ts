@@ -13,7 +13,7 @@ export default {
     type: 'postgres',
     url: process.env.DATABASE_URL,
     logging: true, // log SQL
-    //synchronize: true, // dont set in production npx typeorm migration:create -n InitialDBSetup
+    synchronize: process.env.NODE_ENV !== 'production', // npx typeorm migration:create -n InitialDBSetup
     migrations: [path.join(__dirname, "./migrations/*")],
     entities: [Post, User, Upvote, Service, Winery,ServiceReservation, WineProductionType, WineType]
 } as ConnectionOptions

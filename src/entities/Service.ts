@@ -67,6 +67,10 @@ export class Service extends BaseEntity {
     @Column()
     creatorId: number;
 
+    @Field(() => Int, {nullable:true})
+    @Column({nullable: true})
+    parentServiceId: number;
+
     @Field(() => User)
     @ManyToOne(() => User, user => user.services)
     creator: User;

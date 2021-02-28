@@ -21,6 +21,13 @@ export const SQL_QUERY_INSERT_RESERVATION = `
     values ($1, $2, $3)
 `;
 
+export const SQL_QUERY_UPDATE_RESERVATION = `
+    update service_reservation
+    set "noOfAttendees" = "noOfAttendees" + $1
+    where "serviceId" = $2
+      and "userId" = $3
+`;
+
 export const SQL_QUERY_SELECT_PAGINATED_POSTS = `
     select p.*,
            json_build_object(
