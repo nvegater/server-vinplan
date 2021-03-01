@@ -139,7 +139,7 @@ export class ServiceResolver {
                             }
                         } else {
                             const error: FieldError = {
-                                field: "updateService",
+                                field: "updateServiceFull",
                                 message: "service is full"
                             }
                             return {errors: [error]}
