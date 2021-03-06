@@ -13,6 +13,8 @@ import {User} from "./User";
 import {Field, Int, ObjectType, registerEnumType} from "type-graphql";
 import {ProductionType, WineProductionType} from "./WineProductionType";
 import {TypeWine, WineType} from "./WineType";
+import {Amenity, WineryAmenity} from "./WineryAmenity";
+import {WineryLanguage, SupportedLanguage} from "./WineryLanguage";
 
 export enum Valley {
     "GUADALUPE"="Guadalupe",
@@ -83,6 +85,14 @@ export class Winery extends BaseEntity {
     @Field(() => [TypeWine])
     @OneToMany(() => WineType, wineType => wineType.winery)
     wineType: WineType[];
+
+    @Field(()=>[SupportedLanguage], {nullable: true})
+    @OneToMany(()=>WineryLanguage, serviceLanguage => serviceLanguage.winery, {nullable: true})
+    supportedLanguages?: WineryLanguage[];
+
+    @Field(()=>[Amenity], {nullable: true})
+    @OneToMany(()=>WineryAmenity, wineryAmenity => wineryAmenity.winery, {nullable: true})
+    amenities?: WineryAmenity[];
 
     //FK
     @Column()

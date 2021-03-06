@@ -4,6 +4,8 @@ import userResolversErrors from "./userResolversErrors";
 import {Valley} from "../../entities/Winery";
 import {ProductionType} from "../../entities/WineProductionType";
 import {TypeWine} from "../../entities/WineType";
+import {SupportedLanguage} from "../../entities/WineryLanguage";
+import {Amenity} from "../../entities/WineryAmenity";
 
 
 const USER_TYPE_DESCRIPTION = "Al registrarse los visitantes seleccionan una de las siguientes categorias" +
@@ -44,6 +46,10 @@ export class WineryDataInputs {
     productionType!: ProductionType[];
     @Field(()=>[TypeWine])
     wineType!: TypeWine[];
+    @Field(()=>[SupportedLanguage], {nullable:true})
+    supportedLanguages?: SupportedLanguage[];
+    @Field(()=>[Amenity], {nullable:true})
+    amenities?: Amenity[];
     @Field(() => Int,{nullable:true})
     yearlyWineProduction?: number;
     // During the creation of the winery, the creator id and user is set after.

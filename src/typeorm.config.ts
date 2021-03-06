@@ -8,6 +8,8 @@ import {Winery} from "./entities/Winery";
 import {ServiceReservation} from "./entities/ServiceReservation";
 import {WineProductionType} from "./entities/WineProductionType";
 import {WineType} from "./entities/WineType";
+import {WineryAmenity} from "./entities/WineryAmenity";
+import {WineryLanguage} from "./entities/WineryLanguage";
 
 export default {
     type: 'postgres',
@@ -15,5 +17,5 @@ export default {
     logging: true, // log SQL
     synchronize: process.env.NODE_ENV !== 'production', // npx typeorm migration:create -n InitialDBSetup
     migrations: [path.join(__dirname, "./migrations/*")],
-    entities: [Post, User, Upvote, Service, Winery,ServiceReservation, WineProductionType, WineType]
+    entities: [Post, User, Upvote, Service, Winery,ServiceReservation, WineProductionType, WineType, WineryAmenity, WineryLanguage]
 } as ConnectionOptions
