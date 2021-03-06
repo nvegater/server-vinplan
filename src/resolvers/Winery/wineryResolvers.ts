@@ -7,6 +7,8 @@ import {SQL_QUERY_SELECT_WINERIES} from "../Universal/queries";
 import {Service} from "../../entities/Service";
 import {WineType} from "../../entities/WineType";
 import {WineProductionType} from "../../entities/WineProductionType";
+import {WineryLanguage} from "../../entities/WineryLanguage";
+import {WineryAmenity} from "../../entities/WineryAmenity";
 
 @Resolver(Winery)
 export class WineryResolver {
@@ -67,11 +69,21 @@ export class WineryResolver {
                 where: {wineryId: winery.id}
             });
 
+            const languages: WineryLanguage[] | undefined = await WineryLanguage.find({
+                where: {wineryId: winery.id}
+            });
+
+            const amenities: WineryAmenity[] | undefined = await WineryAmenity.find({
+                where: {wineryId: winery.id}
+            });
+
             return {
                 winery: {
                     ...winery,
                     wineType: wineTypesOfWinery.map((wt)=>wt.wineType),
-                    productionType: prodTypesOfWinery.map((pt)=>pt.productionType)
+                    productionType: prodTypesOfWinery.map((pt)=>pt.productionType),
+                    supportedLanguages: languages.map((lan)=>lan.supportedLanguage),
+                    amenities: amenities.map((amen) => amen.amenity)
                 },
                 services: wineryWithServices
             }
