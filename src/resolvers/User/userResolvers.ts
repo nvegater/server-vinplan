@@ -192,7 +192,7 @@ export class UserResolver {
                         });
                     }
 
-                if (wineryDataInputs.amenities && wineryDataInputs.amenities?.length > 0) {
+                    if (wineryDataInputs.amenities && wineryDataInputs.amenities?.length > 0) {
                         wineryDataInputs.amenities.map(async (amenity) => {
                             const amenityEntity = WineryAmenity.create({
                                 wineryId: winery.id,
@@ -244,10 +244,15 @@ export class UserResolver {
                 if (reservedServicesIds[0].reservedServicesIds.length > 0 && user) {
                     user.reservedServicesIds = reservedServicesIds[0].reservedServicesIds as number[];
                 }
-                const createdWinery = await Winery.findOne({where: {creatorId: user.id}})
-                if (createdWinery && user) {
-                    user.wineryId = createdWinery.id;
-                } else if (user) {
+
+                if (user.userType === UserType.WINERY_OWNER) {
+                    const createdWinery = await Winery.findOne({where: {creatorId: user.id}})
+                    if (createdWinery && user) {
+                        user.wineryId = createdWinery.id;
+                    } else {
+                        return {errors: inputErrors.concat(userResolversErrors.wineryFromUserDeleted)}
+                    }
+                } else {
                     user.wineryId = null;
                 }
 

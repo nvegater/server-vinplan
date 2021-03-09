@@ -73,6 +73,11 @@ const usernameInUseError: FieldError = {
     field: Fields.username,
     message: "User already exists"
 }
+
+const wineryFromUserDeleted: FieldError = {
+    field: "usernameOrEmail",
+    message: "your winery was deleted, please register a new one"
+}
 const emailInUseError: FieldError = {
     field: Fields.email,
     message: "That email is already in use"
@@ -93,6 +98,7 @@ const userResolversErrors = {
     usernameTooShortInputError,
     usernameContainsAt,
     usernameOrEmailMissingInputError,
+    wineryFromUserDeleted,
     emailIsInvalidInputError,
     emailIsMissingInputError,
     passwordTooShortInputError,
