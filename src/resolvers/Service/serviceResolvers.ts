@@ -206,7 +206,7 @@ export class ServiceResolver {
                 }
             } else {
                 const error: FieldError = {
-                    field: "updateService",
+                    field: "yourOwnService",
                     message: "youre trying to book a service you created"
                 }
                 return {errors: [error]}
