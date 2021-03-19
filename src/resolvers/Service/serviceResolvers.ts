@@ -129,7 +129,7 @@ export class ServiceResolver {
                             } else {
                                 await getConnection().transaction(async transactionManager => {
                                     let createOrUpdate = SQL_QUERY_INSERT_RESERVATION;
-                                    const reservationExists = ServiceReservation.findOne({where: {serviceId: newId, userId: userId}})
+                                    const reservationExists = await ServiceReservation.findOne({where: {serviceId: newId, userId: userId}})
                                     if (reservationExists){
                                         createOrUpdate = SQL_QUERY_UPDATE_RESERVATION
                                     }
