@@ -10,6 +10,9 @@ export class CreateServiceInputs {
     limitOfAttendees!: number;
 
     @Field()
+    duration!: number;
+
+    @Field()
     title!: string
     @Field()
     description!: string
