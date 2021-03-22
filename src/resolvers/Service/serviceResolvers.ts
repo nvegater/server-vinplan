@@ -224,6 +224,7 @@ export class ServiceResolver {
         const {userId} = req.session;
         // validate winery
         const service = await Service.findOne({where: {title: createServiceInputs.title}});
+        console.log("service creation Log: ", service, userId)
         if (!service) {
             const service = await Service.create({
                 ...createServiceInputs,

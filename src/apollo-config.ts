@@ -58,7 +58,13 @@ export const apolloExpressRedisContext =
     async (redisClient: RedisType): Promise<ApolloServerExpressConfig> => {
     const graphqlSchemas = await buildSchemas();
     const playGroundConfig: PlaygroundConfig = process.env.NODE_ENV === 'production'
-        ? false
+        ? {
+            settings: {
+                //default is 'omit'
+                // Always same credentials for multiple-playground requests in Dev mode.
+                'request.credentials': 'include',
+            },
+        } // same is an not prod. Change to false
         : {
             settings: {
                 //default is 'omit'
