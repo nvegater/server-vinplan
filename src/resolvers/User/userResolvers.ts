@@ -256,6 +256,8 @@ export class UserResolver {
                     user.wineryId = null;
                 }
 
+                console.log(req.session)
+
                 return {user: user}
             }
         }
