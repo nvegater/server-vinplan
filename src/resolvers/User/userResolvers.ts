@@ -256,7 +256,8 @@ export class UserResolver {
                     user.wineryId = null;
                 }
 
-                console.log(req.session)
+                // @ts-ignore
+                console.log("Login mutation, this is the user Id", req.session.userId)
 
                 return {user: user}
             }
