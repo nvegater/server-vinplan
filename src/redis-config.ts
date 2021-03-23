@@ -13,7 +13,7 @@ const redisCookieConfig: CookieOptions = {
     //This makes cookie not accessible in frontend
     sameSite: 'lax', // csrf related.
     secure: _prod_, // cookie only works in https when we are in production
-    domain: _prod_ ? process.env.DOMAIN_FOR_COOKIES as string : undefined
+    domain: _prod_ ? process.env.DOMAIN_FOR_COOKIES as string : "localhost"
 };
 const generateUuidv4 = (_req: Request) => {
     return uuidv4()
