@@ -13,9 +13,13 @@ import {WineryLanguage} from "./entities/WineryLanguage";
 
 export default {
     type: 'postgres',
-    url: process.env.DATABASE_URL,
+    host: process.env.DATABASE_HOST,
+    port: parseInt(process.env.DATABASE_PORT || "5432"),
+    username: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PASS,
+    database: process.env.DATABASE_NAME,
     logging: true, // log SQL
-    synchronize: process.env.NODE_ENV !== 'production', // npx typeorm migration:create -n InitialDBSetup
+    synchronize: false, // npx typeorm migration:create -n InitialDBSetup
     migrations: [path.join(__dirname, "./migrations/*")],
     entities: [Post, User, Upvote, Service, Winery,ServiceReservation, WineProductionType, WineType, WineryAmenity, WineryLanguage]
 } as ConnectionOptions
