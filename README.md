@@ -27,8 +27,8 @@ Start the graphql playground to see documentation and send queries to the server
 
 1. Clone project 
 2. `yarn install`
-3. Install and start a redis-server ([for macos](https://gist.github.com/tomysmile/1b8a321e7c58499ef9f9441b2faa0aa8))
-4. Start a Postgres DB and configure it in `src/mikro-orm.config.ts`.
+3. `docker-compose up` to start postgres db and redis
+4. `cp .env_docker .env` and adjust to your liking, but please do not commit the `.env` file
 5. `npm run script dev-ts`
 6. Open `localhost:4000/graphql` in any browser.
 
