@@ -13,7 +13,8 @@ and "improved" some stuff.
 TODO: Pack this and the [nextjs frontend server](https://github.com/nvegater/client-nextjs-react)
 in a Docker compose to deploy eazypeazy.
 
-### Other "secondary" but essential libraries:
+### Other "secondary" but essential libraries
+
 * argon2 for password CRUD
 * ioredis, connect-redis and express-session for Cookies and Authentication.
 * uuid for token and ids generation.
@@ -25,12 +26,14 @@ Everything is 100% Typed.
 
 Start the graphql playground to see documentation and send queries to the server.
 
-1. Clone project 
-2. `yarn install`
-3. `docker-compose up` to start postgres db and redis
-4. `cp .env_docker .env` and adjust to your liking, but please do not commit the `.env` file
-5. `npm run script dev-ts`
-6. Open `localhost:4000/graphql` in any browser.
+1. Clone project
+2. `cp .env_docker .env`
+3. adjust `.env` to your liking, but please do not commit the `.env` file
+4. edit `docker-compose.yml` and adjust to your liking
+5. `docker-compose up` to start postgres db and redis
+6. `yarn install`
+7. `npm run dev-ts`
+8. Open <http://localhost:4000/graphql> in any browser.
 
 ## How it plays together
 
@@ -48,23 +51,26 @@ The magic happens in `index.ts`, TLDR:
 1. Build the Graphql schemas.
 2. Create custom context function:
     2.1. Extend Apollo-Express config to add MikroOrm and redis client as context arguments
-    2.2. Return Custom Express+Redis+ORM Config object for Apollo. 
+    2.2. Return Custom Express+Redis+ORM Config object for Apollo.
 3. Voila, access Redis Sessions and ORM from Graphql Resolvers.
 
 ## Redis Cookies Login explained
 
 Challenge: store user data between HTTP requests (associate a request to any other request).
+
 * Cookies and URL parameters transport data between the client and the server.
 * Unfortunately Cookies and URL values are both readable and on the client side.
 
 Sessions solve that problem, hiding the values from cookies/URLs. How?
+
 * Assign the client request an ID and stores the id in a cookie.
 * Client makes all further requests using that ID-Cookie.
-* Redis DB in the server store key-value pairs where the key is the client ID from the cookie. 
+* Redis DB in the server store key-value pairs where the key is the client ID from the cookie.
 * The server retrieves the values with the given key from the request and use them for whatever.
 * The server returns only the result and id-key but not the values.
 
-Session context is: 
+Session context is:
+
 * in the request header, thanks to express-session
 * generated again with every new request.
 * accessible within Graphql the resolvers
