@@ -2,7 +2,7 @@ import {Arg, Ctx, Int, Mutation, Query, Resolver, UseMiddleware} from "type-grap
 import {Service} from "../../entities/Service";
 import {BookServiceResponse, CreateServiceResponse, ServiceResponse} from "./serviceResolversOutputs";
 import {FieldError} from "../User/userResolversOutputs";
-import {getConnection, Not, UpdateResult} from "typeorm";
+import {getConnection, MoreThan, Not, UpdateResult} from "typeorm";
 import {
     SQL_QUERY_INSERT_RESERVATION,
     SQL_QUERY_SELECT_SERVICES_WITH_WINERY,
@@ -44,6 +44,22 @@ export class ServiceResolver {
                 errors: [fieldError],
                 moreServicesAvailable: false
             }
+        }
+    };
+
+    @Query(() => ServiceResponse)
+    @UseMiddleware(isAuth)
+    async servicesBookedWinery(
+        @Ctx() {req}: ApolloRedisContext
+    ): Promise<ServiceResponse> {
+        // @ts-ignore
+        const {userId} = req.session;
+        const paginatedServicesDB = await Service.findAndCount({
+            where: {creatorId: userId, noOfAttendees: MoreThan(0)}
+        })
+        return {
+            paginatedServices: paginatedServicesDB[0],
+            moreServicesAvailable: false
         }
     };
 
@@ -128,8 +144,13 @@ export class ServiceResolver {
                             } else {
                                 await getConnection().transaction(async transactionManager => {
                                     let createOrUpdate = SQL_QUERY_INSERT_RESERVATION;
-                                    const reservationExists = await ServiceReservation.findOne({where: {serviceId: newId, userId: userId}})
-                                    if (reservationExists){
+                                    const reservationExists = await ServiceReservation.findOne({
+                                        where: {
+                                            serviceId: newId,
+                                            userId: userId
+                                        }
+                                    })
+                                    if (reservationExists) {
                                         createOrUpdate = SQL_QUERY_UPDATE_RESERVATION
                                     }
                                     await transactionManager.query(createOrUpdate, [newId, userId, noOfAttendees]);
@@ -190,7 +211,7 @@ export class ServiceResolver {
                         }
                         return {errors: [error]}
                     } else {
-                    // Insert the reservation after service update
+                        // Insert the reservation after service update
                         await getConnection().transaction(async transactionManager => {
                             await transactionManager.query(SQL_QUERY_INSERT_RESERVATION, [serviceId, userId, noOfAttendees]);
                         });
