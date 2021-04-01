@@ -1,13 +1,16 @@
 version: "3.9"
+
 services:
+
   postgres:
     image: "postgres:13.2-alpine"
     ports:
-      - "5433:5432"
+      - "5432:5432"
     environment:
       POSTGRES_USER: "root"
       POSTGRES_PASSWORD: "toor"
       POSTGRES_DB: "vinplan"
+
   redis:
     image: "redis:6.0-alpine"
     ports:
