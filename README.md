@@ -27,7 +27,7 @@ Everything is 100% Typed.
 Start the graphql playground to see documentation and send queries to the server.
 
 1. Clone project
-2. `cp .env_docker .env`
+2. `cp .env.docker .env`
 3. adjust `.env` to your liking, but please do not commit the `.env` file
 4. edit `docker-compose.yml` and adjust to your liking
 5. `docker-compose up` to start postgres db and redis
