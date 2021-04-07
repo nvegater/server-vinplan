@@ -187,7 +187,7 @@ export class ServiceResolver {
                         // Insert the reservation after service update
                         await getConnection().transaction(async transactionManager => {
                             await transactionManager.query(SQL_QUERY_INSERT_RESERVATION,
-                                [newRecurrentInstanceFromService.id, userId, noOfAttendees]);
+                                [noOfAttendees,newRecurrentInstanceFromService.id, userId]);
                         });
                         return {service: newRecurrentInstanceFromService};
                     }
