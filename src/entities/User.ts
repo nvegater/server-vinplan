@@ -55,6 +55,7 @@ export class User extends BaseEntity {
     @OneToMany(() => Upvote, upvote => upvote.user)
     upvotes: Upvote[];
 
+    @Field(()=>[ServiceReservation], {nullable: true})
     @OneToMany(() => ServiceReservation, serviceReservation => serviceReservation.user)
     reservedServices: ServiceReservation[];
 

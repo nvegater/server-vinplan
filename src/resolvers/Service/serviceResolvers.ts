@@ -153,7 +153,7 @@ export class ServiceResolver {
                                     if (reservationExists) {
                                         createOrUpdate = SQL_QUERY_UPDATE_RESERVATION
                                     }
-                                    await transactionManager.query(createOrUpdate, [newId, userId, noOfAttendees]);
+                                    await transactionManager.query(createOrUpdate, [noOfAttendees,newId, userId]);
                                 });
                                 return {service: updateService.raw[0] as Service};
                             }
