@@ -27,6 +27,7 @@ import {WineType} from "../../entities/WineType";
 import {WineProductionType} from "../../entities/WineProductionType";
 import {WineryLanguage} from "../../entities/WineryLanguage";
 import {WineryAmenity} from "../../entities/WineryAmenity";
+import {ServiceReservation} from "../../entities/ServiceReservation";
 
 
 @Resolver(User)
@@ -61,6 +62,8 @@ export class UserResolver {
 
         if (reservedServicesIds[0].reservedServicesIds.length > 0 && userDB) {
             userDB.reservedServicesIds = reservedServicesIds[0].reservedServicesIds as number[];
+            const reservations = await ServiceReservation.findAndCount({where: {userId: userIdFromSession}})
+            userDB.reservedServices = reservations[0];
         }
 
         const createdWinery = await Winery.findOne({where: {creatorId: userIdFromSession}})
