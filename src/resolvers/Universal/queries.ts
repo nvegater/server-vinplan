@@ -17,7 +17,7 @@ export const SQL_QUERY_INSERT_NEW_UPVOTE = `
 `;
 
 export const SQL_QUERY_INSERT_RESERVATION = `
-    insert into service_reservation ("serviceId", "userId", "noOfAttendees")
+    insert into service_reservation ("noOfAttendees", "serviceId", "userId")
     values ($1, $2, $3)
 `;
 
