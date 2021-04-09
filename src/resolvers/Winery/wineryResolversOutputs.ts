@@ -22,3 +22,13 @@ export class WineryServicesResponse {
     @Field(()=>[Service])
     services?: Service[];
 }
+
+@ObjectType()
+export class WineryGetPreSignedUrl {
+    @Field(() => [FieldError], {nullable: true})
+    errors?: FieldError[]
+    @Field(() => String)
+    putUrl?: String;
+    @Field(() => String)
+    getUrl?: String;
+}

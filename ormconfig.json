@@ -5,7 +5,7 @@
   "username": "admin-p00920345",
   "password": "Gibson.123",
   "database": "db-vinplan-init",
-  "synchronize": false,
+  "synchronize": true,
   "entities": [
     "dist/entities/*.js"
   ],

@@ -34,6 +34,7 @@
   "dependencies": {
     "apollo-server-express": "^2.19.0",
     "argon2": "^0.27.1",
+    "aws-sdk": "^2.856.0",
     "class-validator": "^0.12.2",
     "connect-redis": "^5.0.0",
     "cors": "^2.8.5",
@@ -43,6 +44,7 @@
     "express-session": "^1.17.1",
     "graphql": "^15.4.0",
     "ioredis": "^4.19.4",
+    "mime": "^2.5.2",
     "nodemailer": "^6.4.17",
     "pg": "^8.5.1",
     "rrule": "^2.6.8",
