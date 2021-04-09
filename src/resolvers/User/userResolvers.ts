@@ -27,7 +27,8 @@ import {WineType} from "../../entities/WineType";
 import {WineProductionType} from "../../entities/WineProductionType";
 import {WineryLanguage} from "../../entities/WineryLanguage";
 import {WineryAmenity} from "../../entities/WineryAmenity";
-import {ServiceReservation} from "../../entities/ServiceReservation";
+import getUser from "../../useCases/getUser";
+import registerUser from "src/useCases/registerUser";
 
 
 @Resolver(User)
@@ -56,24 +57,7 @@ export class UserResolver {
         // @ts-ignore
         const userIdFromSession = req.session.userId;
 
-        const userDB = await User.findOne(userIdFromSession);
-        const reservedServicesIds = await getConnection()
-            .query(SQL_QUERY_GET_RESERVED_SERVICES_IDS, [userIdFromSession])
-
-        if (reservedServicesIds[0].reservedServicesIds.length > 0 && userDB) {
-            userDB.reservedServicesIds = reservedServicesIds[0].reservedServicesIds as number[];
-            const reservations = await ServiceReservation.findAndCount({where: {userId: userIdFromSession}})
-            userDB.reservedServices = reservations[0];
-        }
-
-        const createdWinery = await Winery.findOne({where: {creatorId: userIdFromSession}})
-        if (createdWinery && userDB) {
-            userDB.wineryId = createdWinery.id;
-        } else if (userDB) {
-            userDB.wineryId = null;
-        }
-        return {user: userDB};
-
+        return await getUser(userIdFromSession)
 
     }
 
@@ -83,32 +67,20 @@ export class UserResolver {
         @Ctx() {req}: ApolloRedisContext
     ): Promise<UserResponse> {
         const inputErrors: FieldError[] = validateInputsRegister(registerInputs);
+
         if (inputErrors.length > 0) {
             return {errors: inputErrors}
         }
-        const userWithUsernameExists: User | undefined = await User.findOne({where: {username: registerInputs.username}});
-        if (userWithUsernameExists) {
-            return {errors: inputErrors.concat(userResolversErrors.usernameInUseError)}
-        } else {
 
-            const userWithEmailExists: User | undefined = await User.findOne({where: {email: registerInputs.email}});
-            if (userWithEmailExists) {
-                return {errors: inputErrors.concat(userResolversErrors.emailInUseError)}
-            } else {
-                const user = User.create({
-                    username: registerInputs.username,
-                    email: registerInputs.email,
-                    password: await argon2.hash(registerInputs.password),
-                    userType: registerInputs.userType
-                });
-                await user.save();
+        const registerResult: UserResponse = await registerUser(registerInputs);
 
-                // @ts-ignore
-                req.session.userId = user.id;
-
-                return {user: user}
-            }
+        if (registerResult.errors && registerResult.errors.length > 0) {
+            return {errors: registerResult.errors}
         }
+        // @ts-ignore
+        req.session.userId = registerResult.user.id;
+
+        return registerResult
     }
 
     @Mutation(() => WineryResponse)
