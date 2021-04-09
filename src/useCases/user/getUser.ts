@@ -1,8 +1,8 @@
-import {UserResponse} from "../resolvers/User/userResolversOutputs";
-import userResolversErrors from "../resolvers/User/userResolversErrors";
-import userDataServices from "../dataServices/user"
-import serviceReservationDataServices from "../dataServices/serviceReservation"
-import wineryDataServices from "../dataServices/winery"
+import {UserResponse} from "../../resolvers/User/userResolversOutputs";
+import userResolversErrors from "../../resolvers/User/userResolversErrors";
+import userDataServices from "../../dataServices/user"
+import serviceReservationDataServices from "../../dataServices/serviceReservation"
+import wineryDataServices from "../../dataServices/winery"
 const getUser = async (userId: number): Promise<UserResponse> => {
 
     const user = await userDataServices.findUserById(userId);

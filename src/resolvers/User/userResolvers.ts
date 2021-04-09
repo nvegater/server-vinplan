@@ -27,8 +27,8 @@ import {WineType} from "../../entities/WineType";
 import {WineProductionType} from "../../entities/WineProductionType";
 import {WineryLanguage} from "../../entities/WineryLanguage";
 import {WineryAmenity} from "../../entities/WineryAmenity";
-import getUser from "../../useCases/getUser";
-import registerUser from "src/useCases/registerUser";
+import getUser from "../../useCases/user/getUser";
+import registerUser from "src/useCases/user/registerUser";
 
 
 @Resolver(User)
