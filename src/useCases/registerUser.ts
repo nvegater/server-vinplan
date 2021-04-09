@@ -2,7 +2,7 @@ import {User} from "../entities/User";
 import userResolversErrors from "../resolvers/User/userResolversErrors";
 import {RegisterInputs} from "../resolvers/User/userResolversInputs";
 import {UserResponse} from "../resolvers/User/userResolversOutputs";
-import userDataServices from "../dataServices/userDataServices";
+import userDataServices from "../dataServices/user";
 
 const registerUser = async (registerInputs: RegisterInputs): Promise<UserResponse> => {
     const userWithUsernameExists: User | undefined = await userDataServices.findUserByUsername(registerInputs.username);
