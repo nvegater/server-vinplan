@@ -1,7 +1,7 @@
 import {BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
-import {Field} from "type-graphql";
+import {Field, ObjectType} from "type-graphql";
 import {Winery} from "./Winery";
-
+@ObjectType()
 @Entity()
 export class WineryImageGallery extends BaseEntity {
 

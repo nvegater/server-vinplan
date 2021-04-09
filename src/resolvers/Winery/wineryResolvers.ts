@@ -11,6 +11,7 @@ import {WineryLanguage} from "../../entities/WineryLanguage";
 import {WineryAmenity} from "../../entities/WineryAmenity";
 import {getPresignedUrl} from "../../utils/s3Utilities"
 import {WINERYALBUM} from '../../utils/constants.json'
+import {WineryImageGallery} from "../../entities/WineryImageGallery";
 
 @Resolver(Winery)
 export class WineryResolver {
@@ -61,6 +62,10 @@ export class WineryResolver {
     ): Promise<WineryServicesResponse> {
 
         const wineryWithServices = await Service.find({where: {wineryId: wineryId}})
+
+        const wineryImages: WineryImageGallery[] | undefined = await WineryImageGallery.find({
+            where: {wineryId: wineryId}
+        })
         const winery:any = await Winery.findOne(wineryId);
 
         if (wineryWithServices && winery) {
@@ -85,8 +90,9 @@ export class WineryResolver {
                     wineType: wineTypesOfWinery.map((wt)=>wt.wineType),
                     productionType: prodTypesOfWinery.map((pt)=>pt.productionType),
                     supportedLanguages: languages.map((lan)=>lan.supportedLanguage),
-                    amenities: amenities.map((amen) => amen.amenity)
+                    amenities: amenities.map((amen) => amen.amenity),
                 },
+                images: wineryImages,
                 services: wineryWithServices
             }
         } else {
