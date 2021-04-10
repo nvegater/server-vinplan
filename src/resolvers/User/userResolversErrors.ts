@@ -9,6 +9,11 @@ enum Fields {
     userType = "userType"
 }
 
+const userNotFoundError: FieldError = {
+    field: Fields.username,
+    message: "User not found"
+}
+
 // User input dependant userResolversErrors
 const usernameMissingInputError: FieldError = {
     field: Fields.username,
@@ -94,6 +99,7 @@ const tokenUserError: FieldError = {
 }
 
 const userResolversErrors = {
+    userNotFoundError,
     usernameMissingInputError,
     usernameTooShortInputError,
     usernameContainsAt,
