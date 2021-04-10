@@ -14,11 +14,11 @@ const findServiceByParentIdAndStartDateTime = async (serviceId:number, startDate
     })
 }
 
-const updateAttendeesByIdAndCreator = async (id:number, creatorId: number, noOfAttendees: number) => {
+const updateAttendeesByIdAndCreator = async (id:number, creatorId: number, noOfAttendees: number, noOfAttendeesService: number) => {
     return await getConnection().createQueryBuilder()
         .update(Service)
         .set({
-            noOfAttendees: noOfAttendees + noOfAttendees
+            noOfAttendees: noOfAttendees + noOfAttendeesService
         })
         .where('id = :id and "creatorId" = :creatorId', {id: id, creatorId: creatorId})
         .returning("*")

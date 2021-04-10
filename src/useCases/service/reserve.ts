@@ -21,7 +21,7 @@ const makeReservation = async (inputs: ReservationInputs, service: Service) => {
         }
 
     const updateAttendes = await serviceDataServices
-        .updateAttendeesByIdAndCreator(service.id, service.creatorId, inputs.noOfAttendees);
+        .updateAttendeesByIdAndCreator(service.id, service.creatorId, inputs.noOfAttendees, service.noOfAttendees);
 
     if (updateAttendes.affected === 0)
         return {errors: [{field: "updateService", message: "no change was made"}]}
