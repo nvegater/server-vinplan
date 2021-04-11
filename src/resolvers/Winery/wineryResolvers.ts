@@ -1,14 +1,16 @@
 import {Arg, Int, Query, Resolver} from "type-graphql";
 import {FieldError} from "../User/userResolversOutputs";
-import {WineriesResponse, WineryServicesResponse} from "./wineryResolversOutputs";
+import {WineriesResponse, WineryServicesResponse, WineryGetPreSignedUrl} from "./wineryResolversOutputs";
 import {Winery} from "../../entities/Winery";
 import {getConnection, In} from "typeorm";
 import {SQL_QUERY_SELECT_WINERIES} from "../Universal/queries";
 import {Service} from "../../entities/Service";
 import {WineType} from "../../entities/WineType";
 import {WineProductionType} from "../../entities/WineProductionType";
+import {getPresignedUrl} from "../../utils/s3Utilities"
 import {WineryLanguage} from "../../entities/WineryLanguage";
 import {WineryAmenity} from "../../entities/WineryAmenity";
+import {WINERYALBUM} from "../../constants"
 
 @Resolver(Winery)
 export class WineryResolver {
@@ -96,6 +98,19 @@ export class WineryResolver {
                 errors: [fieldError]
             }
         }
+    }
 
+    @Query(() => WineryGetPreSignedUrl)
+    async preSignedUrl(
+        @Arg('fileName', () => String) fileName : string,
+        @Arg('wineryId', () => Int) wineryId : number
+    ): Promise<WineryGetPreSignedUrl> {
+        try {
+            const presigned = await getPresignedUrl(fileName, wineryId, WINERYALBUM) 
+            return presigned;
+        } catch (error) {
+            return error
+        }
+        
     }
 }
