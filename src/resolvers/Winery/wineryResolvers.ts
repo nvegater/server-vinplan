@@ -64,6 +64,10 @@ export class WineryResolver {
         const wineryWithServices = await Service.find({where: {wineryId: wineryId}})
         const winery:any = await Winery.findOne(wineryId);
 
+        const wineryImages: WineryImageGallery[] | undefined = await WineryImageGallery.find({
+            where: {wineryId: wineryId}
+        })
+
         if (wineryWithServices && winery) {
             const wineTypesOfWinery: WineType[] | undefined = await WineType.find({
                 where: {wineryId: winery.id}
@@ -88,6 +92,7 @@ export class WineryResolver {
                     supportedLanguages: languages.map((lan)=>lan.supportedLanguage),
                     amenities: amenities.map((amen) => amen.amenity)
                 },
+                images: wineryImages,
                 services: wineryWithServices
             }
         } else {
@@ -114,7 +119,7 @@ export class WineryResolver {
         }
     }
 
-    @Mutation(() => Winery)
+    @Mutation(() => WineryServicesResponse)
     async insertImageWinery(
         @Arg('wineryId', () => Int) wineryId: number,
         @Arg('urlImage', () => String) urlImage: string,
@@ -124,12 +129,15 @@ export class WineryResolver {
         .insert()
         .into(WineryImageGallery)
         .values([
-            { wineryId: wineryId, imageUrl: urlImage }
+            { "wineryId": wineryId, "imageUrl": urlImage }
         ])
         .execute();
 
         const wineryWithServices = await Service.find({where: {wineryId: wineryId}})
         const winery:any = await Winery.findOne(wineryId);
+        const wineryImages: WineryImageGallery[] | undefined = await WineryImageGallery.find({
+            where: {wineryId: wineryId}
+        })
 
         if (wineryWithServices && winery) {
             const wineTypesOfWinery: WineType[] | undefined = await WineType.find({
@@ -155,6 +163,7 @@ export class WineryResolver {
                     supportedLanguages: languages.map((lan)=>lan.supportedLanguage),
                     amenities: amenities.map((amen) => amen.amenity)
                 },
+                images: wineryImages,
                 services: wineryWithServices
             }
         } else {

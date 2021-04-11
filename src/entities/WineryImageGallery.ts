@@ -9,7 +9,7 @@ export class WineryImageGallery extends BaseEntity {
     id!: number;
 
     @Field({nullable: true})
-    @Column()
+    @Column({nullable: true})
     wineryId: number;
 
     @Field({nullable: true})
