@@ -21,7 +21,7 @@ const insertImage = async (wineryId: number, urlImage: string): Promise<WineryIm
             const wineryImages: WineryImageGallery[] | undefined = await WineryImageGallery.find({
                 where: {wineryId: wineryId}
             })
-            return {images: wineryImages}
+            return {images: wineryImages};
         }
     } catch (error) {
         throw new Error(error)
