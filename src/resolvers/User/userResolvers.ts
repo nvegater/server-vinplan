@@ -315,5 +315,15 @@ export class UserResolver {
         return {user: user}
     }
 
+    @Mutation(() => UserResponse)
+    @UseMiddleware(isAuth)
+    async updateProfileImage(
+        @Ctx() {req}: ApolloRedisContext
+    ): Promise<UserResponse> {
+        // Buscando el id desde la session para poder actualizar el usuario
+        const userIdFromSession = req.session;
+        console.log(userIdFromSession);
+        return await getUser(1)
+    }
 
 }
