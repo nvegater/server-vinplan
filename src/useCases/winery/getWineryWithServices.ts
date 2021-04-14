@@ -1,36 +1,32 @@
-import {Service} from "../../entities/Service";
-import {Winery} from "../../entities/Winery";
-import {WineType} from "../../entities/WineType";
+import ServiceServices from "../../dataServices/service";
+import WineryServices from "../../dataServices/winery";
+import WineryImageGalleryServices from "../../dataServices/wineryImageGallery";
+import WineTypeServices from "../../dataServices/wineType";
+import WineProductionTypeServices from "../../dataServices/wineProductionType";
+import WineryLanguageServices from "../../dataServices/wineryLanguage";
+import WineryAmenityServices from "../../dataServices/wineryAmenity";
 import {WineProductionType} from "../../entities/WineProductionType";
 import {WineryLanguage} from "../../entities/WineryLanguage";
 import {WineryAmenity} from "../../entities/WineryAmenity";
-import {WineryImageGallery} from "../../entities/WineryImageGallery"
 import {FieldError} from "../../resolvers/User/userResolversOutputs";
 import {WineryServicesResponse} from "../../resolvers/Winery/wineryResolversOutputs";
 
+import {WineryImageGallery} from "../../entities/WineryImageGallery"
+import {WineType} from "../../entities/WineType"
+
 const getWineryWithServices = async(wineryId : number) : Promise<WineryServicesResponse> => {
     try {
-        const wineryWithServices = await Service.find({where: {wineryId: wineryId}})
-        const winery:any = await Winery.findOne(wineryId);
-        const wineryImages: WineryImageGallery[] | undefined = await WineryImageGallery.find({
-            where: {wineryId: wineryId}
-        })
+        const wineryWithServices = await ServiceServices.getServiceByWinery(wineryId)
+        const winery:any = await WineryServices.findWineryById(wineryId);
+        const wineryImages: WineryImageGallery[] | undefined  = await WineryImageGalleryServices.getWineryGalleryById(wineryId)
 
         if (wineryWithServices && winery) {
-            const wineTypesOfWinery: WineType[] | undefined = await WineType.find({
-                where: {wineryId: winery.id}
-            });
-            const prodTypesOfWinery: WineProductionType[] | undefined = await WineProductionType.find({
-                where: {wineryId: winery.id}
-            });
+            const wineTypesOfWinery: WineType[] | undefined = await WineTypeServices.getWineTypeByWineryId(winery.id)
+            const prodTypesOfWinery: WineProductionType[] | undefined = await WineProductionTypeServices.getProductionTypeByWineryId(winery.id)
 
-            const languages: WineryLanguage[] | undefined = await WineryLanguage.find({
-                where: {wineryId: winery.id}
-            });
+            const languages: WineryLanguage[] | undefined = await WineryLanguageServices.getWineryLanguageByWineryId(winery.id)
 
-            const amenities: WineryAmenity[] | undefined = await WineryAmenity.find({
-                where: {wineryId: winery.id}
-            });
+            const amenities: WineryAmenity[] | undefined = await WineryAmenityServices.getWineryAmenityByWineryId(winery.id)
 
             return {
                 winery: {

@@ -88,14 +88,14 @@ export class WineryResolver {
             const wineryInfo : WineryServicesResponse = await getWineryWithServices(wineryId);
             const wineryImages: WineryImageGallery[] | undefined = insertImageResponse.images
 
-            if (!wineryInfo.errors) {
+            if (!wineryInfo.errors && !insertImageResponse.errors) {
                 return {
                     ...wineryInfo,
                     images: wineryImages
                 }
             } else {
                 return {
-                    errors : wineryInfo.errors
+                    errors : wineryInfo.errors ? wineryInfo.errors : insertImageResponse.errors
                 }
             }
             

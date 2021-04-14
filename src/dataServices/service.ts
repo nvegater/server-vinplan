@@ -25,8 +25,13 @@ const updateAttendeesByIdAndCreator = async (id:number, creatorId: number, noOfA
         .execute();
 }
 
+const getServiceByWinery = async (wineryId : number) => {
+    return await Service.find({where: {wineryId: wineryId}})
+}
+
 export default {
     findServiceNotMadeByCreatorByServiceAndCreatorId,
     findServiceByParentIdAndStartDateTime,
-    updateAttendeesByIdAndCreator
+    updateAttendeesByIdAndCreator,
+    getServiceByWinery
 }
