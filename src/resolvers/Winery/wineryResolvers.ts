@@ -9,7 +9,6 @@ import {WineProductionType} from "../../entities/WineProductionType";
 import {getPresignedUrl} from "../../utils/s3Utilities"
 import {WineryImageGallery} from "../../entities/WineryImageGallery"
 import {WineryImageGalleryResponse} from "../../resolvers/Winery/wineryResolversOutputs"
-import {WINERYALBUM} from "../../constants"
 import getWineryWithServices from "../../useCases/winery/getWineryWithServices"
 import insertImage from "../../useCases/winery/insertImage"
 
@@ -67,10 +66,13 @@ export class WineryResolver {
     @Query(() => WineryGetPreSignedUrlResponse)
     async preSignedUrl(
         @Arg('fileName', () => String) fileName : string,
-        @Arg('wineryId', () => Int) wineryId : number
+        @Arg('wineryId', () => Int) wineryId : number,
+        @Arg('userId', () => Int) userId : number,
+        //¿como puedo armar un enum sin tener que levantar una nueva tabla?
+        @Arg('uploadType', () => String) uploadType: string,
     ): Promise<WineryGetPreSignedUrlResponse> {
         try {
-            const presigned = await getPresignedUrl(fileName, wineryId, WINERYALBUM) 
+            const presigned = await getPresignedUrl(fileName, wineryId, userId, uploadType) 
             return presigned;
         } catch (error) {
             return error

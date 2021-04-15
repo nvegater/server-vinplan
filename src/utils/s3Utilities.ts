@@ -1,6 +1,6 @@
 import AWS from 'aws-sdk';
 import mime from 'mime';
-import {WINERYALBUM} from '../constants'
+import {WINERYALBUM, USERPROFILEPICTURE} from '../constants'
 
 const spacesEndpoint = new AWS.Endpoint(process.env.NEXT_PUBLIC_DO_SPACES_ENDPOINT as string);
 const config: AWS.S3.Types.ClientConfiguration = {
@@ -11,9 +11,9 @@ const config: AWS.S3.Types.ClientConfiguration = {
 
 const s3 = new AWS.S3(config);
 
-export async function getPresignedUrl(fileName:string, wineryId:number, origin: string) {
+export async function getPresignedUrl(fileName:string, wineryId:number = 0, userId : number = 0, origin: string) {
     try {
-        const multimediaInfo = getMultimediaInfo(fileName, wineryId, origin);
+        const multimediaInfo = getMultimediaInfo(fileName, wineryId, userId, origin);
         const key = `${multimediaInfo.prefix}/${Date.now()}`
         const expireSeconds = 60 * 5
 
@@ -37,7 +37,7 @@ export async function getPresignedUrl(fileName:string, wineryId:number, origin: 
     }
 }
 
-const getMultimediaInfo = (fileName: string, wineryId: number, origin: string) => {
+const getMultimediaInfo = (fileName: string, wineryId: number, userId: number, origin: string) => {
     try {
         const imagesTypes = ['apng', 'avif', 'gif', 'jpg', 'jpeg', 'jfif', 'pjpeg', 'pjp', 'png', 'svg', 'webp' ];
         const ext = fileName.split('.').pop() || 'badFormat';
@@ -49,6 +49,9 @@ const getMultimediaInfo = (fileName: string, wineryId: number, origin: string) =
         if (origin == WINERYALBUM) {
             prefix = `winery/${wineryId}-album`;
             contentType = mime.getType(ext) || '';
+        }
+        if (origin == USERPROFILEPICTURE){
+            prefix = `user/${userId}-pictureProfile`;
         }
         return {
             prefix: prefix,
