@@ -318,12 +318,11 @@ export class UserResolver {
     }
 
     @Mutation(() => UserResponse)
-    // @UseMiddleware(isAuth)
+    @UseMiddleware(isAuth)
     async updateUser(
         @Arg('user') user: UserToEdit,
         @Ctx() {req}: ApolloRedisContext
     ): Promise<UserResponse> {
-        console.log('entro aqui jejeje');
         // Buscando el id desde la session para poder actualizar el usuario
         // @ts-ignore
         const userIdFromSession = req.session.userId;

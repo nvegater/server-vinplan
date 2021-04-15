@@ -42,6 +42,8 @@ export class UserToEdit {
     email?: string
     @Field({nullable:true})
     urlImage?: string
+    @Field({nullable:true})
+    visitorOrOwner?: boolean
     @Field(() => UserType, {nullable:true})
     userType?: UserType
 }

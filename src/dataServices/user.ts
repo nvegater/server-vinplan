@@ -26,18 +26,19 @@ const persistUser = async (registerInputs:RegisterInputs) => {
 }
 
 const updateUser = async (userId : number, userToEdit : UserToEdit) => {
-    // const userFound = await findUserById(userId)
-    console.log(userToEdit, userId);
-    // investigar como crear el objeto para guardarlo
-    await User.update({id : userId}, {}).then(response => 
-    {
-        console.log(response.raw[0]);
-        response.raw[0]
-    });
-    
-    // return User.save({
-    //     ...userFound
-    //   });
+    try {
+        const userFound = await findUserById(userId)
+        // Pregunta: ¿puedo crear el UserResponse desde aqui? 
+        // o esta capa solo es para llamado a base datos?
+        if (userFound === undefined) {
+            return userFound
+        } else {
+            Object.assign(userFound, userToEdit);
+            return await userFound.save()
+        }
+    } catch (error) {
+        return error;
+    }
 }
 
 export default {
