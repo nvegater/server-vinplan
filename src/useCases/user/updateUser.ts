@@ -11,7 +11,8 @@ const updateUser = async (userId: number, userData: UserToEdit): Promise<UserRes
         return {errors: [userResolversErrors.userNotFoundError]}
     }
 
-    console.log(userData);
+    const updateUser = await userDataServices.updateUser(user.id, userData)
+    console.log(updateUser);
 
 
     // const reservedServicesIds = await serviceReservationDataServices.findIdsFromServicesReservedByUserId(userId)
