@@ -35,6 +35,18 @@ export class RegisterInputs {
 }
 
 @InputType()
+export class UserToEdit {
+    @Field({nullable:true})
+    username?: string
+    @Field({nullable:true})
+    email?: string
+    @Field({nullable:true})
+    urlImage?: string
+    @Field(() => UserType, {nullable:true})
+    userType?: UserType
+}
+
+@InputType()
 export class WineryDataInputs {
     @Field()
     name!: string;

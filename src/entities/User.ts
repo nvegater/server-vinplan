@@ -31,6 +31,10 @@ export class User extends BaseEntity {
     @Column({unique: true})
     email!: string;
 
+    @Field()
+    @Column({unique: false})
+    urlImage?: string;
+
     // If I dont want to expose a field I can just comment out the field decorator
     // No field() annotation so no queriable by graphql
     @Column({unique: true})

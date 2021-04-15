@@ -11,7 +11,8 @@ import {
     validateInputsChangePassword,
     validateInputsLogin,
     validateInputsRegister,
-    WineryDataInputs
+    WineryDataInputs,
+    UserToEdit
 } from "./userResolversInputs";
 import {SessionCookieName} from "../../redis-config";
 import {ApolloRedisContext} from "../../apollo-config";
@@ -28,6 +29,7 @@ import {WineProductionType} from "../../entities/WineProductionType";
 import {WineryLanguage} from "../../entities/WineryLanguage";
 import {WineryAmenity} from "../../entities/WineryAmenity";
 import getUser from "../../useCases/user/getUser";
+import updateUser from "../../useCases/user/updateUser";
 import registerUser from "../../useCases/user/registerUser";
 
 
@@ -316,14 +318,17 @@ export class UserResolver {
     }
 
     @Mutation(() => UserResponse)
-    @UseMiddleware(isAuth)
-    async updateProfileImage(
+    // @UseMiddleware(isAuth)
+    async updateUser(
+        @Arg('user') user: UserToEdit,
         @Ctx() {req}: ApolloRedisContext
     ): Promise<UserResponse> {
+        console.log('entro aqui jejeje');
         // Buscando el id desde la session para poder actualizar el usuario
-        const userIdFromSession = req.session;
-        console.log(userIdFromSession);
-        return await getUser(1)
+        // @ts-ignore
+        const userIdFromSession = req.session.userId;
+        
+        return await updateUser(userIdFromSession, user)
     }
 
 }

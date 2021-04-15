@@ -7,7 +7,6 @@ import postResolversErrors from "../Post/postResolversErrors";
 export const isAuth: MiddlewareFn<ApolloRedisContext> = async ({context}, next) => {
     // @ts-ignore
     const loggedInUserId: string | undefined = context.req.session!.userId;
-    console.log('desde el middleware');
     if (!loggedInUserId) {
         return {errors: [postResolversErrors.userNotLoggedInError]}
     }
