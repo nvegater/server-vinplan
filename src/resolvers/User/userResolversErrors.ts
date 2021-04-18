@@ -95,13 +95,13 @@ const tokenExpired: FieldError = {
 }
 
 const tokenUserError: FieldError = {
-    field: Fields.imageNotInserted,
+    field: Fields.token,
     message: 'user not longer exists'
 }
 
 const imageNotInserted: FieldError = {
-    field: Fields.token,
-    message: "the imagine couldn't be inserted",
+    field: Fields.imageNotInserted,
+    message: "the image couldn't be inserted",
 }
 
 const userResolversErrors = {

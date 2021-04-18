@@ -1,12 +1,11 @@
 import {Arg, Int, Query, Resolver, Mutation} from "type-graphql";
 import {FieldError} from "../User/userResolversOutputs";
-import {WineriesResponse, WineryServicesResponse, WineryGetPreSignedUrlResponse} from "./wineryResolversOutputs";
+import {WineriesResponse, WineryServicesResponse} from "./wineryResolversOutputs";
 import {Winery} from "../../entities/Winery";
 import {getConnection, In} from "typeorm";
 import {SQL_QUERY_SELECT_WINERIES} from "../Universal/queries";
 import {WineType} from "../../entities/WineType";
 import {WineProductionType} from "../../entities/WineProductionType";
-import {getPresignedUrl} from "../../utils/s3Utilities"
 import {WineryImageGallery} from "../../entities/WineryImageGallery"
 import {WineryImageGalleryResponse} from "../../resolvers/Winery/wineryResolversOutputs"
 import getWineryWithServices from "../../useCases/winery/getWineryWithServices"
@@ -61,22 +60,6 @@ export class WineryResolver {
     ): Promise<WineryServicesResponse> {
 
         return await getWineryWithServices(wineryId);
-    }
-
-    @Query(() => WineryGetPreSignedUrlResponse)
-    async preSignedUrl(
-        @Arg('fileName', () => String) fileName : string,
-        @Arg('wineryId', () => Int) wineryId : number,
-        @Arg('userId', () => Int) userId : number,
-        //¿como puedo armar un enum sin tener que levantar una nueva tabla?
-        @Arg('uploadType', () => String) uploadType: string,
-    ): Promise<WineryGetPreSignedUrlResponse> {
-        try {
-            const presigned = await getPresignedUrl(fileName, wineryId, userId, uploadType) 
-            return presigned;
-        } catch (error) {
-            return error
-        }
     }
 
     @Mutation(() => WineryServicesResponse)

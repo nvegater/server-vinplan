@@ -27,16 +27,6 @@ export class WineryServicesResponse {
 }
 
 @ObjectType()
-export class WineryGetPreSignedUrlResponse {
-    @Field(() => [FieldError], {nullable: true})
-    errors?: FieldError[]
-    @Field(() => String)
-    putUrl?: String;
-    @Field(() => String)
-    getUrl?: String;
-}
-
-@ObjectType()
 export class WineryImageGalleryResponse {
     @Field(() => [FieldError], {nullable: true})
     errors?: FieldError[]
