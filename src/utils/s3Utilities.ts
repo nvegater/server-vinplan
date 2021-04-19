@@ -26,11 +26,6 @@ export async function getPresignedUrl(presignedUrl: PresignedUrlInput) {
             Key: fileName,
         });
         const getUrl = `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${key}/${fileName}`;
-        // const preSignedGetUrl = s3.getSignedUrl('getObject', {
-        //     Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}/${key}`,
-        //     Expires: expireSeconds,
-        //     Key: fileName,
-        // });
         return {
             putUrl: preSignedPutUrl,
             getUrl: getUrl,
