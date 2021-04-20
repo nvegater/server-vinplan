@@ -1,5 +1,5 @@
 import {User} from "../entities/User";
-import {RegisterInputs} from "../resolvers/User/userResolversInputs";
+import {RegisterInputs, UserToEdit} from "../resolvers/User/userResolversInputs";
 import argon2 from "argon2";
 
 const findUserById = async (userId: number) => {
@@ -25,9 +25,26 @@ const persistUser = async (registerInputs:RegisterInputs) => {
     return user;
 }
 
+const updateUser = async (userId : number, userToEdit : UserToEdit) => {
+    try {
+        const userFound = await findUserById(userId)
+        // Pregunta: ¿puedo crear el UserResponse desde aqui? 
+        // o esta capa solo es para llamado a base datos?
+        if (userFound === undefined) {
+            return userFound
+        } else {
+            Object.assign(userFound, userToEdit);
+            return await userFound.save()
+        }
+    } catch (error) {
+        return error;
+    }
+}
+
 export default {
     findUserById,
     findUserByUsername,
     findUserByEmail,
-    persistUser
+    persistUser,
+    updateUser
 }

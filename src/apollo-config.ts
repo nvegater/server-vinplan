@@ -10,6 +10,7 @@ import {Express, Request, Response} from "express";
 import {ServerRegistration} from "apollo-server-express/src/ApolloServer";
 import {WineryResolver} from "./resolvers/Winery/wineryResolvers";
 import {ServiceResolver} from "./resolvers/Service/serviceResolvers";
+import {PresignedResolver} from "./resolvers/PreSignedUrl/presigned";
 
 const registerServer = (app: Express) => ({
     app, // Http -express server
@@ -27,7 +28,8 @@ const buildSchemas = async () => {
             PostResolver,
             UserResolver,
             WineryResolver,
-            ServiceResolver
+            ServiceResolver,
+            PresignedResolver
         ];
 
     return await buildSchema({
