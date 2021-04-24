@@ -1,6 +1,7 @@
 import AWS from 'aws-sdk';
 import mime from 'mime';
 import {PresignedUrlInput} from "../resolvers/PreSignedUrl/presignedInputs"
+import imagesNumberGallery from "../useCases/winery/countWineryImages"
 
 const spacesEndpoint = new AWS.Endpoint(process.env.NEXT_PUBLIC_DO_SPACES_ENDPOINT as string);
 const config: AWS.S3.Types.ClientConfiguration = {
@@ -14,7 +15,7 @@ const s3 = new AWS.S3(config);
 export async function getPresignedUrl(presignedUrl: PresignedUrlInput) {
     try {
         const {fileName} = presignedUrl
-        const multimediaInfo = getMultimediaInfo(presignedUrl);
+        const multimediaInfo = await getMultimediaInfo(presignedUrl);
         const key = multimediaInfo.key;
         const expireSeconds = 60 * 5
 
@@ -35,7 +36,7 @@ export async function getPresignedUrl(presignedUrl: PresignedUrlInput) {
     }
 }
 
-const getMultimediaInfo = (presignedUrl: PresignedUrlInput) => {
+const getMultimediaInfo = async (presignedUrl: PresignedUrlInput) => {
     try {
         const {fileName, uploadType, wineryId, userId} = presignedUrl
         const imagesTypes = ['apng', 'avif', 'gif', 'jpg', 'jpeg', 'jfif', 'pjpeg', 'pjp', 'png', 'svg', 'webp' ];
@@ -47,9 +48,14 @@ const getMultimediaInfo = (presignedUrl: PresignedUrlInput) => {
         let prefix = '';
         let contentType = '';
         if (uploadType == 'winerybook') {
-            prefix = `winery/${wineryId}-album`;
-            contentType = mime.getType(ext) || '';
-            key = `${prefix}/${Date.now()}`
+            console.log(await imagesNumberGallery(wineryId));
+            // Numero de elementos para poner la validacion
+            if (await imagesNumberGallery(wineryId) > 10) {
+                throw new Error('Numero maximo de imagenes');
+            }
+                prefix = `winery/${wineryId}-album`;
+                contentType = mime.getType(ext) || '';
+                key = `${prefix}/${Date.now()}`
         }
         if (uploadType == 'userprofilepicture'){
             prefix = `user/${userId}-pictureProfile`;

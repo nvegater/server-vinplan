@@ -15,7 +15,12 @@ const getWineryGalleryById = async(wineryId: number) => {
     })
 }
 
+const getImagesNumberGallery = async(wineryId: number) => {
+    return await WineryImageGallery.count({ wineryId });
+}
+
 export default {
     insertImageInWineryGallery,
     getWineryGalleryById,
+    getImagesNumberGallery,
 }
