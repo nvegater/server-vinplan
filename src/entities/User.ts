@@ -25,19 +25,23 @@ export class User extends BaseEntity {
 
     @Field()
     @Column({unique: true})
-    username!: string;
+    username: string;
 
     @Field()
     @Column({unique: true})
-    email!: string;
+    email: string;
+
+    @Field()
+    @Column({unique: false})
+    urlImage: string;
 
     // If I dont want to expose a field I can just comment out the field decorator
     // No field() annotation so no queriable by graphql
     @Column({unique: true})
-    password!: string;
+    password: string;
 
     @Column({default: false}) //False: Visitor, True: Owner
-    visitorOrOwner!: boolean;
+    visitorOrOwner: boolean;
 
     // User owns multiple wineries.
     @OneToMany(() => Winery, winery => winery.creator)

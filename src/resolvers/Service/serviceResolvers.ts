@@ -2,17 +2,12 @@ import {Arg, Ctx, Int, Mutation, Query, Resolver, UseMiddleware} from "type-grap
 import {Service} from "../../entities/Service";
 import {BookServiceResponse, CreateServiceResponse, ServiceResponse} from "./serviceResolversOutputs";
 import {FieldError} from "../User/userResolversOutputs";
-import {getConnection, MoreThan, Not, UpdateResult} from "typeorm";
-import {
-    SQL_QUERY_INSERT_RESERVATION,
-    SQL_QUERY_SELECT_SERVICES_WITH_WINERY,
-    SQL_QUERY_UPDATE_RESERVATION
-} from "../Universal/queries";
+import {getConnection, MoreThan, UpdateResult} from "typeorm";
+import {SQL_QUERY_SELECT_SERVICES_WITH_WINERY} from "../Universal/queries";
 import {isAuth} from "../Universal/utils";
 import {ApolloRedisContext} from "../../apollo-config";
-import {ServiceReservation} from "../../entities/ServiceReservation";
 import {CreateServiceInputs, UpdateServiceInputs} from "./serviceResolversInputs";
-import {addMinutes} from "date-fns";
+import reserve from "../../useCases/service/reserve";
 
 
 @Resolver(Service)
@@ -98,140 +93,7 @@ export class ServiceResolver {
         // @ts-ignore
         const {userId} = req.session;
 
-        const reservation = await ServiceReservation
-            .findOne({where: {serviceId, userId}});
-
-        if (reservation) {
-            const error: FieldError = {
-                field: "updateService",
-                message: "the user has reserved the service already."
-            }
-            return {errors: [error]}
-        } else {
-            const serviceToBook = await Service.findOne({
-                where: {id: serviceId, creatorId: Not(userId)} // creator cant book its own service
-            })
-            if (serviceToBook) {
-                // if startDate is different, is booking one of the recurrent instances
-                const bookingRecurrentInstance = startDateTime !== serviceToBook.startDateTime;
-                if (bookingRecurrentInstance) {
-                    // check if there is already a recurrant instance for this date.
-                    // get Service where startDate = from args and parent Id = serviceId
-                    const recurrentInstanceFromService = await Service.findOne({
-                        where: {parentServiceId: serviceId, startDateTime: startDateTime}
-                    })
-                    if (recurrentInstanceFromService) {
-                        // Do normal booking process
-                        if (recurrentInstanceFromService.noOfAttendees < recurrentInstanceFromService.limitOfAttendees) {
-                            // update the noOfAttendes
-                            const newId = recurrentInstanceFromService.id;
-                            const newIdCreator = recurrentInstanceFromService.creatorId;
-                            const updateService: UpdateResult = await getConnection().createQueryBuilder()
-                                .update(Service)
-                                .set({
-                                    noOfAttendees: recurrentInstanceFromService.noOfAttendees + noOfAttendees
-                                })
-                                .where('id = :id and "creatorId" = :creatorId', {id: newId, creatorId: newIdCreator})
-                                .returning("*")
-                                .execute();
-                            // If the update doesnt work dont insert the reservation
-                            if (updateService.affected === 0) {
-                                const error: FieldError = {
-                                    field: "updateService",
-                                    message: "no change was made"
-                                }
-                                return {errors: [error]}
-                            } else {
-                                await getConnection().transaction(async transactionManager => {
-                                    let createOrUpdate = SQL_QUERY_INSERT_RESERVATION;
-                                    const reservationExists = await ServiceReservation.findOne({
-                                        where: {
-                                            serviceId: newId,
-                                            userId: userId
-                                        }
-                                    })
-                                    if (reservationExists) {
-                                        createOrUpdate = SQL_QUERY_UPDATE_RESERVATION
-                                    }
-                                    await transactionManager.query(createOrUpdate, [noOfAttendees,newId, userId]);
-                                });
-                                return {service: updateService.raw[0] as Service};
-                            }
-                        } else {
-                            const error: FieldError = {
-                                field: "updateServiceFull",
-                                message: "service is full"
-                            }
-                            return {errors: [error]}
-                        }
-                    } else {
-                        // Create the instance and book it
-                        const newEndDateTime = addMinutes(startDateTime, serviceToBook.duration)
-                        const newRecurrentInstanceFromService = await Service.create({
-                            // Copy props from parent event
-                            wineryId: serviceToBook.wineryId,
-                            limitOfAttendees: serviceToBook.limitOfAttendees,
-                            pricePerPersonInDollars: serviceToBook.pricePerPersonInDollars,
-                            title: serviceToBook.title,
-                            description: serviceToBook.description,
-                            eventType: serviceToBook.eventType,
-                            duration: serviceToBook.duration,
-                            creatorId: serviceToBook.creatorId,
-                            // new props
-                            parentServiceId: serviceToBook.id,
-                            startDateTime: startDateTime,
-                            endDateTime: newEndDateTime,
-                            noOfAttendees: noOfAttendees
-                        })
-                        await newRecurrentInstanceFromService.save();
-                        // Insert the reservation after service update
-                        await getConnection().transaction(async transactionManager => {
-                            await transactionManager.query(SQL_QUERY_INSERT_RESERVATION,
-                                [noOfAttendees,newRecurrentInstanceFromService.id, userId]);
-                        });
-                        return {service: newRecurrentInstanceFromService};
-                    }
-                }
-                // do normal Booking Proccess
-                if (serviceToBook.noOfAttendees < serviceToBook.limitOfAttendees) {
-                    // update the noOfAttendes
-                    const updateService: UpdateResult = await getConnection().createQueryBuilder()
-                        .update(Service)
-                        .set({
-                            noOfAttendees: serviceToBook.noOfAttendees + noOfAttendees
-                        })
-                        .where('id = :id and "creatorId" = :creatorId', {serviceId, creatorId: serviceToBook.creatorId})
-                        .returning("*")
-                        .execute();
-                    // If the update doesnt work dont insert the reservation
-                    if (updateService.affected === 0) {
-                        const error: FieldError = {
-                            field: "updateService",
-                            message: "no change was made"
-                        }
-                        return {errors: [error]}
-                    } else {
-                        // Insert the reservation after service update
-                        await getConnection().transaction(async transactionManager => {
-                            await transactionManager.query(SQL_QUERY_INSERT_RESERVATION, [noOfAttendees,serviceId, userId]);
-                        });
-                        return {service: updateService.raw[0] as Service};
-                    }
-                } else {
-                    const error: FieldError = {
-                        field: "updateService",
-                        message: "service is full"
-                    }
-                    return {errors: [error]}
-                }
-            } else {
-                const error: FieldError = {
-                    field: "yourOwnService",
-                    message: "youre trying to book a service you created"
-                }
-                return {errors: [error]}
-            }
-        }
+        return await reserve({userId, serviceId, noOfAttendees, startDateTime})
 
     }
 

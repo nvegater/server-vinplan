@@ -1,14 +1,15 @@
-import {Arg, Int, Query, Resolver} from "type-graphql";
+import {Arg, Int, Query, Resolver, Mutation} from "type-graphql";
 import {FieldError} from "../User/userResolversOutputs";
 import {WineriesResponse, WineryServicesResponse} from "./wineryResolversOutputs";
 import {Winery} from "../../entities/Winery";
 import {getConnection, In} from "typeorm";
 import {SQL_QUERY_SELECT_WINERIES} from "../Universal/queries";
-import {Service} from "../../entities/Service";
 import {WineType} from "../../entities/WineType";
 import {WineProductionType} from "../../entities/WineProductionType";
-import {WineryLanguage} from "../../entities/WineryLanguage";
-import {WineryAmenity} from "../../entities/WineryAmenity";
+import {WineryImageGallery} from "../../entities/WineryImageGallery"
+import {WineryImageGalleryResponse} from "../../resolvers/Winery/wineryResolversOutputs"
+import getWineryWithServices from "../../useCases/winery/getWineryWithServices"
+import insertImage from "../../useCases/winery/insertImage"
 
 @Resolver(Winery)
 export class WineryResolver {
@@ -58,44 +59,33 @@ export class WineryResolver {
         @Arg('wineryId', () => Int) wineryId: number
     ): Promise<WineryServicesResponse> {
 
-        const wineryWithServices = await Service.find({where: {wineryId: wineryId}})
-        const winery:any = await Winery.findOne(wineryId);
+        return await getWineryWithServices(wineryId);
+    }
 
-        if (wineryWithServices && winery) {
-            const wineTypesOfWinery: WineType[] | undefined = await WineType.find({
-                where: {wineryId: winery.id}
-            });
-            const prodTypesOfWinery: WineProductionType[] | undefined = await WineProductionType.find({
-                where: {wineryId: winery.id}
-            });
+    @Mutation(() => WineryServicesResponse)
+    async insertImageWinery(
+        @Arg('wineryId', () => Int) wineryId: number,
+        @Arg('urlImage', () => String) urlImage: string,
+    ): Promise<WineryServicesResponse> {
+        try {
+            const insertImageResponse : WineryImageGalleryResponse = await insertImage(wineryId,urlImage);
 
-            const languages: WineryLanguage[] | undefined = await WineryLanguage.find({
-                where: {wineryId: winery.id}
-            });
+            const wineryInfo : WineryServicesResponse = await getWineryWithServices(wineryId);
+            const wineryImages: WineryImageGallery[] | undefined = insertImageResponse.images
 
-            const amenities: WineryAmenity[] | undefined = await WineryAmenity.find({
-                where: {wineryId: winery.id}
-            });
-
-            return {
-                winery: {
-                    ...winery,
-                    wineType: wineTypesOfWinery.map((wt)=>wt.wineType),
-                    productionType: prodTypesOfWinery.map((pt)=>pt.productionType),
-                    supportedLanguages: languages.map((lan)=>lan.supportedLanguage),
-                    amenities: amenities.map((amen) => amen.amenity)
-                },
-                services: wineryWithServices
+            if (!wineryInfo.errors && !insertImageResponse.errors) {
+                return {
+                    ...wineryInfo,
+                    images: wineryImages
+                }
+            } else {
+                return {
+                    errors : wineryInfo.errors ? wineryInfo.errors : insertImageResponse.errors
+                }
             }
-        } else {
-            const fieldError: FieldError = {
-                field: "Winery with services",
-                message: "Not services found for this winery"
-            }
-            return {
-                errors: [fieldError]
-            }
+            
+        } catch (error) {
+            throw new Error(error)
         }
-
     }
 }

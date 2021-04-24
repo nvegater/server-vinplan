@@ -6,7 +6,13 @@ enum Fields {
     usernameOrEmail = "usernameOrEmail",
     token = "token",
     newPassword = "newPassword",
-    userType = "userType"
+    userType = "userType",
+    imageNotInserted = "imageNotInserted",
+}
+
+const userNotFoundError: FieldError = {
+    field: Fields.username,
+    message: "User not found"
 }
 
 // User input dependant userResolversErrors
@@ -93,7 +99,13 @@ const tokenUserError: FieldError = {
     message: 'user not longer exists'
 }
 
+const imageNotInserted: FieldError = {
+    field: Fields.imageNotInserted,
+    message: "the image couldn't be inserted",
+}
+
 const userResolversErrors = {
+    userNotFoundError,
     usernameMissingInputError,
     usernameTooShortInputError,
     usernameContainsAt,
@@ -110,7 +122,8 @@ const userResolversErrors = {
     usernameInUseError,
     emailInUseError,
     tokenExpired,
-    tokenUserError
+    tokenUserError,
+    imageNotInserted
 }
 
 export default userResolversErrors
