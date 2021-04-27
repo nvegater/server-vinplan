@@ -96,25 +96,7 @@ export class WineryResolver {
         @Arg('wineryImageId', () => Int) wineryImageId: number,
     ): Promise<WineryChangeResponse> {
         try {
-            console.log(wineryId, wineryImageId);
-            console.log(await changeCoverPage(wineryId,wineryImageId));
-            return {changed: true}
-            // const insertImageResponse : WineryImageGalleryResponse = await insertImage(wineryId,urlImage);
-
-            // const wineryInfo : WineryServicesResponse = await getWineryWithServices(wineryId);
-            // const wineryImages: WineryImageGallery[] | undefined = insertImageResponse.images
-
-            // if (!wineryInfo.errors && !insertImageResponse.errors) {
-            //     return {
-            //         ...wineryInfo,
-            //         images: wineryImages
-            //     }
-            // } else {
-            //     return {
-            //         errors : wineryInfo.errors ? wineryInfo.errors : insertImageResponse.errors
-            //     }
-            // }
-            
+            return await changeCoverPage(wineryId,wineryImageId)
         } catch (error) {
             throw new Error(error)
         }

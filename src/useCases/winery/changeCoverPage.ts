@@ -1,16 +1,20 @@
 import WineryImageGalleryServices from "../../dataServices/wineryImageGallery"
+import {WineryChangeResponse} from "../../resolvers/Winery/wineryResolversOutputs"
+import userResolversErrors from "../../resolvers/User/userResolversErrors";
 
-const changeCoverPage = async (wineryId: number, wineryImageId: number): Promise<Boolean> => {
+const changeCoverPage = async (wineryId: number, wineryImageId: number): Promise<WineryChangeResponse> => {
     try {
-        const changedImage = await WineryImageGalleryServices.changeCoverPage(wineryId, wineryImageId)
-        console.log(changedImage);
-        return true;
-        // if (wineryInserted === undefined) {
-        //     return {errors: [userResolversErrors.imageNotInserted]}
-        // } else {
-        //     const wineryImages: WineryImageGallery[] | undefined = await WineryImageGalleryServices.getWineryGalleryById(wineryId)
-        //     return {images: wineryImages};
-        // }
+        const changedImage = await WineryImageGalleryServices.changeCoverPage(wineryId, wineryImageId) || null
+        if (changedImage) {
+            if (changedImage.error) {
+                return {errors: [userResolversErrors.imageNotInserted]}
+            } else {
+                return {changed: true};
+            }
+        } else {
+            // general error
+            return {errors: [userResolversErrors.imageNotInserted]}
+        }
     } catch (error) {
         throw new Error(error)
     }

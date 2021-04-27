@@ -99,9 +99,15 @@ const tokenUserError: FieldError = {
     message: 'user not longer exists'
 }
 
+//TODO: cambiar al wineryResolverErrors
 const imageNotInserted: FieldError = {
     field: Fields.imageNotInserted,
     message: "the image couldn't be inserted",
+}
+
+const imageNotFound: FieldError = {
+    field: Fields.imageNotInserted,
+    message: "Image not found",
 }
 
 const userResolversErrors = {
@@ -123,7 +129,8 @@ const userResolversErrors = {
     emailInUseError,
     tokenExpired,
     tokenUserError,
-    imageNotInserted
+    imageNotInserted,
+    imageNotFound
 }
 
 export default userResolversErrors

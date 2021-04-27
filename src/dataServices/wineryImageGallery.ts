@@ -23,9 +23,19 @@ const getImagesNumberGallery = async(wineryId: number) => {
 }
 
 const changeCoverPage = async(wineryId: number, wineryImageId: number) => {
-    console.log(wineryImageId);
-    const wineries = await WineryImageGallery.findOne({wineryId : wineryId, coverPage : true})
-    console.log(wineries);
+    const wineryImageCover = await WineryImageGallery.findOne({wineryId : wineryId, coverPage : true}) || null;
+    if (wineryImageCover) {
+        wineryImageCover.coverPage = false;
+        await wineryImageCover.save()
+    } 
+    const wineryImageSelected = await WineryImageGallery.findOne({id : wineryImageId}) || null;
+    if (wineryImageSelected) {
+        wineryImageSelected.coverPage = true;
+        await wineryImageSelected.save()
+    } else {
+        return {error : true, reason : 'imageNotFound'}
+    }
+    return {error : false};
 }
 
 export default {
