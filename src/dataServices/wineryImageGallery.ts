@@ -1,9 +1,12 @@
 import {WineryImageGallery} from "../entities/WineryImageGallery"
 
 const insertImageInWineryGallery = async (wineryId: number, urlImage: string) => {
+
+    const wineryFound = await WineryImageGallery.find({wineryId: wineryId})
     const wineryImage = WineryImageGallery.create({ 
         wineryId: wineryId,
-        imageUrl: urlImage 
+        imageUrl: urlImage,
+        coverPage : !wineryFound.length,
     })
     const newWineryImage = await wineryImage.save();
     return newWineryImage
