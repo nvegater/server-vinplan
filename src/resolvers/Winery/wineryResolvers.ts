@@ -1,6 +1,6 @@
 import {Arg, Int, Query, Resolver, Mutation} from "type-graphql";
 import {FieldError} from "../User/userResolversOutputs";
-import {WineriesResponse, WineryServicesResponse} from "./wineryResolversOutputs";
+import {WineriesResponse, WineryServicesResponse, WineryChangeResponse} from "./wineryResolversOutputs";
 import {Winery} from "../../entities/Winery";
 import {getConnection, In} from "typeorm";
 import {SQL_QUERY_SELECT_WINERIES} from "../Universal/queries";
@@ -10,6 +10,7 @@ import {WineryImageGallery} from "../../entities/WineryImageGallery"
 import {WineryImageGalleryResponse} from "../../resolvers/Winery/wineryResolversOutputs"
 import getWineryWithServices from "../../useCases/winery/getWineryWithServices"
 import insertImage from "../../useCases/winery/insertImage"
+import changeCoverPage from "../../useCases/winery/changeCoverPage"
 
 @Resolver(Winery)
 export class WineryResolver {
@@ -83,6 +84,36 @@ export class WineryResolver {
                     errors : wineryInfo.errors ? wineryInfo.errors : insertImageResponse.errors
                 }
             }
+            
+        } catch (error) {
+            throw new Error(error)
+        }
+    }
+
+    @Mutation(() => WineryChangeResponse)
+    async changeCoverPageImage(
+        @Arg('wineryId', () => Int) wineryId: number,
+        @Arg('wineryImageId', () => Int) wineryImageId: number,
+    ): Promise<WineryChangeResponse> {
+        try {
+            console.log(wineryId, wineryImageId);
+            console.log(await changeCoverPage(wineryId,wineryImageId));
+            return {changed: true}
+            // const insertImageResponse : WineryImageGalleryResponse = await insertImage(wineryId,urlImage);
+
+            // const wineryInfo : WineryServicesResponse = await getWineryWithServices(wineryId);
+            // const wineryImages: WineryImageGallery[] | undefined = insertImageResponse.images
+
+            // if (!wineryInfo.errors && !insertImageResponse.errors) {
+            //     return {
+            //         ...wineryInfo,
+            //         images: wineryImages
+            //     }
+            // } else {
+            //     return {
+            //         errors : wineryInfo.errors ? wineryInfo.errors : insertImageResponse.errors
+            //     }
+            // }
             
         } catch (error) {
             throw new Error(error)

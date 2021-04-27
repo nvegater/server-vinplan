@@ -15,4 +15,8 @@ export class WineryImageGallery extends BaseEntity {
     @Column({nullable: true})
     imageUrl: string;
 
+    @Field()
+    @Column('boolean', {default: false})
+    coverPage: boolean = false;
+
 }
