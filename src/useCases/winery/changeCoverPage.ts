@@ -1,20 +1,22 @@
 import WineryImageGalleryServices from "../../dataServices/wineryImageGallery"
 import {WineryChangeResponse} from "../../resolvers/Winery/wineryResolversOutputs"
-import userResolversErrors from "../../resolvers/User/userResolversErrors";
+import wineryResolverErrors from "../../resolvers/Winery/wineryResolversErrors";
 
 const changeCoverPage = async (wineryId: number, wineryImageId: number): Promise<WineryChangeResponse> => {
     try {
-        const changedImage = await WineryImageGalleryServices.changeCoverPage(wineryId, wineryImageId) || null
-        if (changedImage) {
-            if (changedImage.error) {
-                return {errors: [userResolversErrors.imageNotInserted]}
-            } else {
-                return {changed: true};
-            }
+        // primero apagamos la imagen pasada
+        const newCoverImage = await WineryImageGalleryServices.unSelectCoverPageImage(wineryId);
+        // // Despues intentamos cambiar la nueva imagen
+        const changedImage = await WineryImageGalleryServices.selectCoverPageImage(wineryImageId);
+        console.log(changedImage);
+        if (changedImage.affected || changedImage.affected != 0) {
+            return {changed: true}; 
         } else {
-            // general error
-            return {errors: [userResolversErrors.imageNotInserted]}
-        }
+            console.log(wineryResolverErrors.imageNotInserted);    
+            // Si no se pudo se regresa la imagen pasada
+            await WineryImageGalleryServices.selectCoverPageImage(newCoverImage.raw[0].id)
+            return {errors: [wineryResolverErrors.imageNotFound], changed: false}
+         }
     } catch (error) {
         throw new Error(error)
     }

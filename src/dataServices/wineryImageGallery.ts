@@ -1,4 +1,5 @@
 import {WineryImageGallery} from "../entities/WineryImageGallery"
+import {getConnection} from "typeorm";
 
 const insertImageInWineryGallery = async (wineryId: number, urlImage: string) => {
 
@@ -22,25 +23,32 @@ const getImagesNumberGallery = async(wineryId: number) => {
     return await WineryImageGallery.count({ wineryId });
 }
 
-const changeCoverPage = async(wineryId: number, wineryImageId: number) => {
-    const wineryImageCover = await WineryImageGallery.findOne({wineryId : wineryId, coverPage : true}) || null;
-    if (wineryImageCover) {
-        wineryImageCover.coverPage = false;
-        await wineryImageCover.save()
-    } 
-    const wineryImageSelected = await WineryImageGallery.findOne({id : wineryImageId}) || null;
-    if (wineryImageSelected) {
-        wineryImageSelected.coverPage = true;
-        await wineryImageSelected.save()
-    } else {
-        return {error : true, reason : 'imageNotFound'}
-    }
-    return {error : false};
+const selectCoverPageImage = async(wineryImageId: number) => {
+    return await getConnection().createQueryBuilder()
+        .update(WineryImageGallery)
+        .set({
+            coverPage: true
+        })
+        .where('id = :wineryImageId', {wineryImageId: wineryImageId})
+        .returning("*")
+        .execute();
+}
+
+const unSelectCoverPageImage = async(wineryId: number) => {
+    return await getConnection().createQueryBuilder()
+        .update(WineryImageGallery)
+        .set({
+            coverPage: false
+        })
+        .where('wineryId = :wineryId and coverPage = :coverPage', {wineryId: wineryId, coverPage: true})
+        .returning("*")
+        .execute();
 }
 
 export default {
     insertImageInWineryGallery,
     getWineryGalleryById,
     getImagesNumberGallery,
-    changeCoverPage
+    selectCoverPageImage,
+    unSelectCoverPageImage
 }

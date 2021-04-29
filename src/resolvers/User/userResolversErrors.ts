@@ -7,7 +7,6 @@ enum Fields {
     token = "token",
     newPassword = "newPassword",
     userType = "userType",
-    imageNotInserted = "imageNotInserted",
 }
 
 const userNotFoundError: FieldError = {
@@ -99,17 +98,6 @@ const tokenUserError: FieldError = {
     message: 'user not longer exists'
 }
 
-//TODO: cambiar al wineryResolverErrors
-const imageNotInserted: FieldError = {
-    field: Fields.imageNotInserted,
-    message: "the image couldn't be inserted",
-}
-
-const imageNotFound: FieldError = {
-    field: Fields.imageNotInserted,
-    message: "Image not found",
-}
-
 const userResolversErrors = {
     userNotFoundError,
     usernameMissingInputError,
@@ -129,8 +117,6 @@ const userResolversErrors = {
     emailInUseError,
     tokenExpired,
     tokenUserError,
-    imageNotInserted,
-    imageNotFound
 }
 
 export default userResolversErrors
