@@ -8,11 +8,9 @@ const changeCoverPage = async (wineryId: number, wineryImageId: number): Promise
         const newCoverImage = await WineryImageGalleryServices.unSelectCoverPageImage(wineryId);
         // // Despues intentamos cambiar la nueva imagen
         const changedImage = await WineryImageGalleryServices.selectCoverPageImage(wineryImageId);
-        console.log(changedImage);
         if (changedImage.affected || changedImage.affected != 0) {
             return {changed: true}; 
         } else {
-            console.log(wineryResolverErrors.imageNotInserted);    
             // Si no se pudo se regresa la imagen pasada
             await WineryImageGalleryServices.selectCoverPageImage(newCoverImage.raw[0].id)
             return {errors: [wineryResolverErrors.imageNotFound], changed: false}

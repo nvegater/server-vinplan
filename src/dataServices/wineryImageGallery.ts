@@ -9,8 +9,7 @@ const insertImageInWineryGallery = async (wineryId: number, urlImage: string) =>
         imageUrl: urlImage,
         coverPage : !wineryFound.length,
     })
-    const newWineryImage = await wineryImage.save();
-    return newWineryImage
+    return await wineryImage.save()
 } 
 
 const getWineryGalleryById = async(wineryId: number) => {

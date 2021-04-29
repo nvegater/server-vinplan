@@ -7,7 +7,7 @@ import {SQL_QUERY_SELECT_WINERIES} from "../Universal/queries";
 import {WineType} from "../../entities/WineType";
 import {WineProductionType} from "../../entities/WineProductionType";
 import {WineryImageGallery} from "../../entities/WineryImageGallery"
-import {WineryImageGalleryResponse} from "../../resolvers/Winery/wineryResolversOutputs"
+import {WineryImageGalleryResponse} from "./wineryResolversOutputs"
 import getWineryWithServices from "../../useCases/winery/getWineryWithServices"
 import insertImage from "../../useCases/winery/insertImage"
 import changeCoverPage from "../../useCases/winery/changeCoverPage"
