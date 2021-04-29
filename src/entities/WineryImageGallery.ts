@@ -4,6 +4,7 @@ import {Field, ObjectType} from "type-graphql";
 @Entity()
 export class WineryImageGallery extends BaseEntity {
 
+    @Field({nullable: true})
     @PrimaryGeneratedColumn()
     id!: number;
 
