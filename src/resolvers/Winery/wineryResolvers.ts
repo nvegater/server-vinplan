@@ -1,5 +1,4 @@
 import {Arg, Int, Query, Resolver, Mutation} from "type-graphql";
-import {FieldError} from "../User/userResolversOutputs";
 import {WineriesResponse, WineryServicesResponse, WineryChangeResponse} from "./wineryResolversOutputs";
 import {Winery} from "../../entities/Winery";
 import {getConnection, In} from "typeorm";
@@ -11,6 +10,7 @@ import {WineryImageGalleryResponse} from "./wineryResolversOutputs"
 import getWineryWithServices from "../../useCases/winery/getWineryWithServices"
 import insertImage from "../../useCases/winery/insertImage"
 import changeCoverPage from "../../useCases/winery/changeCoverPage"
+import wineryErrors from "./wineryResolversErrors";
 
 @Resolver(Winery)
 export class WineryResolver {
@@ -45,12 +45,9 @@ export class WineryResolver {
                 moreWineriesAvailable: pagWinsWExtraProps.length === (realLimit + 1) // DB has more posts than requested
             };
         } else {
-            const fieldError: FieldError = {
-                field: "allWineries",
-                message: "All wineries find one is undefined"
-            }
+            
             return {
-                errors: [fieldError], moreWineriesAvailable: false
+                errors: [wineryErrors.wineryNotFound], moreWineriesAvailable: false
             }
         }
     }

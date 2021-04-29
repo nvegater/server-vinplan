@@ -10,13 +10,14 @@ export class FieldError {
 
 enum Fields {
     imageNotInserted = "imageNotInserted",
-    imageNotFound = "imageNotFound"
+    imageNotFound = "imageNotFound",
+    allWineries = "allWineries",
 }
 
 //TODO: cambiar al wineryResolverErrors
 const imageNotInserted: FieldError = {
     field: Fields.imageNotInserted,
-    message: "the image couldn't be inserted",
+    message: "The image couldn't be inserted",
 }
 
 const imageNotFound: FieldError = {
@@ -24,9 +25,15 @@ const imageNotFound: FieldError = {
     message: "Image not found",
 }
 
+const wineryNotFound: FieldError = {
+    field: Fields.allWineries,
+    message: "All wineries find one is undefined"
+} 
+
 const wineryResolverErrors = {
     imageNotInserted,
-    imageNotFound
+    imageNotFound,
+    wineryNotFound,
 };
 
 export default wineryResolverErrors;
