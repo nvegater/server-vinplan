@@ -36,12 +36,10 @@ export class WineryResolver {
                 where: {wineryId: In(wineriesIds)}
             });
             const pagWinsWExtraProps: Winery[] = paginatedWineriesDB.map(async (winery: Winery) => {
-                const wineryImages: WineryImageGallery[] | undefined  = await WineryImageGalleryServices.getWineryGalleryById(winery.id);
-                let wineryCover = wineryImages.find((wineryImage : WineryImageGallery) => wineryImage.coverPage == true)
-                if (wineryCover == undefined) {
-                    wineryCover = wineryImages[0];
-                }
-                winery.urlImageCover = wineryCover.imageUrl;
+                const wineryImages: WineryImageGallery[] | []  = await WineryImageGalleryServices.getWineryGalleryById(winery.id);
+                winery.urlImageCover = wineryImages.find((wineryImage : WineryImageGallery) => 
+                    wineryImage.coverPage == true
+                )?.imageUrl || 'https://dev-vinplan.fra1.digitaloceanspaces.com/winery/1-album/1619825058524/grapes.jpg';
                 return {
                     ...winery,
                     productionType: prodTypesOfWinery.filter((wineType) => wineType.wineryId === winery.id).map((prod) => prod.productionType),
