@@ -43,6 +43,10 @@ export class User extends BaseEntity {
     @Column({default: false}) //False: Visitor, True: Owner
     visitorOrOwner: boolean;
 
+    @Field({nullable: true})
+    @Column({default: false, nullable: false})
+    verified: boolean;
+
     // User owns multiple wineries.
     @OneToMany(() => Winery, winery => winery.creator)
     winery: Winery[];

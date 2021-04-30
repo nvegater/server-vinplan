@@ -74,6 +74,13 @@ export class Winery extends BaseEntity {
     @Column({nullable: true})
     contactPhoneNumber: string;
 
+    @Field({nullable: true})
+    @Column({default: false, nullable: false})
+    verified: boolean;
+
+    @Field({nullable: true})
+    urlImageCover : string;
+
     @Field(() => Valley)
     @Column('enum', {name: 'valley', enum: Valley})
     valley: Valley;
