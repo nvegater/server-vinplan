@@ -19,6 +19,23 @@ const getWineryWithServices = async(wineryId : number) : Promise<WineryServicesR
         const wineryWithServices = await ServiceServices.getServiceByWinery(wineryId)
         const winery:any = await WineryServices.findWineryById(wineryId);
         const wineryImages: WineryImageGallery[] | undefined  = await WineryImageGalleryServices.getWineryGalleryById(wineryId)
+        console.log(wineryImages);
+
+        let wineryWithOutCoverPage = true;
+        wineryImages.forEach(image => {
+            // se pregunta si no existe el campo coverImage se genera como false
+            // si existe y es true no se modifica
+            if (image.coverPage != true) {
+                image["coverPage"] = false;
+            // si encuentro una imagen como cover
+            } else {
+                wineryWithOutCoverPage = false
+            }
+        });
+
+        if (wineryWithOutCoverPage && wineryImages.length > 0) {
+            wineryImages[0].coverPage = true;
+        }
 
         if (wineryWithServices && winery) {
             const wineTypesOfWinery: WineType[] | undefined = await WineTypeServices.getWineTypeByWineryId(winery.id)

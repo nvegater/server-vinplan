@@ -28,8 +28,6 @@ const persistUser = async (registerInputs:RegisterInputs) => {
 const updateUser = async (userId : number, userToEdit : UserToEdit) => {
     try {
         const userFound = await findUserById(userId)
-        // Pregunta: ¿puedo crear el UserResponse desde aqui? 
-        // o esta capa solo es para llamado a base datos?
         if (userFound === undefined) {
             return userFound
         } else {
