@@ -11,7 +11,9 @@ import getWineryWithServices from "../../useCases/winery/getWineryWithServices"
 import insertImage from "../../useCases/winery/insertImage"
 import changeCoverPage from "../../useCases/winery/changeCoverPage"
 import wineryErrors from "./wineryResolversErrors";
+import WineryImageGalleryServices from "../../dataServices/wineryImageGallery"; 
 
+//TODO: se debe de separar la logica y la logica de la base de datos
 @Resolver(Winery)
 export class WineryResolver {
     @Query(() => WineriesResponse)
@@ -33,7 +35,13 @@ export class WineryResolver {
             const prodTypesOfWinery: WineProductionType[] | undefined = await WineProductionType.find({
                 where: {wineryId: In(wineriesIds)}
             });
-            const pagWinsWExtraProps: Winery[] = paginatedWineriesDB.map((winery: Winery) => {
+            const pagWinsWExtraProps: Winery[] = paginatedWineriesDB.map(async (winery: Winery) => {
+                const wineryImages: WineryImageGallery[] | undefined  = await WineryImageGalleryServices.getWineryGalleryById(winery.id);
+                let wineryCover = wineryImages.find((wineryImage : WineryImageGallery) => wineryImage.coverPage == true)
+                if (wineryCover == undefined) {
+                    wineryCover = wineryImages[0];
+                }
+                winery.urlImageCover = wineryCover.imageUrl;
                 return {
                     ...winery,
                     productionType: prodTypesOfWinery.filter((wineType) => wineType.wineryId === winery.id).map((prod) => prod.productionType),

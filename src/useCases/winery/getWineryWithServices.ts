@@ -19,7 +19,6 @@ const getWineryWithServices = async(wineryId : number) : Promise<WineryServicesR
         const wineryWithServices = await ServiceServices.getServiceByWinery(wineryId)
         const winery:any = await WineryServices.findWineryById(wineryId);
         const wineryImages: WineryImageGallery[] | undefined  = await WineryImageGalleryServices.getWineryGalleryById(wineryId)
-        console.log(wineryImages);
 
         let wineryWithOutCoverPage = true;
         wineryImages.forEach(image => {
