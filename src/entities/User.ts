@@ -31,8 +31,8 @@ export class User extends BaseEntity {
     @Column({unique: true})
     email: string;
 
-    @Field()
-    @Column({unique: false})
+    @Field({nullable: true})
+    @Column({unique: false, nullable: true})
     urlImage: string;
 
     // If I dont want to expose a field I can just comment out the field decorator

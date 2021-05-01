@@ -6,7 +6,7 @@ import {getConnection, MoreThan, UpdateResult} from "typeorm";
 import {SQL_QUERY_SELECT_SERVICES_WITH_WINERY} from "../Universal/queries";
 import {isAuth} from "../Universal/utils";
 import {ApolloRedisContext} from "../../apollo-config";
-import {CreateServiceInputs, UpdateServiceInputs} from "./serviceResolversInputs";
+import {CreateServiceInputs, ReserveServiceInputs, UpdateServiceInputs} from "./serviceResolversInputs";
 import reserve from "../../useCases/service/reserve";
 
 
@@ -85,15 +85,13 @@ export class ServiceResolver {
     @Mutation(() => BookServiceResponse)
     @UseMiddleware(isAuth)
     async reserve(
-        @Arg('serviceId', () => Int) serviceId: number,
-        @Arg('noOfAttendees', () => Int) noOfAttendees: number,
-        @Arg('startDateTime', () => Date) startDateTime: Date,
+        @Arg('reserveServiceInputs') reserveServiceInputs: ReserveServiceInputs,
         @Ctx() {req}: ApolloRedisContext
     ): Promise<BookServiceResponse> {
         // @ts-ignore
         const {userId} = req.session;
 
-        return await reserve({userId, serviceId, noOfAttendees, startDateTime})
+        return await reserve({userId, ...reserveServiceInputs})
 
     }
 

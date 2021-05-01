@@ -2,12 +2,10 @@ import {addMinutes} from "date-fns";
 import serviceReservationDataServices from "../../dataServices/serviceReservation"
 import serviceDataServices from "../../dataServices/service";
 import {Service} from "../../entities/Service";
+import {ReserveServiceInputs} from "../../resolvers/Service/serviceResolversInputs";
 
-interface ReservationInputs {
+interface ReservationInputs extends ReserveServiceInputs {
     userId: number,
-    serviceId: number,
-    noOfAttendees: number,
-    startDateTime: Date;
 }
 
 const makeReservation = async (inputs: ReservationInputs, service: Service) => {
@@ -64,7 +62,15 @@ const createRecurrentInstanceAndReserve = async (inputs: ReservationInputs, pare
     }
     try {
         await serviceReservationDataServices
-            .insertReservation(newRecurrentInstanceFromService.id, inputs.userId, inputs.noOfAttendees)
+            .insertReservation(
+                newRecurrentInstanceFromService.id,
+                inputs.userId,
+                inputs.noOfAttendees,
+                inputs.paypalOrderId,
+                inputs.pricePerPersonInDollars,
+                inputs.paymentCreationDateTime,
+                inputs.status,
+            )
     } catch (e) {
         console.log(e)
     }

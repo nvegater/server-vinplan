@@ -38,10 +38,26 @@ const insertOrUpdateReservation = async (serviceId:number, userId: number, noOfA
     });
 }
 
-const insertReservation = async (serviceId:number, userId: number, noOfAttendees:number) => {
+const insertReservation = async (
+    serviceId:number,
+    userId: number,
+    noOfAttendees:number,
+    paypalOrderId:string,
+    pricePerPersonInDollars: number,
+    paymentCreationDateTime: string,
+    status: string,
+) => {
     return await getConnection().transaction(async transactionManager => {
         await transactionManager.query(SQL_QUERY_INSERT_RESERVATION,
-            [noOfAttendees,serviceId, userId]);
+            [
+                noOfAttendees,
+                serviceId,
+                userId,
+                paypalOrderId,
+                pricePerPersonInDollars,
+                paymentCreationDateTime,
+                status
+            ]);
     });
 }
 
