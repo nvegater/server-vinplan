@@ -22,7 +22,15 @@ const findUserReservationByIdAndUserId = async (serviceId:number, userId:number)
         .findOne({where: {serviceId, userId}});
 }
 
-const insertOrUpdateReservation = async (serviceId:number, userId: number, noOfAttendees:number) => {
+const insertOrUpdateReservation = async (
+    serviceId:number,
+    userId: number,
+    noOfAttendees:number,
+    paypalOrderId:string,
+    pricePerPersonInDollars: number,
+    paymentCreationDateTime: string,
+    status: string,
+) => {
     await getConnection().transaction(async transactionManager => {
         let createOrUpdate = SQL_QUERY_INSERT_RESERVATION;
         const reservationExists = await ServiceReservation.findOne({
@@ -34,7 +42,15 @@ const insertOrUpdateReservation = async (serviceId:number, userId: number, noOfA
         if (reservationExists) {
             createOrUpdate = SQL_QUERY_UPDATE_RESERVATION
         }
-        await transactionManager.query(createOrUpdate, [noOfAttendees,serviceId, userId]);
+        await transactionManager.query(createOrUpdate, [
+            noOfAttendees,
+            serviceId,
+            userId,
+            paypalOrderId,
+            pricePerPersonInDollars,
+            paymentCreationDateTime,
+            status
+        ]);
     });
 }
 

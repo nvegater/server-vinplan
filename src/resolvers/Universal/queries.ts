@@ -17,8 +17,14 @@ export const SQL_QUERY_INSERT_NEW_UPVOTE = `
 `;
 
 export const SQL_QUERY_INSERT_RESERVATION = `
-    insert into service_reservation ("noOfAttendees", "serviceId", "userId")
-    values ($1, $2, $3)
+    insert into service_reservation ("noOfAttendees",
+                                     "serviceId",
+                                     "userId",
+                                     "paypalOrderId",
+                                     "pricePerPersonInDollars",
+                                     "paymentCreationDateTime",
+                                     "status")
+    values ($1, $2, $3, $4, $5, $6, $7)
 `;
 
 export const SQL_QUERY_UPDATE_RESERVATION = `
@@ -26,6 +32,7 @@ export const SQL_QUERY_UPDATE_RESERVATION = `
     set "noOfAttendees" = "noOfAttendees" + $1
     where "serviceId" = $2
       and "userId" = $3
+      and "paypalOrderId" = $4
 `;
 
 export const SQL_QUERY_SELECT_PAGINATED_POSTS = `
@@ -36,7 +43,7 @@ export const SQL_QUERY_SELECT_PAGINATED_POSTS = `
                    'email', u.email,
                    'createdAt', u."createdAt",
                    'updatedAt', u."updatedAt"
-               ) creator,
+               )   creator,
            null as "voteStatus"
     from post p
              inner join public.user u on u.id = p."creatorId"
@@ -53,8 +60,8 @@ export const SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR = `
                    'email', u.email,
                    'createdAt', u."createdAt",
                    'updatedAt', u."updatedAt"
-               ) creator,
-            null as "voteStatus"
+               )   creator,
+           null as "voteStatus"
     from post p
              inner join public.user u on u.id = p."creatorId"
     where p."createdAt" < $2
@@ -70,8 +77,8 @@ export const SQL_QUERY_SELECT_PAGINATED_POSTS_USER_LOGGED_IN = `
                    'email', u.email,
                    'createdAt', u."createdAt",
                    'updatedAt', u."updatedAt"
-               ) creator,
-   (select value from upvote where "userId" = $2 and "postId" = p.id) "voteStatus"
+               )                                                              creator,
+           (select value from upvote where "userId" = $2 and "postId" = p.id) "voteStatus"
     from post p
              inner join public.user u on u.id = p."creatorId"
     order by p."createdAt" DESC
@@ -87,8 +94,8 @@ export const SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR_USER_LOGGED_IN = `
                    'email', u.email,
                    'createdAt', u."createdAt",
                    'updatedAt', u."updatedAt"
-               ) creator,
-    (select value from upvote where "userId" = $2 and "postId" = p.id) "voteStatus"
+               )                                                              creator,
+           (select value from upvote where "userId" = $2 and "postId" = p.id) "voteStatus"
     from post p
              inner join public.user u on u.id = p."creatorId"
     where p."createdAt" < $3
@@ -104,7 +111,7 @@ export const SQL_QUERY_SELECT_SERVICES_WITH_WINERY = `
                ) winery
     from service ser
              inner join public.winery w on w.id = ser."wineryId"
-    order by ser."startDateTime" DESC 
+    order by ser."startDateTime" DESC
     limit $1
 `;
 
@@ -116,9 +123,9 @@ export const SQL_QUERY_SELECT_WINERIES = `
 `;
 
 export const SQL_QUERY_GET_RESERVED_SERVICES_IDS = `
-            select array(select sr."serviceId"
-                         from service_reservation sr
-                         where "userId" = $1) as "reservedServicesIds";
-        `;
+    select array(select sr."serviceId"
+                 from service_reservation sr
+                 where "userId" = $1) as "reservedServicesIds";
+`;
 
 

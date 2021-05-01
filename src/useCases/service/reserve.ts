@@ -26,7 +26,15 @@ const makeReservation = async (inputs: ReservationInputs, service: Service) => {
 
     try {
         await serviceReservationDataServices
-            .insertOrUpdateReservation(service.id, inputs.userId, inputs.noOfAttendees)
+            .insertOrUpdateReservation(
+                service.id,
+                inputs.userId,
+                inputs.noOfAttendees,
+                inputs.paypalOrderId,
+                inputs.pricePerPersonInDollars,
+                inputs.paymentCreationDateTime,
+                inputs.status
+            )
     } catch (e) {
         console.log(e)
     }
@@ -60,6 +68,14 @@ const createRecurrentInstanceAndReserve = async (inputs: ReservationInputs, pare
     } catch (e) {
         console.log(e)
     }
+
+    const updateAttendes = await serviceDataServices
+        .updateAttendeesByIdAndCreator(
+            parentService.id, parentService.creatorId, inputs.noOfAttendees, parentService.noOfAttendees);
+
+    if (updateAttendes.affected === 0)
+        return {errors: [{field: "updateService", message: "no change was made"}]}
+
     try {
         await serviceReservationDataServices
             .insertReservation(
