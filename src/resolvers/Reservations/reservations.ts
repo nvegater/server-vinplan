@@ -1,9 +1,12 @@
-import {Arg, Int, Query, Resolver} from "type-graphql";
+import {Arg, Ctx, Int, Query, Resolver} from "type-graphql";
 import {ServiceReservation} from "../../entities/ServiceReservation";
 import {getConnection} from "typeorm";
 import {SQL_QUERY_SELECT_RESERVATIONS_WITH_USER_AND_SERVICE} from "../Universal/queries";
 import {FieldError} from "../User/userResolversOutputs";
 import {ReservationResponse} from "./reservationsOutputs";
+import {ApolloRedisContext} from "../../apollo-config";
+import getUserReservations from "../../useCases/reservation/getUserReservations";
+import getWineryReservations from "../../useCases/reservation/getWineryReservations";
 
 @Resolver(ServiceReservation)
 export class ReservationResolver {
@@ -36,5 +39,22 @@ export class ReservationResolver {
             }
         }
     };
+
+    @Query(() => [ServiceReservation])
+    async userReservations(
+        @Ctx() {req}: ApolloRedisContext
+    ): Promise<ServiceReservation[]> {
+        // @ts-ignore
+        const {userId} = req.session;
+        return await getUserReservations(userId)
+    }
+
+    @Query(() => [ServiceReservation])
+    async wineryReservations(
+        @Arg('wineryId', () => Int) wineryId: number
+    ):  Promise<ServiceReservation[]>{
+        // TODO add serviceCreatorId to the ServiceReservation entity to make this work
+      return await getWineryReservations(wineryId)
+    }
 
 }

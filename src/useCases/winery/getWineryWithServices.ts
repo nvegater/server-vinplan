@@ -16,7 +16,7 @@ import {WineType} from "../../entities/WineType"
 
 const getWineryWithServices = async(wineryId : number) : Promise<WineryServicesResponse> => {
     try {
-        const wineryWithServices = await ServiceServices.getServiceByWinery(wineryId)
+        const wineryWithServices = await ServiceServices.findServicesByWinery(wineryId)
         const winery:any = await WineryServices.findWineryById(wineryId);
         const wineryImages: WineryImageGallery[] | undefined  = await WineryImageGalleryServices.getWineryGalleryById(wineryId)
         console.log(wineryImages);

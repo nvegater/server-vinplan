@@ -2,7 +2,7 @@ import {Arg, Ctx, Int, Mutation, Query, Resolver, UseMiddleware} from "type-grap
 import {Service} from "../../entities/Service";
 import {BookServiceResponse, CreateServiceResponse, ServiceResponse} from "./serviceResolversOutputs";
 import {FieldError} from "../User/userResolversOutputs";
-import {getConnection, MoreThan, UpdateResult} from "typeorm";
+import {getConnection, UpdateResult} from "typeorm";
 import {SQL_QUERY_SELECT_SERVICES_WITH_WINERY} from "../Universal/queries";
 import {isAuth} from "../Universal/utils";
 import {ApolloRedisContext} from "../../apollo-config";
@@ -44,28 +44,10 @@ export class ServiceResolver {
 
     @Query(() => ServiceResponse)
     @UseMiddleware(isAuth)
-    async servicesBookedWinery(
-        @Ctx() {req}: ApolloRedisContext
-    ): Promise<ServiceResponse> {
-        // @ts-ignore
-        const {userId} = req.session;
-        // TODO change to wineryReservations and move to eventsReservationsResolver
-        const paginatedServicesDB = await Service.findAndCount({
-            where: {creatorId: userId, noOfAttendees: MoreThan(0)}
-        })
-        return {
-            paginatedServices: paginatedServicesDB[0],
-            moreServicesAvailable: false
-        }
-    };
-
-    @Query(() => ServiceResponse)
-    @UseMiddleware(isAuth)
     async servicesUser(
         @Arg('serviceIds', () => [Int]) serviceIds: number[]
     ): Promise<ServiceResponse> {
 
-        // TODO change to "reservations" and move to eventsReservations Resolver
         const paginatedServicesDB = await Service.findByIds(serviceIds, {relations: ["winery"]})
         if (paginatedServicesDB !== undefined) {
             return {
