@@ -27,6 +27,13 @@ export const SQL_QUERY_INSERT_RESERVATION = `
     values ($1, $2, $3, $4, $5, $6, $7)
 `;
 
+export const SQL_QUERY_UPDATE_SERVICE = `
+    update service
+    set "noOfAttendees" = "noOfAttendees" + $1
+        where "id" = $2
+            and "creatorId" = $3;
+`;
+
 export const SQL_QUERY_UPDATE_RESERVATION = `
     update service_reservation
     set "noOfAttendees" = "noOfAttendees" + $1

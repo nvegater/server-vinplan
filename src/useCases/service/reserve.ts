@@ -18,12 +18,6 @@ const makeReservation = async (inputs: ReservationInputs, service: Service) => {
             }]
         }
 
-    const updateAttendes = await serviceDataServices
-        .updateAttendeesByIdAndCreator(service.id, service.creatorId, inputs.noOfAttendees, service.noOfAttendees);
-
-    if (updateAttendes.affected === 0)
-        return {errors: [{field: "updateService", message: "no change was made"}]}
-
     try {
         await serviceReservationDataServices
             .insertOrUpdateReservation(
@@ -33,13 +27,19 @@ const makeReservation = async (inputs: ReservationInputs, service: Service) => {
                 inputs.paypalOrderId,
                 inputs.pricePerPersonInDollars,
                 inputs.paymentCreationDateTime,
-                inputs.status
+                inputs.status,
+                service.creatorId
             )
     } catch (e) {
         console.log(e)
     }
 
-    return {service: updateAttendes.raw[0] as Service};
+    const updatedService = await serviceDataServices.findServiceById(service.id)
+
+    if (updatedService === undefined)
+        return {errors: [{field: "makeReservation", message: "Error retrieving updated service"}]};
+
+    return {service: updatedService};
 
 }
 
@@ -68,17 +68,9 @@ const createRecurrentInstanceAndReserve = async (inputs: ReservationInputs, pare
     } catch (e) {
         console.log(e)
     }
-
-    const updateAttendes = await serviceDataServices
-        .updateAttendeesByIdAndCreator(
-            parentService.id, parentService.creatorId, inputs.noOfAttendees, parentService.noOfAttendees);
-
-    if (updateAttendes.affected === 0)
-        return {errors: [{field: "updateService", message: "no change was made"}]}
-
     try {
         await serviceReservationDataServices
-            .insertReservation(
+            .insertOrUpdateReservation(
                 newRecurrentInstanceFromService.id,
                 inputs.userId,
                 inputs.noOfAttendees,
@@ -86,6 +78,7 @@ const createRecurrentInstanceAndReserve = async (inputs: ReservationInputs, pare
                 inputs.pricePerPersonInDollars,
                 inputs.paymentCreationDateTime,
                 inputs.status,
+                parentService.creatorId
             )
     } catch (e) {
         console.log(e)

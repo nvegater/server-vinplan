@@ -2,7 +2,7 @@ import {getConnection} from "typeorm";
 import {
     SQL_QUERY_GET_RESERVED_SERVICES_IDS,
     SQL_QUERY_INSERT_RESERVATION,
-    SQL_QUERY_UPDATE_RESERVATION
+    SQL_QUERY_UPDATE_RESERVATION, SQL_QUERY_UPDATE_SERVICE
 } from "../resolvers/Universal/queries";
 import {ServiceReservation} from "../entities/ServiceReservation";
 
@@ -30,6 +30,7 @@ const insertOrUpdateReservation = async (
     pricePerPersonInDollars: number,
     paymentCreationDateTime: string,
     status: string,
+    creatorId: number
 ) => {
     await getConnection().transaction(async transactionManager => {
         let createOrUpdate = SQL_QUERY_INSERT_RESERVATION;
@@ -51,29 +52,12 @@ const insertOrUpdateReservation = async (
             paymentCreationDateTime,
             status
         ]);
-    });
-}
 
-const insertReservation = async (
-    serviceId:number,
-    userId: number,
-    noOfAttendees:number,
-    paypalOrderId:string,
-    pricePerPersonInDollars: number,
-    paymentCreationDateTime: string,
-    status: string,
-) => {
-    return await getConnection().transaction(async transactionManager => {
-        await transactionManager.query(SQL_QUERY_INSERT_RESERVATION,
-            [
-                noOfAttendees,
-                serviceId,
-                userId,
-                paypalOrderId,
-                pricePerPersonInDollars,
-                paymentCreationDateTime,
-                status
-            ]);
+        await transactionManager.query(SQL_QUERY_UPDATE_SERVICE, [
+            noOfAttendees,
+            serviceId,
+            creatorId
+        ])
     });
 }
 
@@ -81,6 +65,5 @@ export default {
     findIdsFromServicesReservedByUserId,
     findUserReservations,
     findUserReservationByIdAndUserId,
-    insertOrUpdateReservation,
-    insertReservation
+    insertOrUpdateReservation
 }
