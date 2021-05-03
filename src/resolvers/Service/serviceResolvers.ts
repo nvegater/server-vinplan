@@ -49,6 +49,7 @@ export class ServiceResolver {
     ): Promise<ServiceResponse> {
         // @ts-ignore
         const {userId} = req.session;
+        // TODO change to wineryReservations and move to eventsReservationsResolver
         const paginatedServicesDB = await Service.findAndCount({
             where: {creatorId: userId, noOfAttendees: MoreThan(0)}
         })
@@ -64,6 +65,7 @@ export class ServiceResolver {
         @Arg('serviceIds', () => [Int]) serviceIds: number[]
     ): Promise<ServiceResponse> {
 
+        // TODO change to "reservations" and move to eventsReservations Resolver
         const paginatedServicesDB = await Service.findByIds(serviceIds, {relations: ["winery"]})
         if (paginatedServicesDB !== undefined) {
             return {

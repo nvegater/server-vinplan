@@ -30,8 +30,8 @@ export const SQL_QUERY_INSERT_RESERVATION = `
 export const SQL_QUERY_UPDATE_SERVICE = `
     update service
     set "noOfAttendees" = "noOfAttendees" + $1
-        where "id" = $2
-            and "creatorId" = $3;
+    where "id" = $2
+      and "creatorId" = $3;
 `;
 
 export const SQL_QUERY_UPDATE_RESERVATION = `
@@ -119,6 +119,26 @@ export const SQL_QUERY_SELECT_SERVICES_WITH_WINERY = `
     from service ser
              inner join public.winery w on w.id = ser."wineryId"
     order by ser."startDateTime" DESC
+    limit $1
+`;
+
+export const SQL_QUERY_SELECT_RESERVATIONS_WITH_USER_AND_SERVICE = `
+    select sr.*,
+           json_build_object(
+                   'id', u.id,
+                   'username', u."username",
+                   'userType', u."userType"
+               ) "userFromReservation",
+           json_build_object(
+                   'id', s.id,
+                   'noOfAttendees', s."noOfAttendees",
+                   'startDateTime', s."startDateTime",
+                   'pricePerPersonInDollars', s."pricePerPersonInDollars"
+               ) "serviceFromReservation"
+    from service_reservation sr
+             inner join public.user u on u.id = sr."userId"
+             inner join public.service s on s.id = sr."serviceId"
+    order by sr."serviceId" DESC
     limit $1
 `;
 
