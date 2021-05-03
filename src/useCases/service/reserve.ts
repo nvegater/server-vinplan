@@ -8,33 +8,34 @@ interface ReservationInputs extends ReserveServiceInputs {
     userId: number,
 }
 
-const makeReservation = async (inputs: ReservationInputs, service: Service) => {
+const makeReservation = async (inputs: ReservationInputs, serviceToBook: Service, parentService?: Service) => {
 
-    if ((service.noOfAttendees + inputs.noOfAttendees) > service.limitOfAttendees)
+    if ((serviceToBook.noOfAttendees + inputs.noOfAttendees) > serviceToBook.limitOfAttendees)
         return {
             errors: [{
                 field: "updateServiceFull",
-                message: `Cant book because there are only ${service.limitOfAttendees - service.noOfAttendees} places left`
+                message: `Cant book because there are only ${serviceToBook.limitOfAttendees - serviceToBook.noOfAttendees} places left`
             }]
         }
 
     try {
         await serviceReservationDataServices
             .insertOrUpdateReservation(
-                service.id,
+                serviceToBook.id,
                 inputs.userId,
                 inputs.noOfAttendees,
                 inputs.paypalOrderId,
                 inputs.pricePerPersonInDollars,
                 inputs.paymentCreationDateTime,
                 inputs.status,
-                service.creatorId
+                serviceToBook.creatorId,
+                !!parentService ? parentService.id : serviceToBook.id
             )
     } catch (e) {
         console.log(e)
     }
 
-    const updatedService = await serviceDataServices.findServiceById(service.id)
+    const updatedService = await serviceDataServices.findServiceById(serviceToBook.id)
 
     if (updatedService === undefined)
         return {errors: [{field: "makeReservation", message: "Error retrieving updated service"}]};
@@ -78,7 +79,8 @@ const createRecurrentInstanceAndReserve = async (inputs: ReservationInputs, pare
                 inputs.pricePerPersonInDollars,
                 inputs.paymentCreationDateTime,
                 inputs.status,
-                parentService.creatorId
+                parentService.creatorId,
+                parentService.id
             )
     } catch (e) {
         console.log(e)
@@ -91,7 +93,7 @@ const prepareRecurrentInstance = async (inputs: ReservationInputs, parentService
         .findServiceByParentIdAndStartDateTime(inputs.serviceId, inputs.startDateTime);
     return recurrentInstance === undefined
         ? createRecurrentInstanceAndReserve(inputs, parentService)
-        : makeReservation(inputs, recurrentInstance)
+        : makeReservation(inputs, recurrentInstance, parentService)
 
 }
 

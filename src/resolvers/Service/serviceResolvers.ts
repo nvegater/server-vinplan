@@ -109,7 +109,8 @@ export class ServiceResolver {
             const service = await Service.create({
                 ...createServiceInputs,
                 creatorId: userId,
-                duration: createServiceInputs.duration
+                duration: createServiceInputs.duration,
+                noOfAttendees: 0,
             });
             await service.save();
             return {service: service};

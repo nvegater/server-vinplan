@@ -30,7 +30,8 @@ const insertOrUpdateReservation = async (
     pricePerPersonInDollars: number,
     paymentCreationDateTime: string,
     status: string,
-    creatorId: number
+    creatorId: number,
+    parentServiceId: number
 ) => {
     await getConnection().transaction(async transactionManager => {
         let createOrUpdate = SQL_QUERY_INSERT_RESERVATION;
@@ -55,7 +56,7 @@ const insertOrUpdateReservation = async (
 
         await transactionManager.query(SQL_QUERY_UPDATE_SERVICE, [
             noOfAttendees,
-            serviceId,
+            parentServiceId,
             creatorId
         ])
     });
