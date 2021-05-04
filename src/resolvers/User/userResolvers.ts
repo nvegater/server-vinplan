@@ -17,7 +17,7 @@ import {
 import {SessionCookieName} from "../../redis-config";
 import {ApolloRedisContext} from "../../apollo-config";
 import {v4 as uuidv4} from "uuid";
-import {sendEmail} from "../../utils/sendEmail";
+import sendEmail from "../../utils/sendEmail";
 import {FORGET_PASSWORD_PREFIX} from "../../constants";
 import userResolversErrors from "./userResolversErrors";
 import {isAuth} from "../Universal/utils";
@@ -66,7 +66,7 @@ export class UserResolver {
     @Mutation(() => UserResponse)
     async register(
         @Arg("options") registerInputs: RegisterInputs,
-        @Ctx() {req}: ApolloRedisContext
+        @Ctx() {redis, req}: ApolloRedisContext
     ): Promise<UserResponse> {
         const inputErrors: FieldError[] = validateInputsRegister(registerInputs);
 
@@ -74,7 +74,7 @@ export class UserResolver {
             return {errors: inputErrors}
         }
 
-        const registerResult: UserResponse = await registerUser(registerInputs);
+        const registerResult: UserResponse = await registerUser(registerInputs, redis);
 
         if (registerResult.errors && registerResult.errors.length > 0) {
             return {errors: registerResult.errors}
@@ -84,6 +84,8 @@ export class UserResolver {
 
         return registerResult
     }
+
+    //TODO: @Mutation(() => UserResponse)
 
     @Mutation(() => WineryResponse)
     async registerWinery(
@@ -313,7 +315,13 @@ export class UserResolver {
             user.id, // access this value
             "ex", // that expires
             THREE_DAYS_MS); // after 3 days
-        await sendEmail(email, `<a href="${process.env.CORS_ORIGIN_WHITELIST_1}/change-password/${token}"> reset password </a>`)
+        const emailData = {
+            sender: '"Fred Foo 👻" <foo@example.com>',
+            email,
+            subject : "Change password",
+            html : `<a href="${process.env.CORS_ORIGIN_WHITELIST_1}/change-password/${token}"> reset password </a>`
+        }    
+        await sendEmail(emailData)
         return {user: user}
     }
 
