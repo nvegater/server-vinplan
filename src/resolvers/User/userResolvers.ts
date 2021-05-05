@@ -90,14 +90,7 @@ export class UserResolver {
         @Arg("token") token : String,
         @Ctx() {redis}: ApolloRedisContext
     ): Promise<UserResponse> {
-        console.log(token);
         return await userValidation(token, redis);
-        const key = VALIDATE_USER_PREFIX + token;
-        const userId = await redis.get(key);
-        console.log(userId);
-        return {
-            user : undefined,
-        }
     }
 
     @Mutation(() => WineryResponse)
