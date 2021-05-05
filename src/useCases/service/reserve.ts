@@ -112,7 +112,7 @@ const reserve = async (inputs: ReservationInputs) => {
     if (parentService === undefined)
         return {errors: [{field: "yourOwnService", message: "youre trying to book a service you created"}]}
 
-    const bookRecurrentInstance = inputs.startDateTime !== parentService.startDateTime;
+    const bookRecurrentInstance = inputs.startDateTime.toISOString() !== parentService.startDateTime.toISOString();
 
     return bookRecurrentInstance
         ? prepareRecurrentInstance(inputs, parentService)
