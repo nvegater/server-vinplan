@@ -329,7 +329,7 @@ export class UserResolver {
             "ex", // that expires
             THREE_DAYS_MS); // after 3 days
         const emailData = {
-            sender: '"Fred Foo 👻" <foo@example.com>',
+            sender: '"Vin plan" <no-reply@vinplan>',
             email,
             subject : "Change password",
             html : `<a href="${process.env.CORS_ORIGIN_WHITELIST_1}/change-password/${token}"> reset password </a>`

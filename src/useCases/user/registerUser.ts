@@ -23,12 +23,14 @@ const registerUser = async (registerInputs: RegisterInputs, redis : any): Promis
         user.id, // access this value
         "ex", // that expires
         THREE_DAYS_MS); // after 3 days
-    console.log(registerInputs.email);
     const emailData = {
-        sender: '"Fred Foo 👻" <foo@example.com>',
+        sender: '"Vin plan" <no-reply@vinplan>',
         email: registerInputs.email,
-        subject : 'Change password',
-        html : `<a href="${process.env.CORS_ORIGIN_WHITELIST_1}/change-password/${token}"> reset password </a>`
+        subject : 'Validate Register',
+        html : `
+        <b>Please click on the following link, or paste this into your browser to complete the process</b>
+        <a href="${process.env.CORS_ORIGIN_WHITELIST_1}/verify-register/${token}"> reset password </a>
+        `
     }    
     await sendEmail(emailData)
 
