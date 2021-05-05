@@ -18,7 +18,7 @@ import {SessionCookieName} from "../../redis-config";
 import {ApolloRedisContext} from "../../apollo-config";
 import {v4 as uuidv4} from "uuid";
 import sendEmail from "../../utils/sendEmail";
-import {FORGET_PASSWORD_PREFIX, VALIDATE_USER_PREFIX} from "../../constants";
+import {FORGET_PASSWORD_PREFIX} from "../../constants";
 import userResolversErrors from "./userResolversErrors";
 import {isAuth} from "../Universal/utils";
 import {getConnection} from "typeorm";
