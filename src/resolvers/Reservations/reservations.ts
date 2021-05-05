@@ -53,7 +53,6 @@ export class ReservationResolver {
     async wineryReservations(
         @Arg('wineryId', () => Int) wineryId: number
     ):  Promise<ServiceReservation[]>{
-        // TODO add serviceCreatorId to the ServiceReservation entity to make this work
       return await getWineryReservations(wineryId)
     }
 

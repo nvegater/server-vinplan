@@ -20,8 +20,8 @@ const findUserReservations = async (userId: number) => {
 }
 
 const findWineryReservations = async (wineryId:number) => {
-    const creatorId = await wineryServices.findWineryById(wineryId);
-    return await ServiceReservation.find({where: {userId: creatorId}})
+    const winery = await wineryServices.findWineryById(wineryId);
+    return await ServiceReservation.find({where: {serviceCreatorId: winery?.creatorId}})
 }
 
 const findReservationByServiceId = async (serviceId:number) => {
@@ -44,16 +44,17 @@ const insertOrUpdateReservation = async (
     parentServiceId: number
 ) => {
     await getConnection().transaction(async transactionManager => {
-        let createOrUpdate = SQL_QUERY_INSERT_RESERVATION;
         const reservationExists = await ServiceReservation.findOne({
             where: {
                 serviceId: serviceId,
                 userId: userId
             }
         })
-        if (reservationExists) {
-            createOrUpdate = SQL_QUERY_UPDATE_RESERVATION
-        }
+
+        const createOrUpdate = !!reservationExists
+            ? SQL_QUERY_UPDATE_RESERVATION
+            : SQL_QUERY_INSERT_RESERVATION;
+
         await transactionManager.query(createOrUpdate, [
             noOfAttendees,
             serviceId,
@@ -61,7 +62,7 @@ const insertOrUpdateReservation = async (
             paypalOrderId,
             pricePerPersonInDollars,
             paymentCreationDateTime,
-            status
+            status, creatorId
         ]);
 
         await transactionManager.query(SQL_QUERY_UPDATE_SERVICE, [

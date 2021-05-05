@@ -23,8 +23,9 @@ export const SQL_QUERY_INSERT_RESERVATION = `
                                      "paypalOrderId",
                                      "pricePerPersonInDollars",
                                      "paymentCreationDateTime",
-                                     "status")
-    values ($1, $2, $3, $4, $5, $6, $7)
+                                     "status",
+                                     "serviceCreatorId")
+    values ($1, $2, $3, $4, $5, $6, $7, $8)
 `;
 
 export const SQL_QUERY_UPDATE_SERVICE = `

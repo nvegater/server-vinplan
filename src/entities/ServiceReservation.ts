@@ -15,6 +15,9 @@ export class ServiceReservation extends BaseEntity {
     @PrimaryColumn()
     serviceId: number;
 
+    @Column({nullable: true})
+    serviceCreatorId: number;
+
     @Field(() => Int, {nullable: true})
     @Column({type:"int", nullable: true})
     noOfAttendees: number;
