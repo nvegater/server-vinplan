@@ -18,7 +18,7 @@ import {SessionCookieName} from "../../redis-config";
 import {ApolloRedisContext} from "../../apollo-config";
 import {v4 as uuidv4} from "uuid";
 import sendEmail from "../../utils/sendEmail";
-import {FORGET_PASSWORD_PREFIX} from "../../constants";
+import {FORGET_PASSWORD_PREFIX, VALIDATE_USER_PREFIX} from "../../constants";
 import userResolversErrors from "./userResolversErrors";
 import {isAuth} from "../Universal/utils";
 import {getConnection} from "typeorm";
@@ -31,7 +31,7 @@ import {WineryAmenity} from "../../entities/WineryAmenity";
 import getUser from "../../useCases/user/getUser";
 import updateUser from "../../useCases/user/updateUser";
 import registerUser from "../../useCases/user/registerUser";
-
+import userValidation from "../../useCases/user/userValidation"
 
 @Resolver(User)
 export class UserResolver {
@@ -85,7 +85,20 @@ export class UserResolver {
         return registerResult
     }
 
-    //TODO: @Mutation(() => UserResponse)
+    @Mutation(() => UserResponse)
+    async validateUser(
+        @Arg("token") token : String,
+        @Ctx() {redis}: ApolloRedisContext
+    ): Promise<UserResponse> {
+        console.log(token);
+        return await userValidation(token, redis);
+        const key = VALIDATE_USER_PREFIX + token;
+        const userId = await redis.get(key);
+        console.log(userId);
+        return {
+            user : undefined,
+        }
+    }
 
     @Mutation(() => WineryResponse)
     async registerWinery(

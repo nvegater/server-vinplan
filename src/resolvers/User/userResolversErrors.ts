@@ -93,6 +93,11 @@ const tokenExpired: FieldError = {
     message: 'Request to change password expired'
 }
 
+const tokenError: FieldError = {
+    field: Fields.token,
+    message: 'Incorrect Token'
+}
+
 const tokenUserError: FieldError = {
     field: Fields.token,
     message: 'user not longer exists'
@@ -117,6 +122,7 @@ const userResolversErrors = {
     emailInUseError,
     tokenExpired,
     tokenUserError,
+    tokenError,
 }
 
 export default userResolversErrors

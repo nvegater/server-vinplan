@@ -46,6 +46,8 @@ export class UserToEdit {
     visitorOrOwner?: boolean
     @Field(() => UserType, {nullable:true})
     userType?: UserType
+    @Field({nullable:true})
+    verified?: boolean
 }
 
 @InputType()
