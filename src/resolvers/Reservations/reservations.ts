@@ -23,7 +23,6 @@ export class ReservationResolver {
             .query(SQL_QUERY_SELECT_RESERVATIONS_WITH_USER_AND_SERVICE, replacements);
 
         if (paginatedReservations !== undefined) {
-            console.log(paginatedReservations)
             return {
                 reservations: paginatedReservations.slice(0, realLimit),
                 moreReservationsAvailable: paginatedReservations.length === (realLimit + 1) // DB has more posts than requested

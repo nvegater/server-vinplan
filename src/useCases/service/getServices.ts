@@ -15,8 +15,6 @@ const getServices = async (serviceIds: number[]) => {
         ser.endDateTime = convertDateToUTC(ser.endDateTime);
         return ser
     })
-    console.log(servicesWithUTCDates)
-
     return {
         paginatedServices: servicesWithUTCDates,
         moreServicesAvailable: false // DB has more posts than requested

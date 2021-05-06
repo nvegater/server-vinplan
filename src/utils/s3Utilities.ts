@@ -48,7 +48,6 @@ const getMultimediaInfo = async (presignedUrl: PresignedUrlInput) => {
         let prefix = '';
         let contentType = '';
         if (uploadType == 'winerybook') {
-            console.log(await imagesNumberGallery(wineryId));
             // Numero de elementos para poner la validacion
             if (await imagesNumberGallery(wineryId) > 10) {
                 throw new Error('Numero maximo de imagenes');
