@@ -18,7 +18,7 @@ import {SessionCookieName} from "../../redis-config";
 import {ApolloRedisContext} from "../../apollo-config";
 import {v4 as uuidv4} from "uuid";
 import sendEmail from "../../utils/sendEmail";
-import {FORGET_PASSWORD_PREFIX} from "../../constants";
+import {FORGET_PASSWORD_PREFIX, VALIDATE_USER_PREFIX} from "../../constants";
 import userResolversErrors from "./userResolversErrors";
 import {isAuth} from "../Universal/utils";
 import {getConnection} from "typeorm";
@@ -88,11 +88,16 @@ export class UserResolver {
     @Mutation(() => UserResponse)
     async validateUser(
         @Arg("token") token : String,
-        @Ctx() {redis}: ApolloRedisContext
+        @Ctx() {redis,req}: ApolloRedisContext
     ): Promise<UserResponse> {
-        //TODO: obtener el token del redis en este lugar y no en la implementacion
-        //TODO: agregar el usuario a la sesion.
-        return await userValidation(token, redis);
+        const key = VALIDATE_USER_PREFIX + token;
+        const userId = await redis.get(key)
+        const validatedUser = await userValidation(parseInt(userId || '0'));
+        if (validatedUser.user) {
+            // @ts-ignore
+            req.session.userId = validatedUser.user.id;
+        }
+        return validatedUser
     }
 
     @Mutation(() => WineryResponse)

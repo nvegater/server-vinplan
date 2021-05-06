@@ -2,15 +2,11 @@ import {UserResponse} from "../../resolvers/User/userResolversOutputs";
 import userResolversErrors from "../../resolvers/User/userResolversErrors";
 import serviceReservationDataServices from "../../dataServices/serviceReservation"
 import wineryDataServices from "../../dataServices/winery"
-import {VALIDATE_USER_PREFIX} from "../../constants";
 import userDataServices from "../../dataServices/user"
 
-const userValidation = async (token: String, redis: any): Promise<UserResponse> => {
+const userValidation = async (userId  : number): Promise<UserResponse> => {
 
-    const key = VALIDATE_USER_PREFIX + token;
-    const userId = await redis.get(key);
     let user = await userDataServices.updateUser(userId, {verified : true});
-
     if (user === undefined) {
         return {errors: [userResolversErrors.tokenError]}
     }
