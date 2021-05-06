@@ -2,12 +2,13 @@ import {Arg, Ctx, Int, Mutation, Query, Resolver, UseMiddleware} from "type-grap
 import {Service} from "../../entities/Service";
 import {BookServiceResponse, CreateServiceResponse, ServiceResponse} from "./serviceResolversOutputs";
 import {FieldError} from "../User/userResolversOutputs";
-import {getConnection, MoreThan, UpdateResult} from "typeorm";
+import {getConnection, UpdateResult} from "typeorm";
 import {SQL_QUERY_SELECT_SERVICES_WITH_WINERY} from "../Universal/queries";
 import {isAuth} from "../Universal/utils";
 import {ApolloRedisContext} from "../../apollo-config";
-import {CreateServiceInputs, UpdateServiceInputs} from "./serviceResolversInputs";
+import {CreateServiceInputs, ReserveServiceInputs, UpdateServiceInputs} from "./serviceResolversInputs";
 import reserve from "../../useCases/service/reserve";
+import getServices from "../../useCases/service/getServices";
 
 
 @Resolver(Service)
@@ -44,56 +45,23 @@ export class ServiceResolver {
 
     @Query(() => ServiceResponse)
     @UseMiddleware(isAuth)
-    async servicesBookedWinery(
-        @Ctx() {req}: ApolloRedisContext
-    ): Promise<ServiceResponse> {
-        // @ts-ignore
-        const {userId} = req.session;
-        const paginatedServicesDB = await Service.findAndCount({
-            where: {creatorId: userId, noOfAttendees: MoreThan(0)}
-        })
-        return {
-            paginatedServices: paginatedServicesDB[0],
-            moreServicesAvailable: false
-        }
-    };
-
-    @Query(() => ServiceResponse)
-    @UseMiddleware(isAuth)
     async servicesUser(
         @Arg('serviceIds', () => [Int]) serviceIds: number[]
     ): Promise<ServiceResponse> {
 
-        const paginatedServicesDB = await Service.findByIds(serviceIds, {relations: ["winery"]})
-        if (paginatedServicesDB !== undefined) {
-            return {
-                paginatedServices: paginatedServicesDB,
-                moreServicesAvailable: false // DB has more posts than requested
-            };
-        } else {
-            const fieldError: FieldError = {
-                field: "allServices",
-                message: "All allServices finding returns undefined"
-            }
-            return {
-                errors: [fieldError],
-                moreServicesAvailable: false
-            }
-        }
+       return await getServices(serviceIds)
     };
 
     @Mutation(() => BookServiceResponse)
     @UseMiddleware(isAuth)
     async reserve(
-        @Arg('serviceId', () => Int) serviceId: number,
-        @Arg('noOfAttendees', () => Int) noOfAttendees: number,
-        @Arg('startDateTime', () => Date) startDateTime: Date,
+        @Arg('reserveServiceInputs') reserveServiceInputs: ReserveServiceInputs,
         @Ctx() {req}: ApolloRedisContext
     ): Promise<BookServiceResponse> {
         // @ts-ignore
         const {userId} = req.session;
 
-        return await reserve({userId, serviceId, noOfAttendees, startDateTime})
+        return await reserve({userId, ...reserveServiceInputs})
 
     }
 
@@ -111,7 +79,8 @@ export class ServiceResolver {
             const service = await Service.create({
                 ...createServiceInputs,
                 creatorId: userId,
-                duration: createServiceInputs.duration
+                duration: createServiceInputs.duration,
+                noOfAttendees: 0,
             });
             await service.save();
             return {service: service};

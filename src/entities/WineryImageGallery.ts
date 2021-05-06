@@ -4,6 +4,7 @@ import {Field, ObjectType} from "type-graphql";
 @Entity()
 export class WineryImageGallery extends BaseEntity {
 
+    @Field({nullable: true})
     @PrimaryGeneratedColumn()
     id!: number;
 
@@ -14,5 +15,11 @@ export class WineryImageGallery extends BaseEntity {
     @Field({nullable: true})
     @Column({nullable: true})
     imageUrl: string;
+
+    @Field()
+    @Column('boolean', {
+        default: () => "'false'",
+    })
+    coverPage: boolean = false;
 
 }

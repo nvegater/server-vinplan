@@ -83,8 +83,8 @@ export class Service extends BaseEntity {
     @Column({type:"int", nullable: true})
     limitOfAttendees: number;
 
-    @Field(() => Int, {nullable: true})
-    @Column({type:"int", nullable: true})
+    @Field(() => Int, {defaultValue: 0})
+    @Column({type:"int", default: () => 0})
     noOfAttendees: number;
 
     @Field(() => Float)

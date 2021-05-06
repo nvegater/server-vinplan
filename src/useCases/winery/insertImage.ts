@@ -1,5 +1,5 @@
 import {WineryImageGallery} from "../../entities/WineryImageGallery"
-import userResolversErrors from "../../resolvers/User/userResolversErrors";
+import wineryResolverErrors from "../../resolvers/Winery/wineryResolversErrors";
 import {WineryImageGalleryResponse} from "../../resolvers/Winery/wineryResolversOutputs"
 import WineryImageGalleryServices from "../../dataServices/wineryImageGallery"
 
@@ -8,7 +8,7 @@ const insertImage = async (wineryId: number, urlImage: string): Promise<WineryIm
         const wineryInserted = await WineryImageGalleryServices.insertImageInWineryGallery(wineryId, urlImage)
         
         if (wineryInserted === undefined) {
-            return {errors: [userResolversErrors.imageNotInserted]}
+            return {errors: [wineryResolverErrors.imageNotInserted]}
         } else {
             const wineryImages: WineryImageGallery[] | undefined = await WineryImageGalleryServices.getWineryGalleryById(wineryId)
             return {images: wineryImages};

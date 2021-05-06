@@ -1,15 +1,16 @@
 import {Arg, Int, Query, Resolver, Mutation} from "type-graphql";
-import {FieldError} from "../User/userResolversOutputs";
-import {WineriesResponse, WineryServicesResponse} from "./wineryResolversOutputs";
+import {WineriesResponse, WineryServicesResponse, WineryChangeResponse} from "./wineryResolversOutputs";
 import {Winery} from "../../entities/Winery";
 import {getConnection, In} from "typeorm";
 import {SQL_QUERY_SELECT_WINERIES} from "../Universal/queries";
 import {WineType} from "../../entities/WineType";
 import {WineProductionType} from "../../entities/WineProductionType";
 import {WineryImageGallery} from "../../entities/WineryImageGallery"
-import {WineryImageGalleryResponse} from "../../resolvers/Winery/wineryResolversOutputs"
+import {WineryImageGalleryResponse} from "./wineryResolversOutputs"
 import getWineryWithServices from "../../useCases/winery/getWineryWithServices"
 import insertImage from "../../useCases/winery/insertImage"
+import changeCoverPage from "../../useCases/winery/changeCoverPage"
+import wineryErrors from "./wineryResolversErrors";
 
 @Resolver(Winery)
 export class WineryResolver {
@@ -44,12 +45,9 @@ export class WineryResolver {
                 moreWineriesAvailable: pagWinsWExtraProps.length === (realLimit + 1) // DB has more posts than requested
             };
         } else {
-            const fieldError: FieldError = {
-                field: "allWineries",
-                message: "All wineries find one is undefined"
-            }
+            
             return {
-                errors: [fieldError], moreWineriesAvailable: false
+                errors: [wineryErrors.wineryNotFound], moreWineriesAvailable: false
             }
         }
     }
@@ -84,6 +82,18 @@ export class WineryResolver {
                 }
             }
             
+        } catch (error) {
+            throw new Error(error)
+        }
+    }
+
+    @Mutation(() => WineryChangeResponse)
+    async changeCoverPageImage(
+        @Arg('wineryId', () => Int) wineryId: number,
+        @Arg('wineryImageId', () => Int) wineryImageId: number,
+    ): Promise<WineryChangeResponse> {
+        try {
+            return await changeCoverPage(wineryId,wineryImageId)
         } catch (error) {
             throw new Error(error)
         }
