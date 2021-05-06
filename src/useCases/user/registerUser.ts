@@ -6,6 +6,7 @@ import {UserResponse} from "../../resolvers/User/userResolversOutputs";
 import userDataServices from "../../dataServices/user";
 import {VALIDATE_USER_PREFIX} from "../../constants";
 import sendEmail from "../../utils/sendEmail";
+import emailValidationHtml from "../../utils/emailsTemplates/emailValidation/emailValidation"
 
 const registerUser = async (registerInputs: RegisterInputs, redis : any): Promise<UserResponse> => {
     const userWithUsernameExists: User | undefined = await userDataServices.findUserByUsername(registerInputs.username);
@@ -27,10 +28,19 @@ const registerUser = async (registerInputs: RegisterInputs, redis : any): Promis
         sender: '"Vin plan" <no-reply@vinplan>',
         email: registerInputs.email,
         subject : 'Validate Register',
-        html : `
-        <b>Please click on the following link, or paste this into your browser to complete the process</b>
-        <a href="${process.env.CORS_ORIGIN_WHITELIST_1}/verify-register/${token}"> reset password </a>
-        `
+        html : emailValidationHtml(token),
+        attachments: [
+            {
+                filename: 'brand.svg',
+                path: 'src/utils/emailsTemplates/emailValidation/brand.svg',
+                cid: 'uniq-brand.svg'
+            },
+            {
+                filename: 'mailIlu.png',
+                path: 'src/utils/emailsTemplates/emailValidation/mailIlu.png',
+                cid: 'uniq-mailIlu.png'
+            }
+          ]
     }    
     await sendEmail(emailData)
 

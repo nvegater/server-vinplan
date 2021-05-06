@@ -15,6 +15,7 @@ const sendEmail = async (emailData : any) => {
         to: emailData.email, //emailData.emailAddress, // list of receivers
         subject: emailData.subject, //"Change password", // Subject line
         html: emailData.html, // html body
+        attachments : emailData.attachments,
     });
 };
 
