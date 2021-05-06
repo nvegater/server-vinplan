@@ -7,6 +7,10 @@ const findServiceNotMadeByCreatorByServiceAndCreatorId = async (serviceId:number
     })
 }
 
+const findServicesByIds = async (serviceIds: number[]):Promise<Service[]> => {
+    return await Service.findByIds(serviceIds, {relations: ["winery"]})
+}
+
 
 const findServiceByParentIdAndStartDateTime = async (serviceId:number, startDateTime: Date) => {
     return await Service.findOne({
@@ -38,5 +42,6 @@ export default {
     findServiceByParentIdAndStartDateTime,
     updateAttendeesByIdAndCreator,
     findServicesByWinery,
-    findServiceById
+    findServiceById,
+    findServicesByIds
 }
