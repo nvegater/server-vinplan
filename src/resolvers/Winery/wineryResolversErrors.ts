@@ -14,7 +14,6 @@ enum Fields {
     allWineries = "allWineries",
 }
 
-//TODO: cambiar al wineryResolverErrors
 const imageNotInserted: FieldError = {
     field: Fields.imageNotInserted,
     message: "The image couldn't be inserted",

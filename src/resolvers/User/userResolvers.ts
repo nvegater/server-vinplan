@@ -91,9 +91,8 @@ export class UserResolver {
         @Arg("wineryDataInputs") wineryDataInputs: WineryDataInputs,
         @Ctx() {req}: ApolloRedisContext
     ): Promise<WineryResponse> {
-        // TODO registrate a winery with the current data
         const inputErrors: FieldError[] = validateInputsRegister(registerInputs);
-        inputErrors.push(...validateInputsRegister(registerInputs)) // TODO add validateWineryDataInputs
+        inputErrors.push(...validateInputsRegister(registerInputs))
         if (inputErrors.length > 0) {
             // Level 1: Simple input validation
             return {errors: inputErrors}

@@ -35,6 +35,28 @@ Start the graphql playground to see documentation and send queries to the server
 7. `npm run dev-ts`
 8. Open <http://localhost:4000/graphql> in any browser.
 
+## Automatic Migrations
+
+The Script to run the automatic migrations is in `package.json`:
+```json
+{
+  "scripts": {
+    "typeorm": "ts-node ./node_modules/typeorm/cli.js"
+  }
+}
+```
+Use it everytime you generate changes in the DB entities, to generate the neccessary migration scripts
+1. Generate production bundle `dist/`
+```bash
+yarn run build
+```
+2. Generate migrations from `dist/`
+```bash
+yarn run typeorm migration:generate -- -n name-of-migration
+```
+3. Restart the server
+
+
 ## How it plays together
 
 The magic happens in `index.ts`, TLDR:
