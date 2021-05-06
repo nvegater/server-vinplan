@@ -31,9 +31,9 @@ const registerUser = async (registerInputs: RegisterInputs, redis : any): Promis
         html : emailValidationHtml(token),
         attachments: [
             {
-                filename: 'brand.svg',
-                path: 'src/utils/emailsTemplates/emailValidation/brand.svg',
-                cid: 'uniq-brand.svg'
+                filename: 'brand.png',
+                path: 'src/utils/emailsTemplates/emailValidation/brand.png',
+                cid: 'uniq-brand.png'
             },
             {
                 filename: 'mailIlu.png',

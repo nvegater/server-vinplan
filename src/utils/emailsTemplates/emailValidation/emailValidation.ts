@@ -14,7 +14,7 @@ export default (token : string) => {
 		<td style="background-color: #f7f7f7; text-align: left; padding: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-top-left-radius: 12px;border-top-right-radius: 12px;">
 			<a href="" style="display: inline-block;">
 				<img width="30%" style="display:block; margin: 3% 5%" 
-                src="cid:uniq-brand.svg">
+                src="cid:uniq-brand.png">
 			</a>
             <p style="display: inline-block;">Un varietal de experiencias </p>
 		</td>
