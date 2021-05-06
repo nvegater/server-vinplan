@@ -90,6 +90,8 @@ export class UserResolver {
         @Arg("token") token : String,
         @Ctx() {redis}: ApolloRedisContext
     ): Promise<UserResponse> {
+        //TODO: obtener el token del redis en este lugar y no en la implementacion
+        //TODO: agregar el usuario a la sesion.
         return await userValidation(token, redis);
     }
 
