@@ -85,7 +85,7 @@ export const SQL_QUERY_SELECT_PAGINATED_POSTS_USER_LOGGED_IN = `
                    'email', u.email,
                    'createdAt', u."createdAt",
                    'updatedAt', u."updatedAt"
-               )                                                              creator,
+               ) creator,
            (select value from upvote where "userId" = $2 and "postId" = p.id) "voteStatus"
     from post p
              inner join public.user u on u.id = p."creatorId"
@@ -102,7 +102,7 @@ export const SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR_USER_LOGGED_IN = `
                    'email', u.email,
                    'createdAt', u."createdAt",
                    'updatedAt', u."updatedAt"
-               )                                                              creator,
+               ) creator,
            (select value from upvote where "userId" = $2 and "postId" = p.id) "voteStatus"
     from post p
              inner join public.user u on u.id = p."creatorId"
