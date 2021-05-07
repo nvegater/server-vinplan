@@ -1,12 +1,8 @@
 declare namespace NodeJS {
-  interface ProcessEnv {
+  export interface ProcessEnv {
     DATABASE_URL: string;
-    DATABASE_PORT: string;
-    DATABASE_USER: string;
-    DATABASE_PASS: string;
-    DATABASE_NAME: string;
     REDIS_URL: string;
-    DATABASE_PORT: string;
+    PORT: string;
     SESSION_SECRET: string;
     DOMAIN_FOR_COOKIES: string;
     CORS_ORIGIN_WHITELIST_1: string;
@@ -17,9 +13,5 @@ declare namespace NodeJS {
     NEXT_PUBLIC_DO_SPACES_SECRET: string;
     NEXT_PUBLIC_DO_SPACES_NAME: string;
     NEXT_PUBLIC_DO_SPACES_ENDPOINT: string;
-    SEND_EMAIL_USER: string;
-    SEND_EMAIL_PASSWORD: string;
-    SEND_EMAIL_HOST: string;
-    SEND_EMAIL_PORT: string;
   }
 }
