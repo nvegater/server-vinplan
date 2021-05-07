@@ -2,38 +2,45 @@ import {addMinutes} from "date-fns";
 import serviceReservationDataServices from "../../dataServices/serviceReservation"
 import serviceDataServices from "../../dataServices/service";
 import {Service} from "../../entities/Service";
+import {ReserveServiceInputs} from "../../resolvers/Service/serviceResolversInputs";
 
-interface ReservationInputs {
+interface ReservationInputs extends ReserveServiceInputs {
     userId: number,
-    serviceId: number,
-    noOfAttendees: number,
-    startDateTime: Date;
 }
 
-const makeReservation = async (inputs: ReservationInputs, service: Service) => {
+const makeReservation = async (inputs: ReservationInputs, serviceToBook: Service, parentService?: Service) => {
 
-    if ((service.noOfAttendees + inputs.noOfAttendees) > service.limitOfAttendees)
+    if ((serviceToBook.noOfAttendees + inputs.noOfAttendees) > serviceToBook.limitOfAttendees)
         return {
             errors: [{
                 field: "updateServiceFull",
-                message: `Cant book because there are only ${service.limitOfAttendees - service.noOfAttendees} places left`
+                message: `Cant book because there are only ${serviceToBook.limitOfAttendees - serviceToBook.noOfAttendees} places left`
             }]
         }
 
-    const updateAttendes = await serviceDataServices
-        .updateAttendeesByIdAndCreator(service.id, service.creatorId, inputs.noOfAttendees, service.noOfAttendees);
-
-    if (updateAttendes.affected === 0)
-        return {errors: [{field: "updateService", message: "no change was made"}]}
-
     try {
         await serviceReservationDataServices
-            .insertOrUpdateReservation(service.id, inputs.userId, inputs.noOfAttendees)
+            .insertOrUpdateReservation(
+                serviceToBook.id,
+                inputs.userId,
+                inputs.noOfAttendees,
+                inputs.paypalOrderId,
+                inputs.pricePerPersonInDollars,
+                inputs.paymentCreationDateTime,
+                inputs.status,
+                serviceToBook.creatorId,
+                !!parentService ? parentService.id : serviceToBook.id
+            )
     } catch (e) {
         console.log(e)
     }
 
-    return {service: updateAttendes.raw[0] as Service};
+    const updatedService = await serviceDataServices.findServiceById(serviceToBook.id)
+
+    if (updatedService === undefined)
+        return {errors: [{field: "makeReservation", message: "Error retrieving updated service"}]};
+
+    return {service: updatedService};
 
 }
 
@@ -64,7 +71,17 @@ const createRecurrentInstanceAndReserve = async (inputs: ReservationInputs, pare
     }
     try {
         await serviceReservationDataServices
-            .insertReservation(newRecurrentInstanceFromService.id, inputs.userId, inputs.noOfAttendees)
+            .insertOrUpdateReservation(
+                newRecurrentInstanceFromService.id,
+                inputs.userId,
+                inputs.noOfAttendees,
+                inputs.paypalOrderId,
+                inputs.pricePerPersonInDollars,
+                inputs.paymentCreationDateTime,
+                inputs.status,
+                parentService.creatorId,
+                parentService.id
+            )
     } catch (e) {
         console.log(e)
     }
@@ -76,7 +93,7 @@ const prepareRecurrentInstance = async (inputs: ReservationInputs, parentService
         .findServiceByParentIdAndStartDateTime(inputs.serviceId, inputs.startDateTime);
     return recurrentInstance === undefined
         ? createRecurrentInstanceAndReserve(inputs, parentService)
-        : makeReservation(inputs, recurrentInstance)
+        : makeReservation(inputs, recurrentInstance, parentService)
 
 }
 
@@ -95,7 +112,7 @@ const reserve = async (inputs: ReservationInputs) => {
     if (parentService === undefined)
         return {errors: [{field: "yourOwnService", message: "youre trying to book a service you created"}]}
 
-    const bookRecurrentInstance = inputs.startDateTime !== parentService.startDateTime;
+    const bookRecurrentInstance = inputs.startDateTime.toISOString() !== parentService.startDateTime.toISOString();
 
     return bookRecurrentInstance
         ? prepareRecurrentInstance(inputs, parentService)

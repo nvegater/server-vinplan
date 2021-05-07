@@ -5,13 +5,13 @@
   "main": "index.js",
   "scripts": {
     "gen-env": "npx gen-env-types .env -o src/env.d.ts -e .",
-    "migration:generate": "npx typeorm migration:generate --config ormconfig.json --name AddParentId",
     "build": "tsc",
     "watch": "tsc -w",
     "node-javascript": "node dist/index.js",
     "dev-javascript": "nodemon dist/index.js",
     "node-ts": "ts-node src/index.ts",
-    "dev-ts": "nodemon src/index.ts"
+    "dev-ts": "nodemon src/index.ts",
+    "typeorm": "ts-node ./node_modules/typeorm/cli.js"
   },
   "keywords": [],
   "author": "",

@@ -172,6 +172,5 @@ export const validateInputsRegister = (inputs: RegisterInputs): FieldError[] => 
     if (!VALID_ENUM){
         inputErrors.push(userResolversErrors.invalidUserTypeInputError)
     }
-    console.log(inputErrors, inputs.userType)
     return inputErrors;
 }

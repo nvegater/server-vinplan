@@ -13,10 +13,18 @@ import {WineryServicesResponse} from "../../resolvers/Winery/wineryResolversOutp
 
 import {WineryImageGallery} from "../../entities/WineryImageGallery"
 import {WineType} from "../../entities/WineType"
+import {Service} from "../../entities/Service";
+import {convertDateToUTC} from "../../utils/dateUtils";
 
 const getWineryWithServices = async(wineryId : number) : Promise<WineryServicesResponse> => {
     try {
-        const wineryWithServices = await ServiceServices.getServiceByWinery(wineryId)
+        const wineryWithServices = await ServiceServices.findServicesByWinery(wineryId);
+        // correct dates to UTC
+        const servicesWithUTCDates:Service[] = wineryWithServices.map((ser)=>{
+            ser.startDateTime = convertDateToUTC(ser.startDateTime);
+            ser.endDateTime = convertDateToUTC(ser.endDateTime);
+            return ser
+        })
         const winery:any = await WineryServices.findWineryById(wineryId);
         const wineryImages: WineryImageGallery[] | undefined  = await WineryImageGalleryServices.getWineryGalleryById(wineryId)
 
@@ -36,7 +44,7 @@ const getWineryWithServices = async(wineryId : number) : Promise<WineryServicesR
             wineryImages[0].coverPage = true;
         }
 
-        if (wineryWithServices && winery) {
+        if (servicesWithUTCDates && winery) {
             const wineTypesOfWinery: WineType[] | undefined = await WineTypeServices.getWineTypeByWineryId(winery.id)
             const prodTypesOfWinery: WineProductionType[] | undefined = await WineProductionTypeServices.getProductionTypeByWineryId(winery.id)
 
@@ -53,7 +61,7 @@ const getWineryWithServices = async(wineryId : number) : Promise<WineryServicesR
                     amenities: amenities.map((amen) => amen.amenity)
                 },
                 images: wineryImages,
-                services: wineryWithServices
+                services: servicesWithUTCDates
             }
         } else {
             const fieldError: FieldError = {

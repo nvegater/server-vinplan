@@ -7,6 +7,10 @@ const findServiceNotMadeByCreatorByServiceAndCreatorId = async (serviceId:number
     })
 }
 
+const findServicesByIds = async (serviceIds: number[]):Promise<Service[]> => {
+    return await Service.findByIds(serviceIds, {relations: ["winery"]})
+}
+
 
 const findServiceByParentIdAndStartDateTime = async (serviceId:number, startDateTime: Date) => {
     return await Service.findOne({
@@ -25,13 +29,19 @@ const updateAttendeesByIdAndCreator = async (id:number, creatorId: number, noOfA
         .execute();
 }
 
-const getServiceByWinery = async (wineryId : number) => {
+const findServicesByWinery = async (wineryId : number) => {
     return await Service.find({where: {wineryId: wineryId}})
+}
+
+const findServiceById = async (serviceId:number) => {
+    return await Service.findOne(serviceId)
 }
 
 export default {
     findServiceNotMadeByCreatorByServiceAndCreatorId,
     findServiceByParentIdAndStartDateTime,
     updateAttendeesByIdAndCreator,
-    getServiceByWinery
+    findServicesByWinery,
+    findServiceById,
+    findServicesByIds
 }
