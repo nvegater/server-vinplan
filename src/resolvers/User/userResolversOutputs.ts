@@ -22,6 +22,14 @@ export class UserResponse {
 }
 
 @ObjectType()
+export class SendUserValidationResponse {
+    @Field(() => [FieldError], {nullable: true})
+    errors?: FieldError[]
+    @Field(() => Boolean, {nullable: true})
+    send?: Boolean
+}
+
+@ObjectType()
 export class WineryResponse {
     @Field(() => [FieldError], {nullable: true})
     errors?: FieldError[]
