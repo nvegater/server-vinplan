@@ -1,7 +1,7 @@
 import {Arg, Ctx, FieldResolver, Mutation, Query, Resolver, Root, UseMiddleware} from "type-graphql"
 import {User} from "../../entities/User";
 import argon2 from 'argon2'
-import {FieldError, UserResponse, WineryResponse} from "./userResolversOutputs";
+import {FieldError, UserResponse, WineryResponse, SendUserValidationResponse} from "./userResolversOutputs";
 import {
     ChangePasswordInputs,
     LoginInputs,
@@ -32,6 +32,7 @@ import getUser from "../../useCases/user/getUser";
 import updateUser from "../../useCases/user/updateUser";
 import registerUser from "../../useCases/user/registerUser";
 import userValidation from "../../useCases/user/userValidation"
+import sendValidateUserEmail from "../../useCases/user/sendValidateUserEmail"
 
 @Resolver(User)
 export class UserResolver {
@@ -96,8 +97,19 @@ export class UserResolver {
         if (validatedUser.user) {
             // @ts-ignore
             req.session.userId = validatedUser.user.id;
+            await redis.del(key);
         }
         return validatedUser
+    }
+
+    @Mutation(() => SendUserValidationResponse, {nullable: true})
+    @UseMiddleware(isAuth)
+    async sendUserValidation(
+        @Ctx() {redis, req}: ApolloRedisContext
+    ): Promise<SendUserValidationResponse> {
+        // @ts-ignore
+        const userIdFromSession = req.session.userId;
+        return await sendValidateUserEmail(userIdFromSession,redis)
     }
 
     @Mutation(() => WineryResponse)
