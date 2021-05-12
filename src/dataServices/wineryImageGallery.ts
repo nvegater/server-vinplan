@@ -2,7 +2,6 @@ import {WineryImageGallery} from "../entities/WineryImageGallery"
 import {getConnection} from "typeorm";
 
 const insertImageInWineryGallery = async (wineryId: number, urlImage: string) => {
-
     const wineryFound = await WineryImageGallery.find({wineryId: wineryId})
     const wineryImage = WineryImageGallery.create({ 
         wineryId: wineryId,
@@ -10,7 +9,11 @@ const insertImageInWineryGallery = async (wineryId: number, urlImage: string) =>
         coverPage : !wineryFound.length,
     })
     return await wineryImage.save()
-} 
+}
+
+const findImageById = async (imageId: number) => {
+    return await WineryImageGallery.findOne(imageId);
+}
 
 const getWineryGalleryById = async(wineryId: number) => {
     return WineryImageGallery.find({
@@ -49,5 +52,6 @@ export default {
     getWineryGalleryById,
     getImagesNumberGallery,
     selectCoverPageImage,
-    unSelectCoverPageImage
+    unSelectCoverPageImage,
+    findImageById
 }

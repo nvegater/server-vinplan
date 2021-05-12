@@ -9,6 +9,7 @@ import {WineryImageGallery} from "../../entities/WineryImageGallery"
 import {WineryImageGalleryResponse} from "./wineryResolversOutputs"
 import getWineryWithServices from "../../useCases/winery/getWineryWithServices"
 import insertImage from "../../useCases/winery/insertImage"
+import deleteImage from "../../useCases/winery/deleteImage"
 import changeCoverPage from "../../useCases/winery/changeCoverPage"
 import wineryErrors from "./wineryResolversErrors";
 import WineryImageGalleryServices from "../../dataServices/wineryImageGallery";
@@ -96,32 +97,8 @@ export class WineryResolver {
     async deleteImageWinery(
         @Arg('imageId', () => Int) imageId: number,
     ): Promise<WineryDeleteImageResponse> {
-        try {
-            
-            const findImageById = async (imageId: number) => {
-                return await WineryImageGallery.findOne(imageId);
-            }
-            
-            const imageFound = await findImageById(imageId);
-            console.log(imageFound);
-            if (imageFound === undefined) {
-                return {errors: [{
-                    field: 'imageId',
-                    message : "No se encontrò la imagen"
-                }], deleted : false}
-            } else {
-                const deleteImage = await WineryImageGallery.delete(imageId); 
-                if (deleteImage){
-                    return {deleted : true}
-                } else {
-                    return {errors: [{
-                        field: 'imageId',
-                        message : "La imagen no se puede borrar"
-                    }], deleted : false}
-                }
-                
-            }
-            
+        try {            
+            return await deleteImage(imageId)
         } catch (error) {
             throw new Error(error)
         }

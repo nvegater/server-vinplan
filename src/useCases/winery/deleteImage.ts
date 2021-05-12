@@ -1,18 +1,27 @@
 import {WineryImageGallery} from "../../entities/WineryImageGallery"
-import wineryResolverErrors from "../../resolvers/Winery/wineryResolversErrors";
-import {WineryImageGalleryResponse} from "../../resolvers/Winery/wineryResolversOutputs"
+import {WineryDeleteImageResponse} from "../../resolvers/Winery/wineryResolversOutputs";
 import WineryImageGalleryServices from "../../dataServices/wineryImageGallery"
 
-const deleteImage = async (wineryId: number, urlImage: string): Promise<WineryImageGalleryResponse> => {
+const deleteImage = async (imageId : number): Promise<WineryDeleteImageResponse> => {
     try {
-        const wineryInserted = await WineryImageGalleryServices.insertImageInWineryGallery(wineryId, urlImage)
-        
-        if (wineryInserted === undefined) {
-            return {errors: [wineryResolverErrors.imageNotInserted]}
-        } else {
-            const wineryImages: WineryImageGallery[] | undefined = await WineryImageGalleryServices.getWineryGalleryById(wineryId)
-            return {images: wineryImages};
-        }
+        const imageFound = await WineryImageGalleryServices.findImageById(imageId);
+            console.log(imageFound);
+            if (imageFound === undefined) {
+                return {errors: [{
+                    field: 'imageId',
+                    message : "No se encontrò la imagen"
+                }], deleted : false}
+            } else {
+                const deleteImage = await WineryImageGallery.delete(imageId); 
+                if (deleteImage){
+                    return {deleted : true}
+                } else {
+                    return {errors: [{
+                        field: 'imageId',
+                        message : "La imagen no se puede borrar"
+                    }], deleted : false}
+                }
+            }
     } catch (error) {
         throw new Error(error)
     }
