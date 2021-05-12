@@ -39,7 +39,7 @@ export class WineryDeleteImageResponse {
     @Field(() => [FieldError], {nullable: true})
     errors?: FieldError[]
     @Field(() => Boolean)
-    found?: Boolean;
+    deleted?: Boolean;
 }
 @ObjectType()
 export class WineryChangeResponse {

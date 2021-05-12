@@ -103,23 +103,23 @@ export class WineryResolver {
             }
             
             const imageFound = await findImageById(imageId);
+            console.log(imageFound);
             if (imageFound === undefined) {
-                return imageFound
+                return {errors: [{
+                    field: 'imageId',
+                    message : "No se encontrò la imagen"
+                }], deleted : false}
             } else {
-                return {field : "image"; message : "image Not Found" }
-            }
-
-            const deleteImageResponse : WineryImageGalleryResponse = await deleteImage(imageId);
-
-            if (!deleteImageResponse.errors) {
-                return {
-                    ...wineryInfo,
-                    images: wineryImages
+                const deleteImage = await WineryImageGallery.delete(imageId); 
+                if (deleteImage){
+                    return {deleted : true}
+                } else {
+                    return {errors: [{
+                        field: 'imageId',
+                        message : "La imagen no se puede borrar"
+                    }], deleted : false}
                 }
-            } else {
-                return {
-                    errors : deleteImageResponse.errors
-                }
+                
             }
             
         } catch (error) {
