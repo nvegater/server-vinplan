@@ -11,7 +11,8 @@ import getWineryWithServices from "../../useCases/winery/getWineryWithServices"
 import insertImage from "../../useCases/winery/insertImage"
 import changeCoverPage from "../../useCases/winery/changeCoverPage"
 import wineryErrors from "./wineryResolversErrors";
-import WineryImageGalleryServices from "../../dataServices/wineryImageGallery"; 
+import WineryImageGalleryServices from "../../dataServices/wineryImageGallery";
+import {WineryDeleteImageResponse} from "../../resolvers/Winery/wineryResolversOutputs";
 
 //TODO: se debe de separar la logica y la logica de la base de datos
 @Resolver(Winery)
@@ -73,7 +74,6 @@ export class WineryResolver {
     ): Promise<WineryServicesResponse> {
         try {
             const insertImageResponse : WineryImageGalleryResponse = await insertImage(wineryId,urlImage);
-
             const wineryInfo : WineryServicesResponse = await getWineryWithServices(wineryId);
             const wineryImages: WineryImageGallery[] | undefined = insertImageResponse.images
 
@@ -85,6 +85,40 @@ export class WineryResolver {
             } else {
                 return {
                     errors : wineryInfo.errors ? wineryInfo.errors : insertImageResponse.errors
+                }
+            }
+        } catch (error) {
+            throw new Error(error)
+        }
+    }
+
+    @Mutation(() => WineryDeleteImageResponse)
+    async deleteImageWinery(
+        @Arg('imageId', () => Int) imageId: number,
+    ): Promise<WineryDeleteImageResponse> {
+        try {
+            
+            const findImageById = async (imageId: number) => {
+                return await WineryImageGallery.findOne(imageId);
+            }
+            
+            const imageFound = await findImageById(imageId);
+            if (imageFound === undefined) {
+                return imageFound
+            } else {
+                return {field : "image"; message : "image Not Found" }
+            }
+
+            const deleteImageResponse : WineryImageGalleryResponse = await deleteImage(imageId);
+
+            if (!deleteImageResponse.errors) {
+                return {
+                    ...wineryInfo,
+                    images: wineryImages
+                }
+            } else {
+                return {
+                    errors : deleteImageResponse.errors
                 }
             }
             

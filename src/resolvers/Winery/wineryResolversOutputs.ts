@@ -33,6 +33,14 @@ export class WineryImageGalleryResponse {
     @Field(() => [WineryImageGallery])
     images?: WineryImageGallery[];
 }
+
+@ObjectType()
+export class WineryDeleteImageResponse {
+    @Field(() => [FieldError], {nullable: true})
+    errors?: FieldError[]
+    @Field(() => Boolean)
+    found?: Boolean;
+}
 @ObjectType()
 export class WineryChangeResponse {
     @Field(() => [FieldError], {nullable: true})
