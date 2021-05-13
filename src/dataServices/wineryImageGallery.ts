@@ -15,6 +15,10 @@ const findImageById = async (imageId: number) => {
     return await WineryImageGallery.findOne(imageId);
 }
 
+const deleteImageById = async (imageId: number) => {
+    return await WineryImageGallery.delete(imageId);
+}
+
 const getWineryGalleryById = async(wineryId: number) => {
     return WineryImageGallery.find({
         where: {wineryId: wineryId}
@@ -53,5 +57,6 @@ export default {
     getImagesNumberGallery,
     selectCoverPageImage,
     unSelectCoverPageImage,
-    findImageById
+    findImageById,
+    deleteImageById
 }
