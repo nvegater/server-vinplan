@@ -18,15 +18,16 @@ export async function getPresignedUrl(presignedUrl: PresignedUrlInput) {
         const multimediaInfo = await getMultimediaInfo(presignedUrl);
         const key = multimediaInfo.key;
         const expireSeconds = 60 * 5
+        const dateNow = Date.now();
 
         const preSignedPutUrl = await s3.getSignedUrl('putObject',{
             Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}/${key}`,
             ContentType: multimediaInfo.contentType,
             ACL: 'public-read', 
             Expires: expireSeconds,
-            Key: fileName,
+            Key: `${dateNow}-${fileName}`,
         });
-        const getUrl = `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${key}/${fileName}`;
+        const getUrl = `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${key}/${dateNow}-${fileName}`;
         return {
             putUrl: preSignedPutUrl,
             getUrl: getUrl,
@@ -54,7 +55,7 @@ const getMultimediaInfo = async (presignedUrl: PresignedUrlInput) => {
             }
                 prefix = `winery/${wineryId}-album`;
                 contentType = mime.getType(ext) || '';
-                key = `${prefix}/${Date.now()}`
+                key = `${prefix}`
         }
         if (uploadType == 'userprofilepicture'){
             prefix = `user/${userId}-pictureProfile`;
