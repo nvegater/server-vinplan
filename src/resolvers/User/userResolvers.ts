@@ -159,6 +159,7 @@ export class UserResolver {
                             contactEmail: wineryDataInputs.contactEmail,
                             contactPhoneNumber: wineryDataInputs.contactPhoneNumber,
                             valley: wineryDataInputs.valley,
+                            covidLabel : wineryDataInputs.covidLabel
                         }
                     )
                     await winery.save();
