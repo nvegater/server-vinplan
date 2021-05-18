@@ -13,7 +13,7 @@ import deleteImage from "../../useCases/winery/deleteImage"
 import changeCoverPage from "../../useCases/winery/changeCoverPage"
 import wineryErrors from "./wineryResolversErrors";
 import WineryImageGalleryServices from "../../dataServices/wineryImageGallery";
-import {WineryDeleteImageResponse} from "../../resolvers/Winery/wineryResolversOutputs";
+import {WineryDeleteImageResponse} from "./wineryResolversOutputs";
 
 //TODO: se debe de separar la logica y la logica de la base de datos
 @Resolver(Winery)
@@ -40,8 +40,9 @@ export class WineryResolver {
             const pagWinsWExtraProps: Winery[] = paginatedWineriesDB.map(async (winery: Winery) => {
                 const wineryImages: WineryImageGallery[] | []  = await WineryImageGalleryServices.getWineryGalleryById(winery.id);
                 winery.urlImageCover = wineryImages.find((wineryImage : WineryImageGallery) => 
-                    wineryImage.coverPage == true
+                    wineryImage.coverPage
                 )?.imageUrl || 'https://dev-vinplan.fra1.digitaloceanspaces.com/winery/1-album/1619825058524/grapes.jpg';
+                // TODO remove hardcoded address, use env variables instead
                 return {
                     ...winery,
                     productionType: prodTypesOfWinery.filter((wineType) => wineType.wineryId === winery.id).map((prod) => prod.productionType),
