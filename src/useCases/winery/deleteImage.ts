@@ -1,3 +1,4 @@
+import {deleteImageFromS3} from "../../utils/s3Utilities"
 import {WineryDeleteImageResponse} from "../../resolvers/Winery/wineryResolversOutputs";
 import WineryImageGalleryServices from "../../dataServices/wineryImageGallery"
 
@@ -10,8 +11,10 @@ const deleteImage = async (imageId : number): Promise<WineryDeleteImageResponse>
                     deleteImage = await WineryImageGalleryServices.deleteImageById(imageId); 
                     const newCover = await WineryImageGalleryServices.getWineryGalleryById(imageFound.wineryId);
                     await WineryImageGalleryServices.selectCoverPageImage(newCover[0].id);
+                    await deleteImageFromS3(imageFound.imageUrl); 
                 }else{
                     deleteImage = await WineryImageGalleryServices.deleteImageById(imageId); 
+                    await deleteImageFromS3(imageFound.imageUrl); 
                 }
                 if (deleteImage){
                     return {deleted : true}
