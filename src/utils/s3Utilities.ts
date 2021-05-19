@@ -74,19 +74,8 @@ const getMultimediaInfo = async (presignedUrl: PresignedUrlInput) => {
 export async function deleteImageFromS3(url: string) {
     try {
         const myURL = new URL(url);
-        console.log("HERE I AM");
-        console.log("original URL", myURL);
-        console.log("URL path", myURL.pathname);
-        console.log("Bucket:", `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}`);
-        // Prints /abc/xyz
-
-        var params = {  Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}`, Key: myURL.pathname };
-
-        s3.deleteObject(params, function(err, data) {
-        if (err) console.log(err, err.stack);  // error
-        else     console.log("Deleted picture",data);                 // deleted
-        });
-
+        const params = {  Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}`, Key: myURL.pathname };
+        await s3.deleteObject(params).promise();
     } catch (error) {
         throw new Error(error)
     }
