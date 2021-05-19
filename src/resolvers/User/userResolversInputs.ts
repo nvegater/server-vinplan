@@ -77,6 +77,8 @@ export class WineryDataInputs {
     contactEmail?: string;
     @Field(() => String,{nullable:true})
     contactPhoneNumber?: string;
+    @Field(() => Boolean)
+    covidLabel: boolean;
 }
 
 @InputType()
