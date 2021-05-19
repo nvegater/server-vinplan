@@ -79,6 +79,10 @@ export class Winery extends BaseEntity {
     verified: boolean;
 
     @Field({nullable: true})
+    @Column({default: false, nullable: false})
+    covidLabel: boolean;
+
+    @Field({nullable: true})
     urlImageCover : string;
 
     @Field(() => Valley)
