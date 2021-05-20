@@ -15,6 +15,8 @@ import {
     SQL_QUERY_UPDATE_POST_POINTS,
     SQL_QUERY_UPDATE_UPVOTE
 } from "../Universal/queries";
+import {postDeletion} from "./postResolversOutputs";
+import deletePost from "../../useCases/post/deletePost";
 
 @Resolver(Post)
 export class PostResolver {
@@ -160,22 +162,19 @@ export class PostResolver {
         return updateProccessObject.raw[0] as Post
     }
 
-    @Mutation(() => Boolean)
+    @Mutation(() => deletePost)
     @UseMiddleware(isAuth)
-    async deletePost(
+    async postDeletion(
         @Arg('id', () => Int, {
             description: "each user can delete a post they created if theyre logged in"
         }) id: number, @Ctx() {req}: ApolloRedisContext
-    ): Promise<boolean> {
-        // @ts-ignore
-        const {userId} = req.session;
-        const post = await Post.findOne(id)
-
-        if (post && userId !== post.creatorId) {
-            throw new Error("Not authorized")
+    ): Promise<postDeletion> {
+        try { 
+            // @ts-ignore 
+            const {userId} = req.session;          
+            return await deletePost(id, userId);
+        } catch (error) {
+            throw new Error(error)
         }
-
-        await Post.delete({id, creatorId: userId})
-        return true;
     }
 }

@@ -17,3 +17,11 @@ export class PaginatedPosts {
     @Field()
     morePostsAvailable: boolean;
 }
+
+@ObjectType()
+export class postDeletion {
+    @Field(() => [FieldError], {nullable: true})
+    errors?: FieldError[]
+    @Field(() => Boolean)
+    deleted?: Boolean;
+}
