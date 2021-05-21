@@ -70,3 +70,13 @@ const getMultimediaInfo = async (presignedUrl: PresignedUrlInput) => {
         throw new Error(error)
     }
 }
+
+export async function deleteImageFromS3(url: string) {
+    try {
+        const myURL = new URL(url);
+        const params = {  Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}`, Key: myURL.pathname };
+        await s3.deleteObject(params).promise();
+    } catch (error) {
+        throw new Error(error)
+    }
+}
