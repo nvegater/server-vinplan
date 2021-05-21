@@ -8,6 +8,8 @@ const findWineryById = async (wineryId : number) => {
     return await Winery.findOne(wineryId)
 }
 
+
+
 export default {
     findWineryByCreator,
     findWineryById,

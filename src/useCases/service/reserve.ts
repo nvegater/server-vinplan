@@ -1,8 +1,13 @@
 import {addMinutes} from "date-fns";
 import serviceReservationDataServices from "../../dataServices/serviceReservation"
 import serviceDataServices from "../../dataServices/service";
+import userServices from "../../dataServices/user";
+import wineryServices from "../../dataServices/winery";
+import wineryImagesServices from "../../dataServices/wineryImageGallery"
 import {Service} from "../../entities/Service";
 import {ReserveServiceInputs} from "../../resolvers/Service/serviceResolversInputs";
+import sendEmail from "../../utils/sendEmail"
+import bookedService from "../../utils/emailsTemplates/emailConfirmationRegistration/bookedService"
 
 interface ReservationInputs extends ReserveServiceInputs {
     userId: number,
@@ -37,9 +42,51 @@ const makeReservation = async (inputs: ReservationInputs, serviceToBook: Service
 
     const updatedService = await serviceDataServices.findServiceById(serviceToBook.id)
 
-    if (updatedService === undefined)
+    if (updatedService === undefined){
         return {errors: [{field: "makeReservation", message: "Error retrieving updated service"}]};
+    }    
 
+    const user = await userServices.findUserById(inputs.userId);
+    const wineryData = await wineryServices.findWineryById(serviceToBook.wineryId);
+
+    const allServices = await serviceDataServices.getAllService();
+    let randomService = undefined;
+    if (allServices.length > 0) {
+        randomService = allServices[Math.floor(Math.random() * allServices.length)]
+    }
+    const randomWinery = await wineryServices.findWineryById(randomService?.wineryId || 0)
+    const randomWineryImage = await wineryImagesServices.getCoverImageGallery(randomService?.wineryId || 0);
+    
+    const registerData = {
+        cost: inputs.noOfAttendees * inputs.pricePerPersonInDollars,
+        eventType: serviceToBook.eventType,
+        startDateTime: serviceToBook.startDateTime,
+        wineryName: wineryData?.name,
+        randomEventType: randomService?.eventType,
+        randomWineryName: randomWinery?.name,
+        randomWineryId: randomWinery?.id,
+        randomWineryImage: randomWineryImage?.imageUrl,
+    };
+
+    const emailData = {
+        sender: '"Vin plan" <no-reply@vinplan>',
+        email: user?.email,
+        subject : 'Registration Confirmation',
+        html : bookedService(registerData),
+        attachments: [
+            {
+                filename: 'brand.png',
+                path: 'src/utils/emailsTemplates/emailConfirmationRegistration/brand.png',
+                cid: 'uniq-brand.png'
+            },
+            {
+                filename: 'checkllu.png',
+                path: 'src/utils/emailsTemplates/emailConfirmationRegistration/checkllu.png',
+                cid: 'uniq-checkllu.png'
+            }
+          ]
+    }
+    await sendEmail(emailData)
     return {service: updatedService};
 
 }

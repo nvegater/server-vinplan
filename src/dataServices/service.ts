@@ -37,11 +37,16 @@ const findServiceById = async (serviceId:number) => {
     return await Service.findOne(serviceId)
 }
 
+const getAllService = async() => {
+    return await Service.find();
+}
+
 export default {
     findServiceNotMadeByCreatorByServiceAndCreatorId,
     findServiceByParentIdAndStartDateTime,
     updateAttendeesByIdAndCreator,
     findServicesByWinery,
     findServiceById,
-    findServicesByIds
+    findServicesByIds,
+    getAllService,
 }

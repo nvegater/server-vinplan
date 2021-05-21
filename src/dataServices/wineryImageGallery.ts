@@ -51,6 +51,12 @@ const unSelectCoverPageImage = async(wineryId: number) => {
         .execute();
 }
 
+const getCoverImageGallery = async(wineryId: number) => {
+    return WineryImageGallery.findOne({
+        where: {wineryId: wineryId, coverPage: true}
+    })
+}
+
 export default {
     insertImageInWineryGallery,
     getWineryGalleryById,
@@ -58,5 +64,6 @@ export default {
     selectCoverPageImage,
     unSelectCoverPageImage,
     findImageById,
-    deleteImageById
+    deleteImageById,
+    getCoverImageGallery
 }
