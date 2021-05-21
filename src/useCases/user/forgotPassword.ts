@@ -5,6 +5,7 @@ import {validateEmail} from "../../resolvers/User/userResolversInputs";
 import {v4 as uuidv4} from "uuid";
 import {FORGET_PASSWORD_PREFIX} from "../../constants";
 import sendEmail from "../../utils/sendEmail";
+import emailRecoveryHtml from "../../utils/emailsTemplates/emailRecovery/emailRecovery"
 
 const forgotPassword = async (email : string, redis : any): Promise<UserResponse> => {
     try {
@@ -27,7 +28,19 @@ const forgotPassword = async (email : string, redis : any): Promise<UserResponse
             sender: '"Vin plan" <no-reply@vinplan>',
             email,
             subject : "Change password",
-            html : `<a href="${process.env.CORS_ORIGIN_WHITELIST_1}/change-password/${token}"> reset password </a>`
+            html : emailRecoveryHtml(token),
+            attachments: [
+                {
+                    filename: 'brand.png',
+                    path: 'src/utils/emailsTemplates/emailRecovery/brand.png',
+                    cid: 'uniq-brand.png'
+                },
+                {
+                    filename: 'forgotIllu.png',
+                    path: 'src/utils/emailsTemplates/emailRecovery/forgotIllu.png',
+                    cid: 'uniq-forgotIllu.png'
+                }
+            ]
         }    
         await sendEmail(emailData)
         return {user: userFound}
