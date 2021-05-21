@@ -19,4 +19,4 @@ const sendEmail = async (emailData : any) => {
     });
 };
 
-export = sendEmail;
+export = sendEmail; 
