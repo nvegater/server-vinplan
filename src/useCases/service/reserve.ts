@@ -3,7 +3,7 @@ import serviceReservationDataServices from "../../dataServices/serviceReservatio
 import serviceDataServices from "../../dataServices/service";
 import userServices from "../../dataServices/user";
 import wineryServices from "../../dataServices/winery";
-import wineryImagesServices from "../../dataServices/wineryImageGallery"
+// import wineryImagesServices from "../../dataServices/wineryImageGallery"
 import {Service} from "../../entities/Service";
 import {ReserveServiceInputs} from "../../resolvers/Service/serviceResolversInputs";
 import sendEmail from "../../utils/sendEmail"
@@ -49,23 +49,24 @@ const makeReservation = async (inputs: ReservationInputs, serviceToBook: Service
     const user = await userServices.findUserById(inputs.userId);
     const wineryData = await wineryServices.findWineryById(serviceToBook.wineryId);
 
-    const allServices = await serviceDataServices.getAllService();
-    let randomService = undefined;
-    if (allServices.length > 0) {
-        randomService = allServices[Math.floor(Math.random() * allServices.length)]
-    }
-    const randomWinery = await wineryServices.findWineryById(randomService?.wineryId || 0)
-    const randomWineryImage = await wineryImagesServices.getCoverImageGallery(randomService?.wineryId || 0);
+    // TODO: esperar definicion de funcionalidad
+    // const allServices = await serviceDataServices.getAllService();
+    // let randomService = undefined;
+    // if (allServices.length > 0) {
+    //     randomService = allServices[Math.floor(Math.random() * allServices.length)]
+    // }
+    // const randomWinery = await wineryServices.findWineryById(randomService?.wineryId || 0)
+    // const randomWineryImage = await wineryImagesServices.getCoverImageGallery(randomService?.wineryId || 0);
     
     const registerData = {
         cost: inputs.noOfAttendees * inputs.pricePerPersonInDollars,
         eventType: serviceToBook.eventType,
         startDateTime: serviceToBook.startDateTime,
-        wineryName: wineryData?.name,
-        randomEventType: randomService?.eventType,
-        randomWineryName: randomWinery?.name,
-        randomWineryId: randomWinery?.id,
-        randomWineryImage: randomWineryImage?.imageUrl,
+        wineryName: wineryData ? wineryData.name : "",
+        // recommendedEventType: randomService?.eventType,
+        // recommendedWineryName: randomWinery?.name,
+        // recommendedWineryId: randomWinery?.id,
+        // recommendedWineryImage: randomWineryImage?.imageUrl,
     };
 
     const emailData = {

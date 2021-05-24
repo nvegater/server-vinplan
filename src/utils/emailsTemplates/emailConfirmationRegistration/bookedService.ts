@@ -1,6 +1,26 @@
 import {format} from "date-fns";
+import { Field, InputType } from "type-graphql";
+@InputType()
+ export class bookedServiceData {
+	@Field()
+    cost: number;
+	@Field()
+	eventType: string;
+	@Field()
+	wineryName: string;
+	@Field()
+	startDateTime: Date;
+	@Field()
+	recommendedEventType?: string;
+	@Field()
+	recommendedWineryName?: string;
+	@Field()
+	recommendedWineryId?: string;
+	@Field()
+	recommendedWineryImage?: string;
+}
 
-export default (registerData : any) => {
+export default (registerData : bookedServiceData) => {
     return `<!DOCTYPE html>
 	<html lang="es">
 	<head>
@@ -26,7 +46,6 @@ export default (registerData : any) => {
 				<img style=" background-color: #f7f7f7; padding: 0; display: block; width: 100%; height: 128px; object-fit: contain;" src="cid:uniq-checkllu.png">
 			</td>
 		</tr>
-		
 		<tr>
 			<td style="background-color: #f7f7f7; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; border-top-left-radius: 0;border-top-right-radius: 0;">
 				<div style="color: #34495e; margin: 4% 10% 2%; text-align: center;font-family: sans-serif">
@@ -42,19 +61,21 @@ export default (registerData : any) => {
 							<a style="text-decoration: none; border-radius: 12px; padding: 11px 23px; color: white; background-color: #8CC63F; cursor: pointer;" 
 							href="${process.env.NODE_ENV === 'production' ? process.env.CORS_ORIGIN_WHITELIST_1 : process.env.CORS_ORIGIN_WHITELIST_4}/user-profile">View booking</a>	
 						</div>
+						<!--
 						<div>
 							<br>
 							<br>
 							<br>
 							<h4>You might also be interested</h4>
 							<div id="recomendation" style="display: inline-block; border: solid 2px #9663e4; border-radius: 12px; width: 40%;">
-								<img src="${registerData.randomWineryImage}" width="100%" style="border-radius: 11px;"/>
-								<p><b>${registerData.randomEventType} en ${registerData.randomWineryName}</b></p>
+								<img src="${registerData.recommendedWineryImage}" width="100%" style="border-radius: 11px;"/>
+								<p><b>${registerData.recommendedEventType} en ${registerData.recommendedWineryName}</b></p>
 								<a style="text-decoration: none; border-radius: 12px; padding: 12px 12px; color: white; background-color: #8CC63F; cursor: pointer;" 
-								href="${process.env.NODE_ENV === 'production' ? process.env.CORS_ORIGIN_WHITELIST_1 : process.env.CORS_ORIGIN_WHITELIST_4}/winery/${registerData.randomWineryId}">
+								href="${process.env.NODE_ENV === 'production' ? process.env.CORS_ORIGIN_WHITELIST_1 : process.env.CORS_ORIGIN_WHITELIST_4}/winery/${registerData.recommendedWineryId}">
 								Check service</a>
 							</div>
 						</div>
+						-->
 						<br><br>
 					<p style="color: #3A2160; font-size: 12px; text-align: center;margin: 30px 0 0">Vinplan 2021   |  <a href=""> Privacy agreement</a></p>
 				</div>

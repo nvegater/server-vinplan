@@ -37,9 +37,9 @@ const findServiceById = async (serviceId:number) => {
     return await Service.findOne(serviceId)
 }
 
-const getAllService = async() => {
-    return await Service.find();
-}
+// const getAllService = async() => {
+//     return await Service.find();
+// }
 
 export default {
     findServiceNotMadeByCreatorByServiceAndCreatorId,
@@ -48,5 +48,5 @@ export default {
     findServicesByWinery,
     findServiceById,
     findServicesByIds,
-    getAllService,
+    // getAllService,
 }
