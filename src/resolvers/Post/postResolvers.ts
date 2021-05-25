@@ -3,9 +3,9 @@ import {Post} from "../../entities/Post";
 import {CreatePostInputs, validateCreatePostInputs} from "./postResolversInputs";
 import {FieldError} from "../User/userResolversOutputs";
 import {ApolloRedisContext} from "../../apollo-config";
-import {PaginatedPosts, PostResponse} from "./postResolversOutputs";
+import {PaginatedPosts, PostResponse, postDeletion, postUpdate} from "./postResolversOutputs";
 import {isAuth} from "../Universal/utils";
-import {getConnection, UpdateResult} from "typeorm";
+import {getConnection} from "typeorm";
 import {Upvote} from "../../entities/Upvote";
 import {
     SQL_QUERY_INSERT_NEW_UPVOTE,
@@ -15,8 +15,8 @@ import {
     SQL_QUERY_UPDATE_POST_POINTS,
     SQL_QUERY_UPDATE_UPVOTE
 } from "../Universal/queries";
-import {postDeletion} from "./postResolversOutputs";
 import deletePost from "../../useCases/post/deletePost";
+import updatePost from "../../useCases/post/updatePost";
 
 @Resolver(Post)
 export class PostResolver {
@@ -142,27 +142,25 @@ export class PostResolver {
         return {post: postPromise};
     }
 
-    @Mutation(() => Post, {nullable: true})
+    @Mutation(() => postUpdate)
     @UseMiddleware(isAuth)
-    async updatePost(
+    async postUpdate(
         @Arg('id', () => Int) id: number,
         @Arg('title', () => String) title: string,
         @Arg('text', () => String) text: string,
         @Ctx() {req}: ApolloRedisContext
-    ): Promise<Post | null> {
-        // @ts-ignore
-        const {userId} = req.session;
-        const updateProccessObject:UpdateResult = await getConnection()
-            .createQueryBuilder()
-            .update(Post)
-            .set({title,text})
-            .where('id = :id and "creatorId" = :creatorId', {id, creatorId:userId})
-            .returning("*")
-            .execute();
-        return updateProccessObject.raw[0] as Post
+    ): Promise<postUpdate> {
+        try { 
+            // @ts-ignore 
+            const {userId} = req.session;          
+            return await updatePost(id, userId, title, text);
+        } catch (error) {
+            console.log(error)
+            throw new Error(error)
+        }
     }
 
-    @Mutation(() => deletePost)
+    @Mutation(() => postDeletion)
     @UseMiddleware(isAuth)
     async postDeletion(
         @Arg('id', () => Int, {

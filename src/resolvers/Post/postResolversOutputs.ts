@@ -25,3 +25,11 @@ export class postDeletion {
     @Field(() => Boolean)
     deleted?: Boolean;
 }
+
+@ObjectType()
+export class postUpdate {
+    @Field(() => [FieldError], {nullable: true})
+    errors?: FieldError[]
+    @Field(() => Boolean)
+    updated?: Boolean;
+}
