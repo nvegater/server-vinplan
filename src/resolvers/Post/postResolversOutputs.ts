@@ -7,7 +7,7 @@ export class PostResponse {
     @Field(() => [FieldError], {nullable: true})
     errors?: FieldError[]
     @Field(() => Post, {nullable: true})
-    post?: Post
+    post?: Post;
 }
 
 @ObjectType()
@@ -18,6 +18,13 @@ export class PaginatedPosts {
     morePostsAvailable: boolean;
 }
 
+@ObjectType()
+export class postCreation {
+    @Field(() => [FieldError], {nullable: true})
+    errors?: FieldError[]
+    @Field(() => Post, {nullable: true})
+    post?: Post
+}
 @ObjectType()
 export class postDeletion {
     @Field(() => [FieldError], {nullable: true})

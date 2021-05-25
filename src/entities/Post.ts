@@ -5,7 +5,7 @@ import {
     CreateDateColumn,
     Entity, ManyToOne, OneToMany,
     PrimaryGeneratedColumn,
-    UpdateDateColumn
+    UpdateDateColumn,
 } from "typeorm";
 import {User} from "./User";
 import {Upvote} from "./Upvote";

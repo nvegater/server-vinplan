@@ -1,9 +1,8 @@
 import {Arg, Ctx, FieldResolver, Int, Mutation, Query, Resolver, Root, UseMiddleware} from "type-graphql"
 import {Post} from "../../entities/Post";
-import {CreatePostInputs, validateCreatePostInputs} from "./postResolversInputs";
-import {FieldError} from "../User/userResolversOutputs";
+import {CreatePostInputs} from "./postResolversInputs";
 import {ApolloRedisContext} from "../../apollo-config";
-import {PaginatedPosts, PostResponse, postDeletion, postUpdate} from "./postResolversOutputs";
+import {PaginatedPosts, postDeletion, postUpdate, postCreation} from "./postResolversOutputs";
 import {isAuth} from "../Universal/utils";
 import {getConnection} from "typeorm";
 import {Upvote} from "../../entities/Upvote";
@@ -17,6 +16,7 @@ import {
 } from "../Universal/queries";
 import deletePost from "../../useCases/post/deletePost";
 import updatePost from "../../useCases/post/updatePost";
+import createPost from "../../useCases/post/createPost";
 
 @Resolver(Post)
 export class PostResolver {
@@ -121,25 +121,19 @@ export class PostResolver {
         return Post.findOne(id, {relations: ["creator"]});
     }
 
-    @Mutation(() => PostResponse)
+    @Mutation(() => postCreation)
     @UseMiddleware(isAuth)
-    async createPost(
+    async postCreation(
         @Arg('options') createPostInputs: CreatePostInputs,
         @Ctx() {req}: ApolloRedisContext
-    ): Promise<PostResponse> {
-        // @ts-ignore
-        const {userId} = req.session;
-
-        const inputErrors: FieldError[] = validateCreatePostInputs(createPostInputs);
-        if (inputErrors.length > 0) {
-            return {errors: inputErrors}
+    ): Promise<postCreation> {
+        try {
+            // @ts-ignore
+            const {userId} = req.session;
+            return await createPost(createPostInputs, userId);
+        } catch (error) {
+            throw new Error(error)
         }
-        const postPromise = await Post
-            .create({
-                ...createPostInputs,
-                creatorId: userId,
-            }).save();
-        return {post: postPromise};
     }
 
     @Mutation(() => postUpdate)
@@ -155,7 +149,6 @@ export class PostResolver {
             const {userId} = req.session;          
             return await updatePost(id, userId, title, text);
         } catch (error) {
-            console.log(error)
             throw new Error(error)
         }
     }
