@@ -7,7 +7,6 @@ import {
     LoginInputs,
     RegisterInputs,
     UserType,
-    validateInputsChangePassword,
     validateInputsLogin,
     validateInputsRegister,
     WineryDataInputs,
@@ -31,6 +30,7 @@ import updateUser from "../../useCases/user/updateUser";
 import registerUser from "../../useCases/user/registerUser";
 import userValidation from "../../useCases/user/userValidation"
 import sendValidateUserEmail from "../../useCases/user/sendValidateUserEmail"
+import changePasswordFunction from "../../useCases/user/changePassword";
 
 @Resolver(User)
 export class UserResolver {
@@ -271,33 +271,23 @@ export class UserResolver {
         @Arg("options") changePasswordInputs: ChangePasswordInputs,
         @Ctx() {redis, req}: ApolloRedisContext
     ): Promise<UserResponse> {
-        const inputErrors: FieldError[] = validateInputsChangePassword(changePasswordInputs);
-        if (inputErrors.length > 0) {
-            return {errors: inputErrors}
-        }
-        const key = FORGET_PASSWORD_PREFIX + changePasswordInputs.token;
-        const userId = await redis.get(key);
-        if (!userId) {
-            return {errors: inputErrors.concat(userResolversErrors.tokenExpired)}
-        } else {
-            const userIdNum = parseInt(userId);
-            const user: User | undefined = await User.findOne(userIdNum);
-            if (!user) {
+        try {
+            const inputErrors: FieldError[] = [];
+            const key = FORGET_PASSWORD_PREFIX + changePasswordInputs.token;
+            const userId = await redis.get(key) ;
+            if (!userId) {
                 return {errors: inputErrors.concat(userResolversErrors.tokenUserError)}
             } else {
-                await User.update({
-                    id: userIdNum //based on the criteria
-                }, { // update this part of the entity:
-                    password: await argon2.hash(changePasswordInputs.newPassword)
-                });
-                await redis.del(key);
-                // Login automatically
-
-                // @ts-ignore
-                req.session.userId = user.id;
-
-                return {user: user}
+                const response = await changePasswordFunction(changePasswordInputs, userId)
+                if(response.user) {
+                    // @ts-ignore
+                    req.session.userId = user.id;
+                    await redis.del(key);
+                }
+                return response
             }
+        } catch (error) {
+            throw new Error(error)
         }
     }
 
