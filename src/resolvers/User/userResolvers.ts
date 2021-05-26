@@ -274,14 +274,14 @@ export class UserResolver {
         try {
             const inputErrors: FieldError[] = [];
             const key = FORGET_PASSWORD_PREFIX + changePasswordInputs.token;
-            const userId = await redis.get(key) ;
+            const userId = await redis.get(key);
             if (!userId) {
                 return {errors: inputErrors.concat(userResolversErrors.tokenUserError)}
             } else {
                 const response = await changePasswordFunction(changePasswordInputs, userId)
                 if(response.user) {
                     // @ts-ignore
-                    req.session.userId = user.id;
+                    req.session.userId = response.user.id;
                     await redis.del(key);
                 }
                 return response

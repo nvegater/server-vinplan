@@ -21,7 +21,7 @@ export default () => {
     
         <tr>
             <td style="padding: 0px">
-                <img style=" background-color: #f7f7f7; padding: 0; display: block; width: 100%; height: 128px; object-fit: contain;" src="cid:lock.png">
+                <img style=" background-color: #f7f7f7; padding: 0; display: block; width: 100%; height: 128px; object-fit: contain;" src="cid:uniq-lock.png">
             </td>
         </tr>
         

@@ -46,7 +46,7 @@ export default (token : string) => {
                             </ul>
                             <br><br><br>
                             <div style="width: 100%; text-align: center">
-                                <a style="text-decoration: none; border-radius: 12px; padding: 11px 23px; color: white; background-color: #8CC63F" href="${process.env.CORS_ORIGIN_WHITELIST_1}/change-password/${token}"> reset password </a>
+                                <a style="text-decoration: none; border-radius: 12px; padding: 11px 23px; color: white; background-color: #8CC63F" href="${process.env.NODE_ENV === 'production' ? process.env.CORS_ORIGIN_WHITELIST_1 : process.env.CORS_ORIGIN_WHITELIST_4}/change-password/${token}"> reset password </a>
                             </div>
                             <br><br>
                         <p style="color: #3A2160; font-size: 12px; text-align: center;margin: 30px 0 0">Vinplan 2021   |  <a href=""> Privacy agreement</a></p>
