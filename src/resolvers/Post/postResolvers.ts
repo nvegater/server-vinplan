@@ -2,7 +2,7 @@ import {Arg, Ctx, FieldResolver, Int, Mutation, Query, Resolver, Root, UseMiddle
 import {Post} from "../../entities/Post";
 import {CreatePostInputs} from "./postResolversInputs";
 import {ApolloRedisContext} from "../../apollo-config";
-import {PaginatedPosts, postDeletion, postUpdate, postCreation} from "./postResolversOutputs";
+import {PaginatedPosts, postDeletion, PostResponse} from "./postResolversOutputs";
 import {isAuth} from "../Universal/utils";
 import {getConnection} from "typeorm";
 import {Upvote} from "../../entities/Upvote";
@@ -91,12 +91,12 @@ export class PostResolver {
         return Post.findOne(id, {relations: ["creator"]});
     }
 
-    @Mutation(() => postCreation)
+    @Mutation(() => PostResponse)
     @UseMiddleware(isAuth)
     async postCreation(
         @Arg('options') createPostInputs: CreatePostInputs,
         @Ctx() {req}: ApolloRedisContext
-    ): Promise<postCreation> {
+    ): Promise<PostResponse> {
         try {
             // @ts-ignore
             const {userId} = req.session;
@@ -106,14 +106,14 @@ export class PostResolver {
         }
     }
 
-    @Mutation(() => postUpdate)
+    @Mutation(() => PostResponse)
     @UseMiddleware(isAuth)
     async postUpdate(
         @Arg('id', () => Int) id: number,
         @Arg('title', () => String) title: string,
         @Arg('text', () => String) text: string,
         @Ctx() {req}: ApolloRedisContext
-    ): Promise<postUpdate> {
+    ): Promise<PostResponse> {
         try { 
             // @ts-ignore 
             const {userId} = req.session;          
