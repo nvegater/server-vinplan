@@ -8,15 +8,13 @@ import {getConnection} from "typeorm";
 import {Upvote} from "../../entities/Upvote";
 import {
     SQL_QUERY_INSERT_NEW_UPVOTE,
-    SQL_QUERY_SELECT_PAGINATED_POSTS, SQL_QUERY_SELECT_PAGINATED_POSTS_USER_LOGGED_IN,
-    SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR,
-    SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR_USER_LOGGED_IN,
     SQL_QUERY_UPDATE_POST_POINTS,
     SQL_QUERY_UPDATE_UPVOTE
 } from "../Universal/queries";
 import deletePost from "../../useCases/post/deletePost";
 import updatePost from "../../useCases/post/updatePost";
 import createPost from "../../useCases/post/createPost";
+import showPost from "../../useCases/post/showPost";
 
 @Resolver(Post)
 export class PostResolver {
@@ -63,13 +61,11 @@ export class PostResolver {
     }
 
     @Query(() => PaginatedPosts)
-    async posts(
+    async PaginatedPosts(
         @Arg('limit', () => Int, {
-            description: "For pagination." +
-                "Max number of posts. Default is 50"
+            description: "For pagination." + "Max number of posts. Default is 50"
         }) limit: number,
-        @Arg('cursor', () => String, {
-            nullable: true,
+        @Arg('cursor', () => String, {nullable: true,
             description: "For pagination." +
                 "Offset=10 means, retrieve the 10th post. Cursor in contrast depends on the sorting" +
                 "Default sorting: (createdAt, DESC) (new first)" +
@@ -78,40 +74,14 @@ export class PostResolver {
         }) cursor: string | null,
         @Ctx() {req}: ApolloRedisContext
     ): Promise<PaginatedPosts> {
-        // @ts-ignore
-        const {userId} = req.session;
-
-        const realLimit = Math.min(50, limit);
-        let resultPosts: Post[];
-
-        if (cursor) {
-            if (userId) {
-                const replacements: any = [realLimit + 1, userId, new Date(parseInt(cursor))];
-                resultPosts = await getConnection().query(
-                    SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR_USER_LOGGED_IN,
-                    replacements
-                );
-            } else {
-                const replacements: any = [realLimit + 1, new Date(parseInt(cursor))];
-                resultPosts = await getConnection().query(SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR, replacements);
-            }
-        } else {
-            if (userId) {
-                const replacements: any = [realLimit + 1, userId];
-                resultPosts = await getConnection().query(
-                    SQL_QUERY_SELECT_PAGINATED_POSTS_USER_LOGGED_IN,
-                    replacements
-                );
-            } else {
-                const replacements: any = [realLimit + 1];
-                resultPosts = await getConnection().query(SQL_QUERY_SELECT_PAGINATED_POSTS, replacements);
-            }
+        try {
+            // @ts-ignore
+            const {userId} = req.session;
+            return await showPost(limit, cursor, userId);
+        } catch (error) {
+            console.log("error: ",error);
+            throw new Error(error)
         }
-
-        return {
-            paginatedPosts: resultPosts.slice(0, realLimit), // return only the requested posts
-            morePostsAvailable: resultPosts.length === (realLimit + 1) // DB has more posts than requested
-        };
     }
 
     @Query(() => Post, {nullable: true})
@@ -149,6 +119,7 @@ export class PostResolver {
             const {userId} = req.session;          
             return await updatePost(id, userId, title, text);
         } catch (error) {
+            console.log(error);
             throw new Error(error)
         }
     }

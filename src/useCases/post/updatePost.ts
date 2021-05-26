@@ -1,5 +1,5 @@
 import {postUpdate} from "../../resolvers/Post/postResolversOutputs";
-import {getConnection, UpdateResult} from "typeorm";
+import {UpdateResult, getConnection} from "typeorm";
 //import posts from "../../dataServices/posts"
 import {Post} from "../../entities/Post";
 
