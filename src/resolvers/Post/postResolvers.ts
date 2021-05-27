@@ -1,20 +1,20 @@
 import {Arg, Ctx, FieldResolver, Int, Mutation, Query, Resolver, Root, UseMiddleware} from "type-graphql"
 import {Post} from "../../entities/Post";
-import {CreatePostInputs, validateCreatePostInputs} from "./postResolversInputs";
-import {FieldError} from "../User/userResolversOutputs";
+import {CreatePostInputs} from "./postResolversInputs";
 import {ApolloRedisContext} from "../../apollo-config";
-import {PaginatedPosts, PostResponse} from "./postResolversOutputs";
+import {PaginatedPosts, postDeletion, PostResponse} from "./postResolversOutputs";
 import {isAuth} from "../Universal/utils";
-import {getConnection, UpdateResult} from "typeorm";
+import {getConnection} from "typeorm";
 import {Upvote} from "../../entities/Upvote";
 import {
     SQL_QUERY_INSERT_NEW_UPVOTE,
-    SQL_QUERY_SELECT_PAGINATED_POSTS, SQL_QUERY_SELECT_PAGINATED_POSTS_USER_LOGGED_IN,
-    SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR,
-    SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR_USER_LOGGED_IN,
     SQL_QUERY_UPDATE_POST_POINTS,
     SQL_QUERY_UPDATE_UPVOTE
 } from "../Universal/queries";
+import deletePost from "../../useCases/post/deletePost";
+import updatePost from "../../useCases/post/updatePost";
+import createPost from "../../useCases/post/createPost";
+import showPost from "../../useCases/post/showPost";
 
 @Resolver(Post)
 export class PostResolver {
@@ -61,13 +61,11 @@ export class PostResolver {
     }
 
     @Query(() => PaginatedPosts)
-    async posts(
+    async PaginatedPosts(
         @Arg('limit', () => Int, {
-            description: "For pagination." +
-                "Max number of posts. Default is 50"
+            description: "For pagination." + "Max number of posts. Default is 50"
         }) limit: number,
-        @Arg('cursor', () => String, {
-            nullable: true,
+        @Arg('cursor', () => String, {nullable: true,
             description: "For pagination." +
                 "Offset=10 means, retrieve the 10th post. Cursor in contrast depends on the sorting" +
                 "Default sorting: (createdAt, DESC) (new first)" +
@@ -76,40 +74,14 @@ export class PostResolver {
         }) cursor: string | null,
         @Ctx() {req}: ApolloRedisContext
     ): Promise<PaginatedPosts> {
-        // @ts-ignore
-        const {userId} = req.session;
-
-        const realLimit = Math.min(50, limit);
-        let resultPosts: Post[];
-
-        if (cursor) {
-            if (userId) {
-                const replacements: any = [realLimit + 1, userId, new Date(parseInt(cursor))];
-                resultPosts = await getConnection().query(
-                    SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR_USER_LOGGED_IN,
-                    replacements
-                );
-            } else {
-                const replacements: any = [realLimit + 1, new Date(parseInt(cursor))];
-                resultPosts = await getConnection().query(SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR, replacements);
-            }
-        } else {
-            if (userId) {
-                const replacements: any = [realLimit + 1, userId];
-                resultPosts = await getConnection().query(
-                    SQL_QUERY_SELECT_PAGINATED_POSTS_USER_LOGGED_IN,
-                    replacements
-                );
-            } else {
-                const replacements: any = [realLimit + 1];
-                resultPosts = await getConnection().query(SQL_QUERY_SELECT_PAGINATED_POSTS, replacements);
-            }
+        try {
+            // @ts-ignore
+            const {userId} = req.session;
+            return await showPost(limit, cursor, userId);
+        } catch (error) {
+            console.log("error: ",error);
+            throw new Error(error)
         }
-
-        return {
-            paginatedPosts: resultPosts.slice(0, realLimit), // return only the requested posts
-            morePostsAvailable: resultPosts.length === (realLimit + 1) // DB has more posts than requested
-        };
     }
 
     @Query(() => Post, {nullable: true})
@@ -121,61 +93,50 @@ export class PostResolver {
 
     @Mutation(() => PostResponse)
     @UseMiddleware(isAuth)
-    async createPost(
+    async postCreation(
         @Arg('options') createPostInputs: CreatePostInputs,
         @Ctx() {req}: ApolloRedisContext
     ): Promise<PostResponse> {
-        // @ts-ignore
-        const {userId} = req.session;
-
-        const inputErrors: FieldError[] = validateCreatePostInputs(createPostInputs);
-        if (inputErrors.length > 0) {
-            return {errors: inputErrors}
+        try {
+            // @ts-ignore
+            const {userId} = req.session;
+            return await createPost(createPostInputs, userId);
+        } catch (error) {
+            throw new Error(error)
         }
-        const postPromise = await Post
-            .create({
-                ...createPostInputs,
-                creatorId: userId,
-            }).save();
-        return {post: postPromise};
     }
 
-    @Mutation(() => Post, {nullable: true})
+    @Mutation(() => PostResponse)
     @UseMiddleware(isAuth)
-    async updatePost(
+    async postUpdate(
         @Arg('id', () => Int) id: number,
         @Arg('title', () => String) title: string,
         @Arg('text', () => String) text: string,
         @Ctx() {req}: ApolloRedisContext
-    ): Promise<Post | null> {
-        // @ts-ignore
-        const {userId} = req.session;
-        const updateProccessObject:UpdateResult = await getConnection()
-            .createQueryBuilder()
-            .update(Post)
-            .set({title,text})
-            .where('id = :id and "creatorId" = :creatorId', {id, creatorId:userId})
-            .returning("*")
-            .execute();
-        return updateProccessObject.raw[0] as Post
+    ): Promise<PostResponse> {
+        try { 
+            // @ts-ignore 
+            const {userId} = req.session;          
+            return await updatePost(id, userId, title, text);
+        } catch (error) {
+            console.log(error);
+            throw new Error(error)
+        }
     }
 
-    @Mutation(() => Boolean)
+    @Mutation(() => postDeletion)
     @UseMiddleware(isAuth)
-    async deletePost(
+    async postDeletion(
         @Arg('id', () => Int, {
             description: "each user can delete a post they created if theyre logged in"
         }) id: number, @Ctx() {req}: ApolloRedisContext
-    ): Promise<boolean> {
-        // @ts-ignore
-        const {userId} = req.session;
-        const post = await Post.findOne(id)
-
-        if (post && userId !== post.creatorId) {
-            throw new Error("Not authorized")
+    ): Promise<postDeletion> {
+        try { 
+            // @ts-ignore 
+            const {userId} = req.session;          
+            return await deletePost(id, userId);
+        } catch (error) {
+            throw new Error(error)
         }
-
-        await Post.delete({id, creatorId: userId})
-        return true;
     }
 }
