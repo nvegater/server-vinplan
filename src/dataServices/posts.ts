@@ -1,4 +1,4 @@
-import {Post} from "../entities/Post"
+import {Post} from "../entities/Post";
 import {getConnection} from "typeorm";
 import {CreatePostInputs} from "../resolvers/Post/postResolversInputs";
 import {
