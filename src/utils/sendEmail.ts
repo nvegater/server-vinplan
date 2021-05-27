@@ -10,7 +10,7 @@ const sendEmail = async (emailData : any) => {
             pass: process.env.SEND_EMAIL_PASSWORD,
         },
     });
-    await transporter.sendMail({
+    return await transporter.sendMail({
         from: process.env.SEND_EMAIL_USER, // sender address
         to: emailData.email, //emailData.emailAddress, // list of receivers
         subject: emailData.subject, //"Change password", // Subject line
@@ -19,4 +19,4 @@ const sendEmail = async (emailData : any) => {
     });
 };
 
-export = sendEmail;
+export = sendEmail; 

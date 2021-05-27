@@ -7,8 +7,6 @@ import {
     LoginInputs,
     RegisterInputs,
     UserType,
-    validateEmail,
-    validateInputsChangePassword,
     validateInputsLogin,
     validateInputsRegister,
     WineryDataInputs,
@@ -16,8 +14,6 @@ import {
 } from "./userResolversInputs";
 import {SessionCookieName} from "../../redis-config";
 import {ApolloRedisContext} from "../../apollo-config";
-import {v4 as uuidv4} from "uuid";
-import sendEmail from "../../utils/sendEmail";
 import {FORGET_PASSWORD_PREFIX, VALIDATE_USER_PREFIX} from "../../constants";
 import userResolversErrors from "./userResolversErrors";
 import {isAuth} from "../Universal/utils";
@@ -29,10 +25,12 @@ import {WineProductionType} from "../../entities/WineProductionType";
 import {WineryLanguage} from "../../entities/WineryLanguage";
 import {WineryAmenity} from "../../entities/WineryAmenity";
 import getUser from "../../useCases/user/getUser";
+import forgotPassword from "../../useCases/user/forgotPassword";
 import updateUser from "../../useCases/user/updateUser";
 import registerUser from "../../useCases/user/registerUser";
 import userValidation from "../../useCases/user/userValidation"
 import sendValidateUserEmail from "../../useCases/user/sendValidateUserEmail"
+import changePasswordFunction from "../../useCases/user/changePassword";
 
 @Resolver(User)
 export class UserResolver {
@@ -273,33 +271,23 @@ export class UserResolver {
         @Arg("options") changePasswordInputs: ChangePasswordInputs,
         @Ctx() {redis, req}: ApolloRedisContext
     ): Promise<UserResponse> {
-        const inputErrors: FieldError[] = validateInputsChangePassword(changePasswordInputs);
-        if (inputErrors.length > 0) {
-            return {errors: inputErrors}
-        }
-        const key = FORGET_PASSWORD_PREFIX + changePasswordInputs.token;
-        const userId = await redis.get(key);
-        if (!userId) {
-            return {errors: inputErrors.concat(userResolversErrors.tokenExpired)}
-        } else {
-            const userIdNum = parseInt(userId);
-            const user: User | undefined = await User.findOne(userIdNum);
-            if (!user) {
+        try {
+            const inputErrors: FieldError[] = [];
+            const key = FORGET_PASSWORD_PREFIX + changePasswordInputs.token;
+            const userId = await redis.get(key);
+            if (!userId) {
                 return {errors: inputErrors.concat(userResolversErrors.tokenUserError)}
             } else {
-                await User.update({
-                    id: userIdNum //based on the criteria
-                }, { // update this part of the entity:
-                    password: await argon2.hash(changePasswordInputs.newPassword)
-                });
-                await redis.del(key);
-                // Login automatically
-
-                // @ts-ignore
-                req.session.userId = user.id;
-
-                return {user: user}
+                const response = await changePasswordFunction(changePasswordInputs, userId)
+                if(response.user) {
+                    // @ts-ignore
+                    req.session.userId = response.user.id;
+                    await redis.del(key);
+                }
+                return response
             }
+        } catch (error) {
+            throw new Error(error)
         }
     }
 
@@ -324,31 +312,14 @@ export class UserResolver {
     async forgotPassword(
         @Arg('email') email: string,
         @Ctx() {redis}: ApolloRedisContext
-    ) {
-        const inputErrors: FieldError[] = validateEmail(email);
-        if (inputErrors.length > 0) {
-            return {errors: inputErrors}
+    ): Promise<UserResponse> {
+        try {            
+            return await forgotPassword(email, redis)
+        } catch (error) {
+            throw new Error(error)
         }
-        const user: User | undefined = await User.findOne({where: {email}}) // not primary key, so "where" needed
-        if (!user) {
-            // email not in DB but just do nothing
-            return true
-        }
-        const token = uuidv4();
-        const THREE_DAYS_MS = 1000 * 60 * 60 * 24 * 3;
-        await redis.set(FORGET_PASSWORD_PREFIX + token, // with this key
-            user.id, // access this value
-            "ex", // that expires
-            THREE_DAYS_MS); // after 3 days
-        const emailData = {
-            sender: '"Vin plan" <no-reply@vinplan>',
-            email,
-            subject : "Change password",
-            html : `<a href="${process.env.CORS_ORIGIN_WHITELIST_1}/change-password/${token}"> reset password </a>`
-        }    
-        await sendEmail(emailData)
-        return {user: user}
     }
+
 
     @Mutation(() => UserResponse)
     @UseMiddleware(isAuth)

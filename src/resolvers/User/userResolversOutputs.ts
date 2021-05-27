@@ -12,7 +12,6 @@ export class FieldError {
     @Field()
     message: string;
 }
-
 @ObjectType()
 export class UserResponse {
     @Field(() => [FieldError], {nullable: true})
