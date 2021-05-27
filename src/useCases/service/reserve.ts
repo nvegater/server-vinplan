@@ -7,7 +7,7 @@ import wineryServices from "../../dataServices/winery";
 import {Service} from "../../entities/Service";
 import {ReserveServiceInputs} from "../../resolvers/Service/serviceResolversInputs";
 import sendEmail from "../../utils/sendEmail"
-import bookedService from "../../utils/emailsTemplates/emailConfirmationRegistration/bookedService"
+import bookedService, {BookedServiceData} from "../../utils/emailsTemplates/emailConfirmationRegistration/bookedService"
 
 interface ReservationInputs extends ReserveServiceInputs {
     userId: number,
@@ -58,7 +58,7 @@ const makeReservation = async (inputs: ReservationInputs, serviceToBook: Service
     // const randomWinery = await wineryServices.findWineryById(randomService?.wineryId || 0)
     // const randomWineryImage = await wineryImagesServices.getCoverImageGallery(randomService?.wineryId || 0);
     
-    const registerData = {
+    const registerData: BookedServiceData = {
         cost: inputs.noOfAttendees * inputs.pricePerPersonInDollars,
         eventType: serviceToBook.eventType,
         startDateTime: serviceToBook.startDateTime,

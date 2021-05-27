@@ -1,26 +1,16 @@
 import {format} from "date-fns";
-import { Field, InputType } from "type-graphql";
-@InputType()
- export class bookedServiceData {
-	@Field()
-    cost: number;
-	@Field()
+
+export interface BookedServiceData {
+	cost: number;
 	eventType: string;
-	@Field()
 	wineryName: string;
-	@Field()
 	startDateTime: Date;
-	@Field()
 	recommendedEventType?: string;
-	@Field()
 	recommendedWineryName?: string;
-	@Field()
 	recommendedWineryId?: string;
-	@Field()
 	recommendedWineryImage?: string;
 }
-
-export default (registerData : bookedServiceData) => {
+export default (registerData : BookedServiceData) => {
     return `<!DOCTYPE html>
 	<html lang="es">
 	<head>
