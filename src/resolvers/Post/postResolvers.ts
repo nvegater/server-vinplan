@@ -8,7 +8,7 @@ import deletePost from "../../useCases/post/deletePost";
 import updatePost from "../../useCases/post/updatePost";
 import createPost from "../../useCases/post/createPost";
 import showPost from "../../useCases/post/showPost";
-import vote from "../../useCases/post/vote";
+// import vote from "../../useCases/post/votePost";
 
 @Resolver(Post)
 export class PostResolver {
@@ -29,9 +29,10 @@ export class PostResolver {
         @Ctx() {req}: ApolloRedisContext
     ) : Promise <Boolean>{
         try {
+            console.log(postId, value);
             // @ts-ignore
             const {userId} = req.session;
-            return await vote(value, postId, userId);
+            // return await vote(value, postId, userId);
         } catch (error) {
             console.log("error: ",error);
             throw new Error(error)

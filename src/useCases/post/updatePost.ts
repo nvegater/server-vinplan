@@ -1,36 +1,18 @@
-import {postUpdate} from "../../resolvers/Post/postResolversOutputs";
-import {UpdateResult, getConnection} from "typeorm";
-//import posts from "../../dataServices/posts"
-import {Post} from "../../entities/Post";
+import {PostResponse} from "../../resolvers/Post/postResolversOutputs";
+import {UpdateResult} from "typeorm";
+import postsServices from "../../dataServices/posts"
 
-const updatePost = async (id : number, userId : number, title : string, text : string): Promise<postUpdate> => {
+const updatePost = async (id : number, userId : number, title : string, text : string): Promise<PostResponse> => {
     try{
-        // const updatedPost : UpdateResult = await posts.updatePostById(id, userId, title, text);
-        // if (updatedPost.affected || updatedPost.affected != 0) {
-        //     return {updated: true}; 
-        // } else {
-        //     return {errors: [{
-        //         field: 'imageId',
-        //         message : "La imagen no se puede borrar"
-        //     }], updated : false}
-        //  }
-
-        const updateProccessObject:UpdateResult = await getConnection()
-            .createQueryBuilder()
-            .update(Post)
-            .set({title,text})
-            .where('id = :id and "creatorId" = :creatorId', {id, creatorId:userId})
-            .returning("*")
-            .execute();
-        if(updateProccessObject.raw[0] == undefined ){
+        const updatedPost: UpdateResult = await postsServices.updatePostByIdAndCreatorId(id, userId, title, text);
+        if (updatedPost.affected || updatedPost.affected != 0) {
+            return {post: updatedPost.raw[0]}; 
+        } else {
             return {errors: [{
-                field: 'imageId',
-                message : "La imagen no se puede borrar"
-            }], updated : false}
-        }else{
-            //return updateProccessObject.raw[0] as Post;
-            return {updated : true}
-        }
+                field: 'id',
+                message : "Error al actualizar el post"
+            }]}
+         }
     } catch (error) {
         throw new Error(error)
     }

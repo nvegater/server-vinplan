@@ -3,7 +3,7 @@ import {CreatePostInputs} from "../../resolvers/Post/postResolversInputs";
 import posts from "../../dataServices/posts"
 import {validateCreatePostInputs} from "../../resolvers/Post/postResolversInputs";
 
-const updatePost = async (createPostInputs : CreatePostInputs, userId : number): Promise<postCreation> => {
+const createPost = async (createPostInputs : CreatePostInputs, userId : number): Promise<postCreation> => {
     try{
 
         const inputErrors = validateCreatePostInputs(createPostInputs);
@@ -28,4 +28,4 @@ const updatePost = async (createPostInputs : CreatePostInputs, userId : number):
     }
 }
 
-export default updatePost;
+export default createPost;
