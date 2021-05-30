@@ -3,6 +3,7 @@ import {Winery} from "./Winery";
 import {registerEnumType} from "type-graphql";
 
 export enum SupportedLanguage {
+    "INGLES" = "Inglés" ,
     "ESPANOL" = "Español",
     "SENAS_MEXICANAS" = "Lenguage de señas mexicanas",
     "FRANCES" = "Francés",
