@@ -60,5 +60,5 @@ export default {
     PostsWithCursorUserLogged,
     PostsWithCursor,
     PostsUserLogged, 
-    posts
+    posts,
 }
