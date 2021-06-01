@@ -1,5 +1,5 @@
 import argon2 from 'argon2'
-import UserServices from "../../dataServices/user";
+import userDataServices from "../../dataServices/user";
 import {ChangePasswordInputs} from "../../resolvers/User/userResolversInputs"
 import userResolversErrors from "../../resolvers/User/userResolversErrors";
 import {FieldError, UserResponse} from "../../resolvers/User/userResolversOutputs";
@@ -18,11 +18,11 @@ const changePassword = async (changePasswordInputs : ChangePasswordInputs, userI
             return {errors: inputErrors.concat(userResolversErrors.tokenExpired)}
         } else {
             const userIdNum = parseInt(userId);
-            userFound = await UserServices.findUserById(userIdNum);
+            userFound = await userDataServices.findUserById(userIdNum);
             if (!userFound) {
                 return {errors: inputErrors.concat(userResolversErrors.tokenUserError)}
             } else {
-                await UserServices.updateUser(userIdNum, {password: await argon2.hash(changePasswordInputs.newPassword)})
+                await userDataServices.updateUser(userIdNum, {password: await argon2.hash(changePasswordInputs.newPassword)})
             }
         }
 

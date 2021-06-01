@@ -4,7 +4,7 @@ import {WineProductionType} from "../../entities/WineProductionType";
 import {WineryLanguage} from "../../entities/WineryLanguage";
 import {WineryAmenity} from "../../entities/WineryAmenity";
 import {User} from "../../entities/User";
-import user from "src/dataServices/user";
+import userDataServices from "src/dataServices/user";
 import {FieldError, WineryResponse} from "../../resolvers/User/userResolversOutputs";
 import {RegisterInputs, WineryDataInputs, validateInputsRegister} from "../../resolvers/User/userResolversInputs";
 import userResolversErrors from "../../resolvers/User/userResolversErrors";
@@ -17,12 +17,12 @@ const registerWinery = async (registerInputs : RegisterInputs, wineryDataInputs 
             // Level 1: Simple input validation
             return {errors: inputErrors}
         }
-        const userWithUsernameExists: User | undefined = await user.findUserByUsername(registerInputs.username);
+        const userWithUsernameExists: User | undefined = await userDataServices.findUserByUsername(registerInputs.username);
         if (userWithUsernameExists) {
             // Level 1
             return {errors: inputErrors.concat(userResolversErrors.usernameInUseError)}
         } else {
-            const userWithEmailExists: User | undefined = await user.findUserByUsername(registerInputs.email);
+            const userWithEmailExists: User | undefined = await userDataServices.findUserByUsername(registerInputs.email);
             if (userWithEmailExists) {
                 // Level 2
                 return {errors: inputErrors.concat(userResolversErrors.emailInUseError)}
@@ -30,12 +30,12 @@ const registerWinery = async (registerInputs : RegisterInputs, wineryDataInputs 
                 const wineryWithThatNameExists: Winery | undefined = await Winery.findOne({where: {name: wineryDataInputs.name}});
                 if (wineryWithThatNameExists) {
                     // Level 3
-                    return {errors: inputErrors.concat(userResolversErrors.usernameInUseError)} // TODO add winery errors
+                    return {errors: inputErrors.concat(userResolversErrors.usernameInUseError)}
                 } else {
-                    const newUser = await user.createUser(registerInputs);
+                    const newUser = await userDataServices.createUser(registerInputs);
                     
                     const creatorId = newUser.id;
-                    const newWinery = await user.createWinery(wineryDataInputs, creatorId);
+                    const newWinery = await userDataServices.createWinery(wineryDataInputs, creatorId);
 
                     const wineTypes = wineryDataInputs.wineType.map((wineType) => {
                         return WineType.create({
