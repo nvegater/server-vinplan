@@ -1,19 +1,14 @@
 import {Arg, Int, Query, Resolver, Mutation} from "type-graphql";
 import {WineriesResponse, WineryServicesResponse, WineryChangeResponse} from "./wineryResolversOutputs";
 import {Winery} from "../../entities/Winery";
-import {getConnection, In} from "typeorm";
-import {SQL_QUERY_SELECT_WINERIES} from "../Universal/queries";
-import {WineType} from "../../entities/WineType";
-import {WineProductionType} from "../../entities/WineProductionType";
 import {WineryImageGallery} from "../../entities/WineryImageGallery"
 import {WineryImageGalleryResponse} from "./wineryResolversOutputs"
 import getWineryWithServices from "../../useCases/winery/getWineryWithServices"
 import insertImage from "../../useCases/winery/insertImage"
 import deleteImage from "../../useCases/winery/deleteImage"
 import changeCoverPage from "../../useCases/winery/changeCoverPage"
-import wineryErrors from "./wineryResolversErrors";
-import WineryImageGalleryServices from "../../dataServices/wineryImageGallery";
 import {WineryDeleteImageResponse} from "./wineryResolversOutputs";
+import showWineries from "../../useCases/winery/showWineries";
 
 //TODO: se debe de separar la logica y la logica de la base de datos
 @Resolver(Winery)
@@ -25,40 +20,7 @@ export class WineryResolver {
                 "Max number of posts. Default is 50"
         }) limit: number
     ): Promise<WineriesResponse> {
-        const realLimit = Math.min(50, limit);
-        const replacements = [realLimit + 1]
-        const paginatedWineriesDB: any = await getConnection()
-            .query(SQL_QUERY_SELECT_WINERIES, replacements)
-        if (paginatedWineriesDB !== undefined) {
-            const wineriesIds: number[] = paginatedWineriesDB.map((winery: any) => winery.id);
-            const wineTypesOfWinery: WineType[] | undefined = await WineType.find({
-                where: {wineryId: In(wineriesIds)}
-            });
-            const prodTypesOfWinery: WineProductionType[] | undefined = await WineProductionType.find({
-                where: {wineryId: In(wineriesIds)}
-            });
-            const pagWinsWExtraProps: Winery[] = paginatedWineriesDB.map(async (winery: Winery) => {
-                const wineryImages: WineryImageGallery[] | []  = await WineryImageGalleryServices.getWineryGalleryById(winery.id);
-                winery.urlImageCover = wineryImages.find((wineryImage : WineryImageGallery) => 
-                    wineryImage.coverPage
-                )?.imageUrl || 'https://dev-vinplan.fra1.digitaloceanspaces.com/winery/1-album/1619825058524/grapes.jpg';
-                // TODO remove hardcoded address, use env variables instead
-                return {
-                    ...winery,
-                    productionType: prodTypesOfWinery.filter((wineType) => wineType.wineryId === winery.id).map((prod) => prod.productionType),
-                    wineType: wineTypesOfWinery.filter((wineType) => wineType.wineryId === winery.id).map((wt) => wt.wineType),
-                }
-            });
-            return {
-                paginatedWineries: pagWinsWExtraProps.slice(0, realLimit),
-                moreWineriesAvailable: pagWinsWExtraProps.length === (realLimit + 1) // DB has more posts than requested
-            };
-        } else {
-            
-            return {
-                errors: [wineryErrors.wineryNotFound], moreWineriesAvailable: false
-            }
-        }
+        return await showWineries(limit);
     }
 
     @Query(() => WineryServicesResponse)
