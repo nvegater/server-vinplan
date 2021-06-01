@@ -33,7 +33,6 @@ export class PostResolver {
             const {userId} = req.session;
             return await votePost(value, postId, userId);
         } catch (error) {
-            console.log("error: ",error);
             throw new Error(error)
         }
         return true;
@@ -59,7 +58,6 @@ export class PostResolver {
             const {userId} = req.session;
             return await showPost(limit, cursor, userId);
         } catch (error) {
-            console.log("error: ",error);
             throw new Error(error)
         }
     }
@@ -99,7 +97,6 @@ export class PostResolver {
             const {userId} = req.session;          
             return await updatePost(id, userId, title, text);
         } catch (error) {
-            console.log(error);
             throw new Error(error)
         }
     }
