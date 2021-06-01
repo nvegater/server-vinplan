@@ -20,6 +20,7 @@ import getUser from "../../useCases/user/getUser";
 import updateUser from "../../useCases/user/updateUser";
 import forgotPassword from "../../useCases/user/forgotPassword";
 import registerUser from "../../useCases/user/registerUser";
+import registerWinery from "../../useCases/user/registerWinery";
 import userValidation from "../../useCases/user/userValidation"
 import sendValidateUserEmail from "../../useCases/user/sendValidateUserEmail"
 import userLogin from "src/useCases/user/userLogin";
@@ -104,7 +105,7 @@ export class UserResolver {
     ): Promise<WineryResponse> {
         // @ts-ignore
         const userId = req.session.userId;
-        return await this.registerWinery(registerInputs, wineryDataInputs, userId)
+        return await registerWinery(registerInputs, wineryDataInputs, userId);
     }
 
     @Mutation(() => UserResponse)
