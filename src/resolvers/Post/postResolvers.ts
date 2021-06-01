@@ -4,21 +4,14 @@ import {CreatePostInputs} from "./postResolversInputs";
 import {ApolloRedisContext} from "../../apollo-config";
 import {PaginatedPosts, postDeletion, PostResponse} from "./postResolversOutputs";
 import {isAuth} from "../Universal/utils";
-import {getConnection} from "typeorm";
-import {Upvote} from "../../entities/Upvote";
-import {
-    SQL_QUERY_INSERT_NEW_UPVOTE,
-    SQL_QUERY_UPDATE_POST_POINTS,
-    SQL_QUERY_UPDATE_UPVOTE
-} from "../Universal/queries";
 import deletePost from "../../useCases/post/deletePost";
 import updatePost from "../../useCases/post/updatePost";
 import createPost from "../../useCases/post/createPost";
 import showPost from "../../useCases/post/showPost";
+import votePost from "../../useCases/post/votePost";
 
 @Resolver(Post)
 export class PostResolver {
-
     @FieldResolver(() => String)
     textSnippet( // Extra graphql Field, but not from the DB-> Main entity.
         @Root() root: Post
@@ -34,27 +27,13 @@ export class PostResolver {
             description: "The user can upvote and downvote. null means, user hasnt upvoted/downvoted"
         }) value: number,
         @Ctx() {req}: ApolloRedisContext
-    ) {
-        // @ts-ignore
-        const {userId} = req.session;
-
-        const isUpvote = value !== -1;
-        const realValue = isUpvote ? 1 : -1;
-
-        const upvote = await Upvote.findOne({where: {postId, userId}});
-
-        if (upvote && upvote.value !== realValue) {
-            // the user has voted on the post before and they're changing their vote-
-            await getConnection().transaction(async transactionManager => {
-                await transactionManager.query(SQL_QUERY_UPDATE_UPVOTE, [realValue, postId, userId])
-                await transactionManager.query(SQL_QUERY_UPDATE_POST_POINTS, [2 * realValue, postId])
-            });
-        } else if (!upvote) {
-            // has never vote before
-            await getConnection().transaction(async transactionManager => {
-                await transactionManager.query(SQL_QUERY_INSERT_NEW_UPVOTE, [userId, postId, realValue]);
-                await transactionManager.query(SQL_QUERY_UPDATE_POST_POINTS, [realValue, postId])
-            });
+    ) : Promise <Boolean>{
+        try {
+            // @ts-ignore
+            const {userId} = req.session;
+            return await votePost(value, postId, userId);
+        } catch (error) {
+            throw new Error(error)
         }
         return true;
 
@@ -79,7 +58,6 @@ export class PostResolver {
             const {userId} = req.session;
             return await showPost(limit, cursor, userId);
         } catch (error) {
-            console.log("error: ",error);
             throw new Error(error)
         }
     }
@@ -119,7 +97,6 @@ export class PostResolver {
             const {userId} = req.session;          
             return await updatePost(id, userId, title, text);
         } catch (error) {
-            console.log(error);
             throw new Error(error)
         }
     }

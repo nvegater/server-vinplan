@@ -1,4 +1,4 @@
-import {Post} from "../entities/Post"
+import {Post} from "../entities/Post";
 import {getConnection} from "typeorm";
 import {CreatePostInputs} from "../resolvers/Post/postResolversInputs";
 import {
@@ -11,12 +11,12 @@ const findPostById = async (postId: number) => {
     return await Post.findOne(postId);
 }
 
-const updatePostById = async (postId: number, userId : number, title : string, text : string) => {
+const updatePostByIdAndCreatorId = async (id: number, userId : number, title : string, text : string) => {
     return await getConnection()
     .createQueryBuilder()
     .update(Post)
     .set({title,text})
-    .where('id = :id and "creatorId" = :creatorId', {postId, creatorId:userId})
+    .where('id = :id and "creatorId" = :creatorId', {id, creatorId:userId})
     .returning("*")
     .execute();
 }
@@ -55,10 +55,10 @@ const createNewPost = async (createPostInputs : CreatePostInputs, userId : numbe
 
 export default {
     findPostById,
-    updatePostById,
+    updatePostByIdAndCreatorId,
     createNewPost,
     PostsWithCursorUserLogged,
     PostsWithCursor,
     PostsUserLogged, 
-    posts
+    posts,
 }
