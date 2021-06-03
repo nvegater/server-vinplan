@@ -8,10 +8,10 @@ const getServices = async (updateServiceInputs: UpdateServiceInputs, userId : nu
     try {
         const {
             title, id,
-            description,
-            eventType,
+            description, eventType,
             pricePerPersonInDollars,
-            startDateTime, endDateTime
+            startDateTime, endDateTime, 
+            limitOfAttendees, rRules
         } = updateServiceInputs;
         const updateService: UpdateResult = await getConnection().createQueryBuilder()
             .update(Service)
@@ -21,7 +21,8 @@ const getServices = async (updateServiceInputs: UpdateServiceInputs, userId : nu
                 eventType,
                 pricePerPersonInDollars,
                 startDateTime,
-                endDateTime
+                endDateTime,
+                limitOfAttendees, rRules
             })
             .where('id = :id and "creatorId" = :creatorId', {id, creatorId: userId})
             .returning("*")

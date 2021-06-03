@@ -63,4 +63,9 @@ export class UpdateServiceInputs {
     @Field(() => Date, {nullable: true})
     endDateTime?: Date;
 
+    @Field()
+    limitOfAttendees!: number;
+    @Field(() => [String], {nullable: true})
+    rRules: string[];
+
 }
