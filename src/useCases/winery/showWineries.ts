@@ -2,11 +2,11 @@ import {Winery} from "../../entities/Winery";
 import {WineType} from "../../entities/WineType";
 import {WineProductionType} from "../../entities/WineProductionType";
 import {getConnection, In} from "typeorm";
-import {SQL_QUERY_SELECT_WINERIES} from "src/resolvers/Universal/queries";
-import wineryErrors from "src/resolvers/Winery/wineryResolversErrors";
+import wineryErrors from "../../resolvers/Winery/wineryResolversErrors";
 import WineryImageGalleryServices from "../../dataServices/wineryImageGallery";
 import {WineryImageGallery} from "../../entities/WineryImageGallery"
-import { WineriesResponse } from "src/resolvers/Winery/wineryResolversOutputs";
+import { WineriesResponse } from "../../resolvers/Winery/wineryResolversOutputs";
+import {SQL_QUERY_SELECT_WINERIES} from "../../resolvers/Universal/queries";
 
 const showWineries = async (limit : number): Promise<WineriesResponse> => {
     try {
