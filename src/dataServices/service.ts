@@ -1,5 +1,6 @@
 import {Service} from "../entities/Service";
 import {getConnection, Not} from "typeorm";
+import {UpdateServiceInputs} from "../resolvers/Service/serviceResolversInputs";
 
 const findServiceNotMadeByCreatorByServiceAndCreatorId = async (serviceId:number, userId:number) => {
     return await Service.findOne({
@@ -29,6 +30,25 @@ const updateAttendeesByIdAndCreator = async (id:number, creatorId: number, noOfA
         .execute();
 }
 
+const updateService = async (updateServiceInputs:UpdateServiceInputs, userId: number) => {
+    const updateInputs = {...updateServiceInputs}
+    return await getConnection().createQueryBuilder()
+    .update(Service)
+    .set({
+        title : updateInputs.title,
+        description : updateInputs.description,
+        eventType : updateInputs.eventType,
+        pricePerPersonInDollars : updateInputs.pricePerPersonInDollars,
+        startDateTime : updateInputs.startDateTime,
+        endDateTime : updateInputs.endDateTime,
+        limitOfAttendees : updateInputs.limitOfAttendees, 
+        rRules : updateInputs.rRules
+    })
+    .where('id = :id and "creatorId" = :creatorId', {id: updateInputs.id, creatorId: userId})
+    .returning("*")
+    .execute();
+}
+
 const findServicesByWinery = async (wineryId : number) => {
     return await Service.find({where: {wineryId: wineryId}})
 }
@@ -49,5 +69,6 @@ export default {
     findServicesByWinery,
     findServiceById,
     findServicesByIds,
+    updateService
     // getAllService,
 }
