@@ -12,8 +12,8 @@ const USER_TYPE_DESCRIPTION = "Al registrarse los visitantes seleccionan una de 
     "Distinciones virtuales para afinar sugerencias y para proporcionar la informacion a la vinicola"
 
 export enum UserType {
-    TURISTA = 'TURISTA',
     WINERY_OWNER = 'WINERY OWNER',
+    WINE_TOURIST = 'WINE TOURIST',
     HOTEL = 'HOTEL',
     TRANSPORTATION = 'TRANSPORTATION COMPANY',
     CONCIERGE = 'CONCIERGE',
