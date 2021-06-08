@@ -12,12 +12,21 @@ const USER_TYPE_DESCRIPTION = "Al registrarse los visitantes seleccionan una de 
     "Distinciones virtuales para afinar sugerencias y para proporcionar la informacion a la vinicola"
 
 export enum UserType {
-    TURISTA = "Turista",
-    ENOTURISTA = "Enoturista",
-    PROFESIONAL = "Profesional",
-    EMPRESARIAL = "Empresarial",
-    INTERMEDIARIO = "Intermediario",
-    WINERY_OWNER = "Winery_Owner"
+    TURISTA = 'TURISTA',
+    WINERY_OWNER = 'WINERY OWNER',
+    HOTEL = 'HOTEL',
+    TRANSPORTATION = 'TRANSPORTATION COMPANY',
+    CONCIERGE = 'CONCIERGE',
+    TOUR = 'TOUR OPERATOR',
+    DISTRIBUTOR = 'DISTRIBUTOR',
+    PRESS = 'PRESS',
+    SOMMELIER = 'SOMMELIER',
+    GUIDE = 'TOURIST GUIDE',
+    DRIVER = 'DRIVER',
+    AGENCY = 'TRAVEL AGENCY',
+    DMC = 'DMC',
+    OCV = 'OCV',
+    PLANNER = 'EVENT PLANNER'
 }
 
 registerEnumType(UserType, {name: "UserType", description: USER_TYPE_DESCRIPTION});
