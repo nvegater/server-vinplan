@@ -4,7 +4,7 @@ import {WineProductionType} from "../../entities/WineProductionType";
 import {WineryLanguage} from "../../entities/WineryLanguage";
 import {WineryAmenity} from "../../entities/WineryAmenity";
 import {User} from "../../entities/User";
-import userDataServices from "src/dataServices/user";
+import userDataServices from "../../dataServices/user";
 import {FieldError, WineryResponse} from "../../resolvers/User/userResolversOutputs";
 import {RegisterInputs, WineryDataInputs, validateInputsRegister} from "../../resolvers/User/userResolversInputs";
 import userResolversErrors from "../../resolvers/User/userResolversErrors";
