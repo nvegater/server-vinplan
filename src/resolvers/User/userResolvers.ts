@@ -6,8 +6,7 @@ import {
     ChangePasswordInputs,
     LoginInputs,
     RegisterInputs,
-    UserType,
-    validateInputsLogin,
+    validateInputsChangePassword,
     validateInputsRegister,
     WineryDataInputs,
     UserToEdit
@@ -17,20 +16,14 @@ import {ApolloRedisContext} from "../../apollo-config";
 import {FORGET_PASSWORD_PREFIX, VALIDATE_USER_PREFIX} from "../../constants";
 import userResolversErrors from "./userResolversErrors";
 import {isAuth} from "../Universal/utils";
-import {getConnection} from "typeorm";
-import {SQL_QUERY_GET_RESERVED_SERVICES_IDS} from "../Universal/queries";
-import {Winery} from "../../entities/Winery";
-import {WineType} from "../../entities/WineType";
-import {WineProductionType} from "../../entities/WineProductionType";
-import {WineryLanguage} from "../../entities/WineryLanguage";
-import {WineryAmenity} from "../../entities/WineryAmenity";
 import getUser from "../../useCases/user/getUser";
-import forgotPassword from "../../useCases/user/forgotPassword";
 import updateUser from "../../useCases/user/updateUser";
+import forgotPassword from "../../useCases/user/forgotPassword";
 import registerUser from "../../useCases/user/registerUser";
+import registerWinery from "../../useCases/user/registerWinery";
 import userValidation from "../../useCases/user/userValidation"
 import sendValidateUserEmail from "../../useCases/user/sendValidateUserEmail"
-import changePasswordFunction from "../../useCases/user/changePassword";
+import userLogin from "../../useCases/user/userLogin";
 
 @Resolver(User)
 export class UserResolver {
@@ -57,9 +50,7 @@ export class UserResolver {
     ): Promise<UserResponse> {
         // @ts-ignore
         const userIdFromSession = req.session.userId;
-
         return await getUser(userIdFromSession)
-
     }
 
     @Mutation(() => UserResponse)
@@ -68,19 +59,15 @@ export class UserResolver {
         @Ctx() {redis, req}: ApolloRedisContext
     ): Promise<UserResponse> {
         const inputErrors: FieldError[] = validateInputsRegister(registerInputs);
-
         if (inputErrors.length > 0) {
             return {errors: inputErrors}
         }
-
         const registerResult: UserResponse = await registerUser(registerInputs, redis);
-
         if (registerResult.errors && registerResult.errors.length > 0) {
             return {errors: registerResult.errors}
         }
         // @ts-ignore
         req.session.userId = registerResult.user.id;
-
         return registerResult
     }
 
@@ -116,102 +103,9 @@ export class UserResolver {
         @Arg("wineryDataInputs") wineryDataInputs: WineryDataInputs,
         @Ctx() {req}: ApolloRedisContext
     ): Promise<WineryResponse> {
-        const inputErrors: FieldError[] = validateInputsRegister(registerInputs);
-        inputErrors.push(...validateInputsRegister(registerInputs))
-        if (inputErrors.length > 0) {
-            // Level 1: Simple input validation
-            return {errors: inputErrors}
-        }
-        const userWithUsernameExists: User | undefined = await User.findOne({where: {username: registerInputs.username}});
-        if (userWithUsernameExists) {
-            // Level 1
-            return {errors: inputErrors.concat(userResolversErrors.usernameInUseError)}
-        } else {
-            const userWithEmailExists: User | undefined = await User.findOne({where: {email: registerInputs.email}});
-            if (userWithEmailExists) {
-                // Level 2
-                return {errors: inputErrors.concat(userResolversErrors.emailInUseError)}
-            } else {
-                const wineryWithThatNameExists: Winery | undefined = await Winery.findOne({where: {name: wineryDataInputs.name}});
-                if (wineryWithThatNameExists) {
-                    // Level 3
-                    return {errors: inputErrors.concat(userResolversErrors.usernameInUseError)} // TODO add winery errors
-                } else {
-
-                    const user = User.create({
-                        username: registerInputs.username,
-                        email: registerInputs.email,
-                        password: await argon2.hash(registerInputs.password),
-                        visitorOrOwner: true, // From here, logic is different than normal registry
-                        userType: UserType.WINERY_OWNER,
-                    });
-                    await user.save();
-                    const creatorId = user.id;
-                    const winery = Winery.create({
-                            name: wineryDataInputs.name,
-                            description: wineryDataInputs.description,
-                            foundationYear: wineryDataInputs.foundationYear,
-                            googleMapsUrl: !!wineryDataInputs.googleMapsUrl ? wineryDataInputs.googleMapsUrl : "",
-                            yearlyWineProduction: wineryDataInputs.yearlyWineProduction,
-                            creatorId: creatorId,
-                            contactEmail: wineryDataInputs.contactEmail,
-                            contactPhoneNumber: wineryDataInputs.contactPhoneNumber,
-                            valley: wineryDataInputs.valley,
-                            covidLabel : wineryDataInputs.covidLabel
-                        }
-                    )
-                    await winery.save();
-
-                    const wineTypes = wineryDataInputs.wineType.map((wineType) => {
-                        return WineType.create({
-                            wineryId: winery.id,
-                            wineType: wineType,
-                        })
-                    })
-
-                    wineTypes.map(async (wineTypeEntity) => {
-                        await wineTypeEntity.save();
-                    })
-
-                    const productionTypes = wineryDataInputs.productionType.map((productionType) => {
-                        return WineProductionType.create({
-                            wineryId: winery.id,
-                            productionType: productionType
-                        })
-                    })
-
-                    productionTypes.map(async (productionTypeEntity) => {
-                        await productionTypeEntity.save();
-                    })
-
-                    if (wineryDataInputs.supportedLanguages && wineryDataInputs.supportedLanguages?.length > 0) {
-                        wineryDataInputs.supportedLanguages.map(async (supLan) => {
-                            const wineLanEntity = WineryLanguage.create({
-                                wineryId: winery.id,
-                                supportedLanguage: supLan
-                            });
-                            await wineLanEntity.save()
-                        });
-                    }
-
-                    if (wineryDataInputs.amenities && wineryDataInputs.amenities?.length > 0) {
-                        wineryDataInputs.amenities.map(async (amenity) => {
-                            const amenityEntity = WineryAmenity.create({
-                                wineryId: winery.id,
-                                amenity: amenity
-                            });
-                            await amenityEntity.save()
-                        });
-                    }
-
-                    // @ts-ignore
-                    req.session.userId = user.id;
-
-
-                    return {winery: winery}
-                }
-            }
-        }
+        // @ts-ignore
+        const userId = req.session.userId;
+        return await registerWinery(registerInputs, wineryDataInputs, userId);
     }
 
     @Mutation(() => UserResponse)
@@ -219,51 +113,9 @@ export class UserResolver {
         @Arg("options") loginInputs: LoginInputs,
         @Ctx() {req}: ApolloRedisContext
     ): Promise<UserResponse> {
-        const inputErrors: FieldError[] = validateInputsLogin(loginInputs);
-        if (inputErrors.length > 0) {
-            return {errors: inputErrors}
-        }
-        // TODO combine with WHERE username = ""  or email = ""
-        const user: User | undefined = await User.findOne(loginInputs.usernameOrEmail.includes('@')
-            ? {email: loginInputs.usernameOrEmail}
-            : {username: loginInputs.usernameOrEmail})
-
-        if (!user) {
-            console.log("Failed because username not existing")
-            return {errors: inputErrors.concat(userResolversErrors.invalidCredentials)}
-        } else {
-            const userPassMatch = await argon2.verify(user.password, loginInputs.password);
-            if (!userPassMatch) {
-                console.log("Failed because user there but wrong password")
-                return {errors: inputErrors.concat(userResolversErrors.invalidCredentials)}
-            } else {
-
-                // @ts-ignore
-                req.session.userId = user.id;
-                const reservedServicesIds = await getConnection()
-                    .query(SQL_QUERY_GET_RESERVED_SERVICES_IDS, [user.id]);
-
-                if (reservedServicesIds[0].reservedServicesIds.length > 0 && user) {
-                    user.reservedServicesIds = reservedServicesIds[0].reservedServicesIds as number[];
-                }
-
-                if (user.userType === UserType.WINERY_OWNER) {
-                    const createdWinery = await Winery.findOne({where: {creatorId: user.id}})
-                    if (createdWinery && user) {
-                        user.wineryId = createdWinery.id;
-                    } else {
-                        return {errors: inputErrors.concat(userResolversErrors.wineryFromUserDeleted)}
-                    }
-                } else {
-                    user.wineryId = null;
-                }
-
-                // @ts-ignore
-                console.log("Login mutation, this is the user Id", req.session.userId)
-
-                return {user: user}
-            }
-        }
+        // @ts-ignore
+        const userId = req.session.userId;
+        return await userLogin(loginInputs, userId)
     }
 
     @Mutation(() => UserResponse)
@@ -271,23 +123,31 @@ export class UserResolver {
         @Arg("options") changePasswordInputs: ChangePasswordInputs,
         @Ctx() {redis, req}: ApolloRedisContext
     ): Promise<UserResponse> {
-        try {
-            const inputErrors: FieldError[] = [];
-            const key = FORGET_PASSWORD_PREFIX + changePasswordInputs.token;
-            const userId = await redis.get(key);
-            if (!userId) {
+        const inputErrors: FieldError[] = validateInputsChangePassword(changePasswordInputs);
+        if (inputErrors.length > 0) {
+            return {errors: inputErrors}
+        }
+        const key = FORGET_PASSWORD_PREFIX + changePasswordInputs.token;
+        const userId = await redis.get(key);
+        if (!userId) {
+            return {errors: inputErrors.concat(userResolversErrors.tokenExpired)}
+        } else {
+            const userIdNum = parseInt(userId);
+            const user: User | undefined = await User.findOne(userIdNum);
+            if (!user) {
                 return {errors: inputErrors.concat(userResolversErrors.tokenUserError)}
             } else {
-                const response = await changePasswordFunction(changePasswordInputs, userId)
-                if(response.user) {
-                    // @ts-ignore
-                    req.session.userId = response.user.id;
-                    await redis.del(key);
-                }
-                return response
+                await User.update({
+                    id: userIdNum //based on the criteria
+                }, { // update this part of the entity:
+                    password: await argon2.hash(changePasswordInputs.newPassword)
+                });
+                await redis.del(key);
+                // Login automatically
+                // @ts-ignore
+                req.session.userId = user.id;
+                return {user: user}
             }
-        } catch (error) {
-            throw new Error(error)
         }
     }
 
@@ -312,14 +172,9 @@ export class UserResolver {
     async forgotPassword(
         @Arg('email') email: string,
         @Ctx() {redis}: ApolloRedisContext
-    ): Promise<UserResponse> {
-        try {            
-            return await forgotPassword(email, redis)
-        } catch (error) {
-            throw new Error(error)
-        }
+    ) : Promise <UserResponse>{
+        return await forgotPassword(email, redis);
     }
-
 
     @Mutation(() => UserResponse)
     @UseMiddleware(isAuth)
@@ -330,7 +185,6 @@ export class UserResolver {
         // Buscando el id desde la session para poder actualizar el usuario
         // @ts-ignore
         const userIdFromSession = req.session.userId;
-        
         return await updateUser(userIdFromSession, user)
     }
 
