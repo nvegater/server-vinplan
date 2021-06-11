@@ -52,7 +52,7 @@ yarn run build
 ```
 2. Generate migrations from `dist/`
 ```bash
-yarn run typeorm migration:generate -- -n name-of-migration
+yarn run typeorm migration:generate -n name-of-migration
 ```
 3. Restart the server
 
