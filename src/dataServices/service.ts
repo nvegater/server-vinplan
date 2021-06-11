@@ -30,23 +30,28 @@ const updateAttendeesByIdAndCreator = async (id:number, creatorId: number, noOfA
         .execute();
 }
 
-const updateService = async (updateServiceInputs:UpdateServiceInputs, userId: number) => {
+const updateService = async (updateServiceInputs:UpdateServiceInputs, userId: number):Promise<Service | null> => {
     const updateInputs = {...updateServiceInputs}
-    return await getConnection().createQueryBuilder()
-    .update(Service)
-    .set({
-        title : updateInputs.title,
-        description : updateInputs.description,
-        eventType : updateInputs.eventType,
-        pricePerPersonInDollars : updateInputs.pricePerPersonInDollars,
-        startDateTime : updateInputs.startDateTime,
-        endDateTime : updateInputs.endDateTime,
-        limitOfAttendees : updateInputs.limitOfAttendees, 
-        rRules : updateInputs.rRules
-    })
-    .where('id = :id and "creatorId" = :creatorId', {id: updateInputs.id, creatorId: userId})
-    .returning("*")
-    .execute();
+    const updateResult = await getConnection().createQueryBuilder()
+        .update(Service)
+        .set({
+            title : updateInputs.title,
+            description : updateInputs.description,
+            eventType : updateInputs.eventType,
+            pricePerPersonInDollars : updateInputs.pricePerPersonInDollars,
+            startDateTime : updateInputs.startDateTime,
+            endDateTime : updateInputs.endDateTime,
+            limitOfAttendees : updateInputs.limitOfAttendees,
+            rRules : updateInputs.rRules
+        })
+        .where('id = :id and "creatorId" = :creatorId', {id: updateInputs.id, creatorId: userId})
+        .returning("*")
+        .execute();
+
+    if (updateResult.affected === 0)
+        return null;
+
+    return updateResult.raw[0];
 }
 
 const findServicesByWinery = async (wineryId : number) => {

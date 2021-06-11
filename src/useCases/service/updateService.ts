@@ -3,21 +3,21 @@ import {UpdateServiceInputs} from "../../resolvers/Service/serviceResolversInput
 import {UpdateServiceResponse} from "../../resolvers/Service/serviceResolversOutputs";
 import {FieldError} from "../../resolvers/User/userResolversOutputs";
 
-const getServices = async (updateServiceInputs: UpdateServiceInputs, userId : number): Promise<UpdateServiceResponse> => {
+const updateService = async (updateServiceInputs: UpdateServiceInputs, userId: number): Promise<UpdateServiceResponse> => {
     try {
-        const updateService = dataServices.updateService(updateServiceInputs, userId);
-        if (updateService == undefined) {
+        const service = await dataServices.updateService(updateServiceInputs, userId);
+        if (service === null) {
             const error: FieldError = {
                 field: "updateService",
                 message: "no change was made"
             }
             return {errors: [error]}
-        }else{
-            return {service : true};
+        } else {
+            return {service};
         }
     } catch (error) {
         throw new Error(error)
     }
 }
 
-export default getServices; 
+export default updateService;

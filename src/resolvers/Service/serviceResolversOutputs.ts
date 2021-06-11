@@ -24,8 +24,8 @@ export class CreateServiceResponse {
 export class UpdateServiceResponse {
     @Field(() => [FieldError], {nullable: true})
     errors?: FieldError[]
-    @Field()
-    service?: boolean
+    @Field(() => Service, {nullable: true})
+    service?: Service
 }
 
 @ObjectType()

@@ -1,6 +1,11 @@
 import {Arg, Ctx, Int, Mutation, Query, Resolver, UseMiddleware} from "type-graphql";
 import {Service} from "../../entities/Service";
-import {BookServiceResponse, CreateServiceResponse, ServiceResponse} from "./serviceResolversOutputs";
+import {
+    BookServiceResponse,
+    CreateServiceResponse,
+    ServiceResponse,
+    UpdateServiceResponse
+} from "./serviceResolversOutputs";
 import {isAuth} from "../Universal/utils";
 import {ApolloRedisContext} from "../../apollo-config";
 import {CreateServiceInputs, ReserveServiceInputs, UpdateServiceInputs} from "./serviceResolversInputs";
@@ -8,6 +13,7 @@ import reserve from "../../useCases/service/reserve";
 import getServices from "../../useCases/service/getServices";
 import showServices from "../../useCases/service/showServices";
 import createService from "../../useCases/service/createService";
+import updateService from "../../useCases/service/updateService";
 
 @Resolver(Service)
 export class ServiceResolver {
@@ -59,11 +65,11 @@ export class ServiceResolver {
     async updateService(
         @Arg('updateServiceInputs') updateServiceInputs: UpdateServiceInputs,
         @Ctx() {req}: ApolloRedisContext
-    ): Promise<CreateServiceResponse> {
+    ): Promise<UpdateServiceResponse> {
         // @ts-ignore
         const {userId} = req.session;
         
-        return await this.updateService(updateServiceInputs, userId);
+        return await updateService(updateServiceInputs, userId);
     }
 
 
