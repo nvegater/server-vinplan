@@ -113,9 +113,7 @@ export class UserResolver {
         @Arg("options") loginInputs: LoginInputs,
         @Ctx() {req}: ApolloRedisContext
     ): Promise<UserResponse> {
-        // @ts-ignore
-        const userId = req.session.userId;
-        return await userLogin(loginInputs, userId)
+        return await userLogin(loginInputs, req)
     }
 
     @Mutation(() => UserResponse)
