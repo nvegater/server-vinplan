@@ -1,6 +1,7 @@
 import {Field, ObjectType} from "type-graphql";
 import {FieldError} from "../User/userResolversOutputs";
 import {Service} from "../../entities/Service";
+import {ServiceImageGallery} from "../../entities/ServiceImageGallery"
 
 @ObjectType()
 export class ServiceResponse {
@@ -26,6 +27,49 @@ export class UpdateServiceResponse {
     errors?: FieldError[]
     @Field(() => Service, {nullable: true})
     service?: Service
+}
+
+@ObjectType()
+export class ServiceServicesResponse {
+    @Field(() => [FieldError], {nullable: true})
+    errors?: FieldError[]
+    @Field(() => Service)
+    service?: Service;
+    @Field(() => [ServiceImageGallery])
+    images?: ServiceImageGallery[];
+    @Field(()=>[Service])
+    services?: Service[];
+}
+
+@ObjectType()
+export class ServiceImageGalleryResponse {
+    @Field(() => [FieldError], {nullable: true})
+    errors?: FieldError[]
+    @Field(() => [ServiceImageGallery])
+    images?: ServiceImageGallery[];
+}
+
+@ObjectType()
+export class ServiceInsertImageResponse {
+    @Field(() => [FieldError], {nullable: true})
+    errors?: FieldError[]
+    @Field(() => Boolean)
+    inserted?: Boolean;
+}
+@ObjectType()
+export class ServiceDeleteImageResponse {
+    @Field(() => [FieldError], {nullable: true})
+    errors?: FieldError[]
+    @Field(() => Boolean)
+    deleted?: Boolean;
+}
+
+@ObjectType()
+export class ServiceCoverImageChangeResponse {
+    @Field(() => [FieldError], {nullable: true})
+    errors?: FieldError[]
+    @Field(() => Boolean)
+    changed?: Boolean;
 }
 
 @ObjectType()

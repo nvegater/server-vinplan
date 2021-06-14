@@ -10,7 +10,7 @@ import {ServiceReservation} from "./ServiceReservation";
 import {User} from "./User";
 
 export enum EventType {
-    COMIDA_CENA_MARIDAJE = "Comida/Cena Maridaje",
+    COMIDA_CENA_MARIDAJE = "Maridaje",
     DEGUSTACION = "Degustación",
     CONCIERTO = "Concierto"
 }
@@ -37,6 +37,11 @@ export class Service extends BaseEntity {
     @Length(255)
     @Column({length: 255})
     description!: string;
+
+    @Field(() => String, {nullable:true})
+    @Length(255)
+    @Column({length: 255})
+    pictureURL!: string;
 
     @Field(() => EventType)
     @Column('enum', {name: 'eventType', enum: EventType})
