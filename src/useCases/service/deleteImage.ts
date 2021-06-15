@@ -1,6 +1,6 @@
 import {deleteImageFromS3} from "../../utils/s3Utilities"
 import {ServiceDeleteImageResponse} from "../../resolvers/Service/serviceResolversOutputs";
-import ServiceImageGalleryServices from "src/dataServices/serviceImageGallery"
+import ServiceImageGalleryServices from "../../dataServices/serviceImageGallery"
 
 const deleteImage = async (serviceId : number): Promise<ServiceDeleteImageResponse> => {
     try {

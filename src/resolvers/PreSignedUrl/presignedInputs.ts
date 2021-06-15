@@ -5,6 +5,7 @@ const UPLOAD_TYPE_DESCRIPTION = `Se pueden cargar imagenes para distintos elemen
 export enum UploadType {
     WINERYALBUM = "winerybook",
     USERPROFILEPICTURE = "userprofilepicture",
+    SERVICEALBUM = "servicealbum"
 }
 
 registerEnumType(UploadType, {name : "UploadType", description: UPLOAD_TYPE_DESCRIPTION})
@@ -16,6 +17,8 @@ export class PresignedUrlInput {
     uploadType : UploadType
     @Field({ nullable: true, description: 'opcional' })
     wineryId: number
+    @Field({ nullable: true, description: 'opcional' })
+    serviceId: number
     @Field({ nullable: true, description: 'opcional'})
     userId: number
 }
