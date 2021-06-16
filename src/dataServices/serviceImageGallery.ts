@@ -46,7 +46,7 @@ const unSelectCoverPageImage = async(serviceId: number) => {
         .set({
             coverPage: false
         })
-        .where('wineryId = :wineryId and coverPage = :coverPage', {serviceId: serviceId, coverPage: true})
+        .where('serviceId = :serviceId and coverPage = :coverPage', {serviceId: serviceId, coverPage: true})
         .returning("*")
         .execute();
 }
