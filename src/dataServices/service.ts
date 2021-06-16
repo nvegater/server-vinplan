@@ -1,5 +1,4 @@
 import {Service} from "../entities/Service";
-import {ServiceImageGallery} from "../entities/ServiceImageGallery"
 import {getConnection, Not} from "typeorm";
 import {UpdateServiceInputs} from "../resolvers/Service/serviceResolversInputs";
 
@@ -63,12 +62,6 @@ const findServiceById = async (serviceId:number) => {
     return await Service.findOne(serviceId)
 }
 
-const getCoverImageByServiceId = async (serviceId:number) => {
-    return await ServiceImageGallery.findOne({
-        where: {serviceId: serviceId, coverImage : true}
-    });
-}
-
 export default {
     findServiceNotMadeByCreatorByServiceAndCreatorId,
     findServiceByParentIdAndStartDateTime,
@@ -76,7 +69,6 @@ export default {
     findServicesByWinery,
     findServiceById,
     findServicesByIds,
-    updateService,
-    getCoverImageByServiceId
+    updateService
     // getAllService,
 }

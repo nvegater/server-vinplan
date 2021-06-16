@@ -1,4 +1,5 @@
 import ServiceServices from "../../dataServices/service";
+import ServiceGalleryServices from "../../dataServices/serviceImageGallery";
 import WineryServices from "../../dataServices/winery";
 import WineryImageGalleryServices from "../../dataServices/wineryImageGallery";
 import WineTypeServices from "../../dataServices/wineType";
@@ -21,7 +22,7 @@ const getWineryWithServices = async(wineryId : number) : Promise<WineryServicesR
         const wineryWithServices = await ServiceServices.findServicesByWinery(wineryId);
         
         const coverImages = await Promise.all(wineryWithServices.map(async (ser) => {
-            const imageSelected = await ServiceServices.getCoverImageByServiceId(ser.id) || undefined
+            const imageSelected = await ServiceGalleryServices.getCoverImageGallery(ser.id) || undefined
             return imageSelected?.imageUrl || ""
         }))
 
