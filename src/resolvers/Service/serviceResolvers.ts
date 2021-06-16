@@ -87,25 +87,6 @@ export class ServiceResolver {
             throw new Error(error)
         }
     }
-    //     try {
-    //         const insertImageResponse : ServiceImageGalleryResponse = await insertImage(serviceId,urlImage);
-    //         const serviceInfo : ServiceServicesResponse = await getServiceWithServices(ServiceId);
-    //         const serviceImages: ServiceImageGallery[] | undefined = insertImageResponse.images
-
-    //         if (!serviceInfo.errors && !insertImageResponse.errors) {
-    //             return {
-    //                 ...serviceInfo,
-    //                 images: serviceImages
-    //             }
-    //         } else {
-    //             return {
-    //                 errors : serviceInfo.errors ? serviceInfo.errors : insertImageResponse.errors
-    //             }
-    //         }
-    //     } catch (error) {
-    //         throw new Error(error)
-    //     }
-    // }
 
     @Mutation(() => ServiceDeleteImageResponse)
     async deleteImageService(
