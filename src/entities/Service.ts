@@ -39,9 +39,7 @@ export class Service extends BaseEntity {
     description!: string;
 
     @Field(() => String, {nullable:true})
-    @Length(255)
-    @Column({length: 255})
-    pictureURL!: string;
+    urlImageCover!: string;
 
     @Field(() => EventType)
     @Column('enum', {name: 'eventType', enum: EventType})

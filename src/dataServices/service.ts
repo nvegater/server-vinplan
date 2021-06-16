@@ -1,4 +1,5 @@
 import {Service} from "../entities/Service";
+import {ServiceImageGallery} from "../entities/ServiceImageGallery"
 import {getConnection, Not} from "typeorm";
 import {UpdateServiceInputs} from "../resolvers/Service/serviceResolversInputs";
 
@@ -62,10 +63,11 @@ const findServiceById = async (serviceId:number) => {
     return await Service.findOne(serviceId)
 }
 
-// TODO: se debe de separar la logica y la logica de la base de datos
-// const getAllService = async() => {
-//     return await Service.find();
-// }
+const getCoverImageByServiceId = async (serviceId:number) => {
+    return await ServiceImageGallery.findOne({
+        where: {serviceId: serviceId, coverImage : true}
+    });
+}
 
 export default {
     findServiceNotMadeByCreatorByServiceAndCreatorId,
@@ -74,6 +76,7 @@ export default {
     findServicesByWinery,
     findServiceById,
     findServicesByIds,
-    updateService
+    updateService,
+    getCoverImageByServiceId
     // getAllService,
 }
