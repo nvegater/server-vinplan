@@ -119,7 +119,7 @@ export class ServiceResolver {
     }
 
     @Mutation(() => ServiceCoverImageChangeResponse)
-    async changeCoverPageImage(
+    async changeCoverPageImageService(
         @Arg('serviceId', () => Int) serviceId: number,
         @Arg('serviceImageId', () => Int) serviceImageId: number,
     ): Promise<ServiceCoverImageChangeResponse> {

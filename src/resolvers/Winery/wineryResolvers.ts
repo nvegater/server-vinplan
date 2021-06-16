@@ -68,7 +68,7 @@ export class WineryResolver {
     }
 
     @Mutation(() => WineryChangeResponse)
-    async changeCoverPageImage(
+    async changeCoverPageImageWinery(
         @Arg('wineryId', () => Int) wineryId: number,
         @Arg('wineryImageId', () => Int) wineryImageId: number,
     ): Promise<WineryChangeResponse> {
