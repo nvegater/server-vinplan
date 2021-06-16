@@ -10,7 +10,7 @@ import {ServiceReservation} from "./ServiceReservation";
 import {User} from "./User";
 
 export enum EventType {
-    COMIDA_CENA_MARIDAJE = "Maridaje",
+    COMIDA_CENA_MARIDAJE = "Comida/Cena Maridaje",
     DEGUSTACION = "Degustación",
     CONCIERTO = "Concierto"
 }
