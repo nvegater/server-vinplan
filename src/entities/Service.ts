@@ -6,6 +6,7 @@ import {
 import {Winery} from "./Winery";
 import {Length} from "class-validator";
 import {Field, Float, Int, ObjectType, registerEnumType} from "type-graphql";
+import {ServiceImageGallery} from "./ServiceImageGallery";
 import {ServiceReservation} from "./ServiceReservation";
 import {User} from "./User";
 
@@ -40,6 +41,9 @@ export class Service extends BaseEntity {
 
     @Field(() => String, {nullable:true})
     urlImageCover?: string;
+
+    @Field(() => [ServiceImageGallery])
+    gallery?: ServiceImageGallery[];
 
     @Field(() => EventType)
     @Column('enum', {name: 'eventType', enum: EventType})
