@@ -8,6 +8,10 @@ import {
 } from "./serviceResolversOutputs";
 import {isAuth} from "../Universal/utils";
 import {ApolloRedisContext} from "../../apollo-config";
+import {ServiceInsertImageResponse, ServiceDeleteImageResponse, ServiceCoverImageChangeResponse} from "./serviceResolversOutputs"
+import insertImage from "../../useCases/service/insertImage"
+import deleteImage from "../../useCases/service/deleteImage"
+import changeCoverPicture from "../../useCases/service/changeCoverPicture"
 import {CreateServiceInputs, ReserveServiceInputs, UpdateServiceInputs} from "./serviceResolversInputs";
 import reserve from "../../useCases/service/reserve";
 import getServices from "../../useCases/service/getServices";
@@ -72,5 +76,38 @@ export class ServiceResolver {
         return await updateService(updateServiceInputs, userId);
     }
 
+    @Mutation(() => ServiceInsertImageResponse)
+    async insertImageService(
+        @Arg('serviceId', () => Int) serviceId: number,
+        @Arg('urlImage', () => String) urlImage: string,
+    ): Promise<ServiceInsertImageResponse> {
+        try {            
+            return await insertImage(serviceId,urlImage)
+        } catch (error) {
+            throw new Error(error)
+        }
+    }
 
+    @Mutation(() => ServiceDeleteImageResponse)
+    async deleteImageService(
+        @Arg('serviceId', () => Int) serviceId: number,
+    ): Promise<ServiceDeleteImageResponse> {
+        try {            
+            return await deleteImage(serviceId)
+        } catch (error) {
+            throw new Error(error)
+        }
+    }
+
+    @Mutation(() => ServiceCoverImageChangeResponse)
+    async changeCoverPageImageService(
+        @Arg('serviceId', () => Int) serviceId: number,
+        @Arg('serviceImageId', () => Int) serviceImageId: number,
+    ): Promise<ServiceCoverImageChangeResponse> {
+        try {
+            return await changeCoverPicture(serviceId,serviceImageId)
+        } catch (error) {
+            throw new Error(error)
+        }
+    }
 }

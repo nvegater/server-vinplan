@@ -62,11 +62,6 @@ const findServiceById = async (serviceId:number) => {
     return await Service.findOne(serviceId)
 }
 
-// TODO: se debe de separar la logica y la logica de la base de datos
-// const getAllService = async() => {
-//     return await Service.find();
-// }
-
 export default {
     findServiceNotMadeByCreatorByServiceAndCreatorId,
     findServiceByParentIdAndStartDateTime,

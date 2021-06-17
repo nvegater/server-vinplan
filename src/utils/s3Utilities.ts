@@ -25,7 +25,7 @@ export async function getPresignedUrl(presignedUrl: PresignedUrlInput) {
             ContentType: multimediaInfo.contentType,
             ACL: 'public-read', 
             Expires: expireSeconds,
-            Key: `${dateNow}-${fileName}`,
+            Key: `${fileName}`,
         });
         const getUrl = `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${key}/${dateNow}-${fileName}`;
         return {
@@ -39,7 +39,7 @@ export async function getPresignedUrl(presignedUrl: PresignedUrlInput) {
 
 const getMultimediaInfo = async (presignedUrl: PresignedUrlInput) => {
     try {
-        const {fileName, uploadType, wineryId, userId} = presignedUrl
+        const {fileName, uploadType, wineryId, userId, serviceId} = presignedUrl
         const imagesTypes = ['apng', 'avif', 'gif', 'jpg', 'jpeg', 'jfif', 'pjpeg', 'pjp', 'png', 'svg', 'webp' ];
         const ext = fileName.split('.').pop() || 'badFormat';
         let key = null
@@ -59,6 +59,11 @@ const getMultimediaInfo = async (presignedUrl: PresignedUrlInput) => {
         }
         if (uploadType == 'userprofilepicture'){
             prefix = `user/${userId}-pictureProfile`;
+            contentType = mime.getType(ext) || '';
+            key = `${prefix}`
+        }
+        if (uploadType == 'servicealbum'){
+            prefix = `service/${serviceId}-album`;
             contentType = mime.getType(ext) || '';
             key = `${prefix}`
         }
