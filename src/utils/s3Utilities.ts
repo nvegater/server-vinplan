@@ -18,7 +18,6 @@ export async function getPresignedUrl(presignedUrl: PresignedUrlInput) {
         const multimediaInfo = await getMultimediaInfo(presignedUrl);
         const key = multimediaInfo.key;
         const expireSeconds = 60 * 5
-        const dateNow = Date.now();
 
         const preSignedPutUrl = await s3.getSignedUrl('putObject',{
             Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}/${key}`,
