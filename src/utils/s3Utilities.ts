@@ -27,7 +27,7 @@ export async function getPresignedUrl(presignedUrl: PresignedUrlInput) {
             Expires: expireSeconds,
             Key: `${fileName}`,
         });
-        const getUrl = `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${key}/${dateNow}-${fileName}`;
+        const getUrl = `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${key}/${fileName}`;
         return {
             putUrl: preSignedPutUrl,
             getUrl: getUrl,
