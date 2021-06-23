@@ -17,6 +17,10 @@ const findImageById = async (imageId: number) => {
     return await ServiceImageGallery.findOne(imageId);
 }
 
+const findDefaultImageByEventType = async (eventType: EventType) => {
+    return await ServiceDefaultImage.findOne({where: {eventType: eventType}});
+}
+
 const deleteImageById = async (imageId: number) => {
     return await ServiceImageGallery.delete(imageId);
 }
@@ -39,8 +43,8 @@ const insertDefaultPictureToEvent = async (eventType: EventType, urlImage: strin
     return await serviceImage.save()
 }
 
-const deleteDefaultPictureToEvent = async (eventType: EventType) => {
-    return await ServiceDefaultImage.delete(eventType)
+const deleteDefaultPictureToEvent = async (eventId: number) => {
+    return await ServiceDefaultImage.delete(eventId)
 }
 
 const updateDefaultPictureToEvent = async (eventType: EventType, urlImage: string) => {
@@ -86,6 +90,6 @@ export default {
     insertImageInServiceGallery, getCoverImageGallery,
     getServiceGalleryById, getImagesNumberGallery,
     selectCoverPageImage,unSelectCoverPageImage,
-    findImageById, deleteImageById,
+    findImageById, deleteImageById, findDefaultImageByEventType,
     insertDefaultPictureToEvent, updateDefaultPictureToEvent, deleteDefaultPictureToEvent
 }

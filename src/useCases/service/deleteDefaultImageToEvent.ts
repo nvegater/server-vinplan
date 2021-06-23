@@ -4,14 +4,22 @@ import {EventType} from "../../entities/Service";
 
 const deleteDefaultImageToEvent = async (eventType: EventType): Promise<ServiceImageResponse> => {
     try {
-        const serviceInserted = await ServiceImageGalleryServices.deleteDefaultPictureToEvent(eventType)
-        if (serviceInserted === undefined) {
+        const eventDefaultImage = await ServiceImageGalleryServices.findDefaultImageByEventType(eventType);
+        if (eventDefaultImage === undefined) {
             return {errors: [{
                 field: 'imageId',
-                message : "Fallo al eliminar"
+                message : "No se encontró el evento"
             }], success : false}
-        } else {
-            return {success: true}; 
+        }else{
+            const serviceInserted = await ServiceImageGalleryServices.deleteDefaultPictureToEvent(eventDefaultImage.id);
+            if (serviceInserted === undefined) {
+                return {errors: [{
+                    field: 'imageId',
+                    message : "Fallo al eliminar"
+                }], success : false}
+            } else {
+                return {success: true}; 
+            }
         }
     } catch (error) {
         throw new Error(error)
