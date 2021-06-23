@@ -1,17 +1,17 @@
 import {ServiceImageResponse} from "../../resolvers/Service/serviceResolversOutputs"
 import ServiceImageGalleryServices from "../../dataServices/serviceImageGallery"
+import {EventType} from "../../entities/Service";
 
-const insertImage = async (serviceId: number, urlImage: string): Promise<ServiceImageResponse> => {
+const createDefaultImageToEvent = async (eventType: EventType, urlImage: string): Promise<ServiceImageResponse> => {
     try {
-        const serviceInserted = await ServiceImageGalleryServices.insertImageInServiceGallery(serviceId, urlImage)
+        const serviceInserted = await ServiceImageGalleryServices.insertDefaultPictureToEvent(eventType, urlImage)
         
         if (serviceInserted === undefined) {
             return {errors: [{
                 field: 'imageId',
-                message : "La imagen no se puede borrar"
+                message : "La creación falló"
             }], success : false}
         } else {
-            await ServiceImageGalleryServices.getServiceGalleryById(serviceId)
             return {success: true}; 
         }
     } catch (error) {
@@ -19,4 +19,4 @@ const insertImage = async (serviceId: number, urlImage: string): Promise<Service
     }
 }
 
-export default insertImage;
+export default createDefaultImageToEvent;

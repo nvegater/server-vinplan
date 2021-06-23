@@ -1,8 +1,8 @@
 import {deleteImageFromS3} from "../../utils/s3Utilities"
-import {ServiceDeleteImageResponse} from "../../resolvers/Service/serviceResolversOutputs";
+import {ServiceImageResponse} from "../../resolvers/Service/serviceResolversOutputs";
 import ServiceImageGalleryServices from "../../dataServices/serviceImageGallery"
 
-const deleteImage = async (serviceId : number): Promise<ServiceDeleteImageResponse> => {
+const deleteImage = async (serviceId : number): Promise<ServiceImageResponse> => {
     try {
         let deleteImage;
         const imageFound = await ServiceImageGalleryServices.findImageById(serviceId);
@@ -17,18 +17,18 @@ const deleteImage = async (serviceId : number): Promise<ServiceDeleteImageRespon
                     await deleteImageFromS3(imageFound.imageUrl); 
                 }
                 if (deleteImage){
-                    return {deleted : true}
+                    return {success : true}
                 } else {
                     return {errors: [{
                         field: 'imageId',
                         message : "La imagen no se puede borrar"
-                    }], deleted : false}
+                    }], success : false}
                 }
             } else {
                 return {errors: [{
                     field: 'imageId',
                     message : "No se encontrò la imagen"
-                }], deleted : false}
+                }], success : false}
             }
     } catch (error) {
         throw new Error(error)

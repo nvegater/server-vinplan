@@ -1,5 +1,7 @@
 import {ServiceImageGallery} from "../entities/ServiceImageGallery"
 import {getConnection} from "typeorm";
+import {EventType} from "../entities/Service";
+import {ServiceDefaultImage} from "../entities/ServiceDefaultImage";
 
 const insertImageInServiceGallery = async (serviceId: number, urlImage: string) => {
     const serviceFound = await ServiceImageGallery.find({serviceId: serviceId})
@@ -27,6 +29,29 @@ const getServiceGalleryById = async(serviceId: number) => {
 
 const getImagesNumberGallery = async(serviceId: number) => {
     return await ServiceImageGallery.count({ serviceId });
+}
+
+const insertDefaultPictureToEvent = async (eventType: EventType, urlImage: string) => {
+    const serviceImage = ServiceDefaultImage.create({ 
+        defaultImageUrl: urlImage,
+        eventType : eventType,
+    })
+    return await serviceImage.save()
+}
+
+const deleteDefaultPictureToEvent = async (eventType: EventType) => {
+    return await ServiceDefaultImage.delete(eventType)
+}
+
+const updateDefaultPictureToEvent = async (eventType: EventType, urlImage: string) => {
+    return await getConnection().createQueryBuilder()
+        .update(ServiceDefaultImage)
+        .set({
+            defaultImageUrl: urlImage
+        })
+        .where('eventType = :eventType', {eventType: eventType})
+        .returning("*")
+        .execute();
 }
 
 const selectCoverPageImage = async(serviceImageId: number) => {
@@ -58,12 +83,9 @@ const getCoverImageGallery = async(serviceId: number) => {
 }
 
 export default {
-    insertImageInServiceGallery,
-    getServiceGalleryById,
-    getImagesNumberGallery,
-    selectCoverPageImage,
-    unSelectCoverPageImage,
-    findImageById,
-    deleteImageById,
-    getCoverImageGallery
+    insertImageInServiceGallery, getCoverImageGallery,
+    getServiceGalleryById, getImagesNumberGallery,
+    selectCoverPageImage,unSelectCoverPageImage,
+    findImageById, deleteImageById,
+    insertDefaultPictureToEvent, updateDefaultPictureToEvent, deleteDefaultPictureToEvent
 }
