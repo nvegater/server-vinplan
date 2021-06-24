@@ -3,20 +3,16 @@ import {FieldError} from "../User/userResolversOutputs";
 
 @ObjectType()
 export class PresignedResponse {
-    @Field(() => String)
-    getUrl?: String
-    @Field(() => String)
-    putUrl?: String
+    @Field(() => String,{nullable:true})
+    getUrl: String
+    @Field(() => String,{nullable:true})
+    putUrl: String
 }
 
 @ObjectType()
 export class GetPreSignedUrlResponse {
     @Field(() => [FieldError], {nullable: true})
     errors?: FieldError[]
-    @Field(() => String)
-    getUrl?: String
-    @Field(() => String)
-    putUrl?: String
-    @Field(() => PresignedResponse)
-    arrayUrl?: PresignedResponse
+    @Field(() => [PresignedResponse],{nullable:true})
+    arrayUrl?: PresignedResponse[]
 }

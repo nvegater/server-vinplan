@@ -1,6 +1,7 @@
 import AWS from 'aws-sdk';
 import mime from 'mime';
 import {PresignedUrlInput} from "../resolvers/PreSignedUrl/presignedInputs"
+import { PresignedResponse } from "../resolvers/PreSignedUrl/presignedOutputs"
 import imagesNumberGallery from "../useCases/winery/countWineryImages"
 
 const spacesEndpoint = new AWS.Endpoint(process.env.NEXT_PUBLIC_DO_SPACES_ENDPOINT as string);
@@ -14,42 +15,27 @@ const s3 = new AWS.S3(config);
 
 export async function getPresignedUrl(presignedUrl: PresignedUrlInput) {
     try {
-        let arrayUrl, preSignedPutUrl, multimediaInfo, key, getUrl;
+        const arrayUrl : PresignedResponse[] = []
+        let preSignedPutUrl, multimediaInfo, key, getUrl;
         const {fileName} = presignedUrl
         const expireSeconds = 60 * 5
-        if(Array.isArray(fileName)){
-            fileName.forEach(async (element) => {
-                multimediaInfo = await getMultimediaInfo(presignedUrl, element);
-                key = multimediaInfo.key;
-                preSignedPutUrl = await s3.getSignedUrl('putObject',{
-                    Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}/${key}`,
-                    ContentType: multimediaInfo.contentType,
-                    ACL: 'public-read', 
-                    Expires: expireSeconds,
-                    Key: `${element}`,
-                });
-                getUrl = `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${key}/${element}`;
-                arrayUrl.push({putUrl : preSignedPutUrl, getUrl : getUrl});
-            });
-            return {
-                arrayUrl : arrayUrl
-            };
-        }else{
-            multimediaInfo = await getMultimediaInfo(presignedUrl, fileName);
+        
+        await fileName.forEach(async (element) => {
+            multimediaInfo = await getMultimediaInfo(presignedUrl, element);
             key = multimediaInfo.key;
             preSignedPutUrl = await s3.getSignedUrl('putObject',{
                 Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}/${key}`,
                 ContentType: multimediaInfo.contentType,
                 ACL: 'public-read', 
                 Expires: expireSeconds,
-                Key: `${fileName}`,
+                Key: `${element}`,
             });
-            const getUrl = `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${key}/${fileName}`;
-            return {
-                getUrl : getUrl,
-                putUrl : preSignedPutUrl
-            };
-        }
+            getUrl = `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${key}/${element}`;
+            arrayUrl.push({putUrl : preSignedPutUrl, getUrl : getUrl});
+        });
+        return {
+            arrayUrl : arrayUrl
+        };
     } catch (error) {
         throw new Error(error)
     }
