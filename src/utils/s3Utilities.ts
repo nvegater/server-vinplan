@@ -2,7 +2,7 @@ import AWS from 'aws-sdk';
 import mime from 'mime';
 import {PresignedUrlInput} from "../resolvers/PreSignedUrl/presignedInputs"
 import { PresignedResponse } from "../resolvers/PreSignedUrl/presignedOutputs"
-import imagesNumberGallery from "../useCases/winery/countWineryImages"
+// import imagesNumberGallery from "../useCases/winery/countWineryImages"
 
 const spacesEndpoint = new AWS.Endpoint(process.env.NEXT_PUBLIC_DO_SPACES_ENDPOINT as string);
 const config: AWS.S3.Types.ClientConfiguration = {
@@ -53,10 +53,11 @@ const getMultimediaInfo = async (presignedUrl: PresignedUrlInput, fileName : str
         let prefix = '';
         let contentType = '';
         if (uploadType == 'winerybook') {
+            // TODO: revisar el porque no se pueden validar solo 10 elementos
             // Numero de elementos para poner la validacion
-            if (await imagesNumberGallery(wineryId) > 10) {
-                throw new Error('Numero maximo de imagenes');
-            }
+            // if (await imagesNumberGallery(wineryId) > 10) {
+            //     throw new Error('Numero maximo de imagenes');
+            // }
                 prefix = `winery/${wineryId}-album`;
                 contentType = mime.getType(ext) || '';
                 key = `${prefix}`
