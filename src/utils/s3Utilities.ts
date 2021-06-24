@@ -3,7 +3,9 @@ import mime from 'mime';
 import {PresignedUrlInput} from "../resolvers/PreSignedUrl/presignedInputs"
 import imagesNumberGallery from "../useCases/winery/countWineryImages"
 
-const spacesEndpoint = new AWS.Endpoint(process.env.NEXT_PUBLIC_DO_SPACES_ENDPOINT as string);
+const spacesEndpoint = new AWS.Endpoint(process.env.NODE_ENV === "production" ?
+    process.env.NEXT_PUBLIC_DO_SPACES_ENDPOINT as string : "bla");
+
 const config: AWS.S3.Types.ClientConfiguration = {
     endpoint: spacesEndpoint as any,
     accessKeyId: process.env.NEXT_PUBLIC_DO_SPACES_KEY,
@@ -19,10 +21,10 @@ export async function getPresignedUrl(presignedUrl: PresignedUrlInput) {
         const key = multimediaInfo.key;
         const expireSeconds = 60 * 5
 
-        const preSignedPutUrl = await s3.getSignedUrl('putObject',{
+        const preSignedPutUrl = await s3.getSignedUrl('putObject', {
             Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}/${key}`,
             ContentType: multimediaInfo.contentType,
-            ACL: 'public-read', 
+            ACL: 'public-read',
             Expires: expireSeconds,
             Key: `${fileName}`,
         });
@@ -39,7 +41,7 @@ export async function getPresignedUrl(presignedUrl: PresignedUrlInput) {
 const getMultimediaInfo = async (presignedUrl: PresignedUrlInput) => {
     try {
         const {fileName, uploadType, wineryId, userId, serviceId} = presignedUrl
-        const imagesTypes = ['apng', 'avif', 'gif', 'jpg', 'jpeg', 'jfif', 'pjpeg', 'pjp', 'png', 'svg', 'webp' ];
+        const imagesTypes = ['apng', 'avif', 'gif', 'jpg', 'jpeg', 'jfif', 'pjpeg', 'pjp', 'png', 'svg', 'webp'];
         const ext = fileName.split('.').pop() || 'badFormat';
         let key = null
         if (!imagesTypes.includes(ext.toLowerCase())) {
@@ -52,16 +54,16 @@ const getMultimediaInfo = async (presignedUrl: PresignedUrlInput) => {
             if (await imagesNumberGallery(wineryId) > 10) {
                 throw new Error('Numero maximo de imagenes');
             }
-                prefix = `winery/${wineryId}-album`;
-                contentType = mime.getType(ext) || '';
-                key = `${prefix}`
+            prefix = `winery/${wineryId}-album`;
+            contentType = mime.getType(ext) || '';
+            key = `${prefix}`
         }
-        if (uploadType == 'userprofilepicture'){
+        if (uploadType == 'userprofilepicture') {
             prefix = `user/${userId}-pictureProfile`;
             contentType = mime.getType(ext) || '';
             key = `${prefix}`
         }
-        if (uploadType == 'servicealbum'){
+        if (uploadType == 'servicealbum') {
             prefix = `service/${serviceId}-album`;
             contentType = mime.getType(ext) || '';
             key = `${prefix}`
@@ -79,7 +81,7 @@ const getMultimediaInfo = async (presignedUrl: PresignedUrlInput) => {
 export async function deleteImageFromS3(url: string) {
     try {
         const myURL = new URL(url);
-        const params = {  Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}`, Key: myURL.pathname };
+        const params = {Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}`, Key: myURL.pathname};
         await s3.deleteObject(params).promise();
     } catch (error) {
         throw new Error(error)
