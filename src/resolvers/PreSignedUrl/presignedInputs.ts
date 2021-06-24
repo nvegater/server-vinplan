@@ -12,7 +12,7 @@ registerEnumType(UploadType, {name : "UploadType", description: UPLOAD_TYPE_DESC
 @InputType()
 export class PresignedUrlInput {
     @Field()
-    fileName: string
+    fileName: string | string[]
     @Field(() => UploadType)
     uploadType : UploadType
     @Field({ nullable: true, description: 'opcional' })

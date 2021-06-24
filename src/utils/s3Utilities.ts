@@ -14,31 +14,50 @@ const s3 = new AWS.S3(config);
 
 export async function getPresignedUrl(presignedUrl: PresignedUrlInput) {
     try {
+        let arrayUrl, preSignedPutUrl, multimediaInfo, key, getUrl;
         const {fileName} = presignedUrl
-        const multimediaInfo = await getMultimediaInfo(presignedUrl);
-        const key = multimediaInfo.key;
         const expireSeconds = 60 * 5
-
-        const preSignedPutUrl = await s3.getSignedUrl('putObject',{
-            Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}/${key}`,
-            ContentType: multimediaInfo.contentType,
-            ACL: 'public-read', 
-            Expires: expireSeconds,
-            Key: `${fileName}`,
-        });
-        const getUrl = `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${key}/${fileName}`;
-        return {
-            putUrl: preSignedPutUrl,
-            getUrl: getUrl,
-        };
+        if(Array.isArray(fileName)){
+            fileName.forEach(async (element) => {
+                multimediaInfo = await getMultimediaInfo(presignedUrl, element);
+                key = multimediaInfo.key;
+                preSignedPutUrl = await s3.getSignedUrl('putObject',{
+                    Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}/${key}`,
+                    ContentType: multimediaInfo.contentType,
+                    ACL: 'public-read', 
+                    Expires: expireSeconds,
+                    Key: `${element}`,
+                });
+                getUrl = `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${key}/${element}`;
+                arrayUrl.push({putUrl : preSignedPutUrl, getUrl : getUrl});
+            });
+            return {
+                arrayUrl : arrayUrl
+            };
+        }else{
+            multimediaInfo = await getMultimediaInfo(presignedUrl, fileName);
+            key = multimediaInfo.key;
+            preSignedPutUrl = await s3.getSignedUrl('putObject',{
+                Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}/${key}`,
+                ContentType: multimediaInfo.contentType,
+                ACL: 'public-read', 
+                Expires: expireSeconds,
+                Key: `${fileName}`,
+            });
+            const getUrl = `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${key}/${fileName}`;
+            return {
+                getUrl : getUrl,
+                putUrl : preSignedPutUrl
+            };
+        }
     } catch (error) {
         throw new Error(error)
     }
 }
 
-const getMultimediaInfo = async (presignedUrl: PresignedUrlInput) => {
+const getMultimediaInfo = async (presignedUrl: PresignedUrlInput, fileName : string) => {
     try {
-        const {fileName, uploadType, wineryId, userId, serviceId} = presignedUrl
+        const {uploadType, wineryId, userId, serviceId} = presignedUrl
         const imagesTypes = ['apng', 'avif', 'gif', 'jpg', 'jpeg', 'jfif', 'pjpeg', 'pjp', 'png', 'svg', 'webp' ];
         const ext = fileName.split('.').pop() || 'badFormat';
         let key = null
