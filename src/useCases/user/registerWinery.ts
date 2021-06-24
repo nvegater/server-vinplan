@@ -8,8 +8,9 @@ import userDataServices from "../../dataServices/user";
 import {FieldError, WineryResponse} from "../../resolvers/User/userResolversOutputs";
 import {RegisterInputs, WineryDataInputs, validateInputsRegister} from "../../resolvers/User/userResolversInputs";
 import userResolversErrors from "../../resolvers/User/userResolversErrors";
+import {Request} from "express";
 
-const registerWinery = async (registerInputs : RegisterInputs, wineryDataInputs : WineryDataInputs, userId : number): Promise<WineryResponse> => {
+const registerWinery = async (registerInputs : RegisterInputs, wineryDataInputs : WineryDataInputs, req: Request): Promise<WineryResponse> => {
     try {
         const inputErrors: FieldError[] = validateInputsRegister(registerInputs);
         inputErrors.push(...validateInputsRegister(registerInputs))
@@ -79,7 +80,8 @@ const registerWinery = async (registerInputs : RegisterInputs, wineryDataInputs 
                         });
                     }
                     // @ts-ignore
-                    req.session.userId = userId;
+                    req.session.userId = newUser.id;
+
                     return {winery: newWinery}
                 }
             }
