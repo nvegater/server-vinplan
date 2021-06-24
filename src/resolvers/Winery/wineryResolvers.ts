@@ -34,7 +34,7 @@ export class WineryResolver {
     @Mutation(() => WineryServicesResponse)
     async insertImageWinery(
         @Arg('wineryId', () => Int) wineryId: number,
-        @Arg('urlImage', () => String) urlImage: string,
+        @Arg('urlImage', () => [String]) urlImage: string[],
     ): Promise<WineryServicesResponse> {
         try {
             const insertImageResponse : WineryImageGalleryResponse = await insertImage(wineryId,urlImage);
