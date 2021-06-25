@@ -34,21 +34,21 @@ export class WineryResolver {
     @Mutation(() => WineryServicesResponse)
     async insertImageWinery(
         @Arg('wineryId', () => Int) wineryId: number,
-        @Arg('urlImage', () => String) urlImage: string,
+        @Arg('urlImage', () => [String]) urlImage: string[],
     ): Promise<WineryServicesResponse> {
         try {
             const insertImageResponse : WineryImageGalleryResponse = await insertImage(wineryId,urlImage);
             const wineryInfo : WineryServicesResponse = await getWineryWithServices(wineryId);
             const wineryImages: WineryImageGallery[] | undefined = insertImageResponse.images
-
-            if (!wineryInfo.errors && !insertImageResponse.errors) {
+            if (!wineryInfo.errors) {
                 return {
                     ...wineryInfo,
-                    images: wineryImages
+                    images: wineryImages,
+                    errors: insertImageResponse.errors
                 }
             } else {
                 return {
-                    errors : wineryInfo.errors ? wineryInfo.errors : insertImageResponse.errors
+                    errors : wineryInfo.errors
                 }
             }
         } catch (error) {

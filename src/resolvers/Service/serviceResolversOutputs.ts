@@ -58,19 +58,11 @@ export class ServiceImageGalleryResponse {
 }
 
 @ObjectType()
-export class ServiceInsertImageResponse {
+export class ServiceImageResponse {
     @Field(() => [FieldError], {nullable: true})
     errors?: FieldError[]
     @Field(() => Boolean)
-    inserted?: Boolean;
-}
-
-@ObjectType()
-export class ServiceDeleteImageResponse {
-    @Field(() => [FieldError], {nullable: true})
-    errors?: FieldError[]
-    @Field(() => Boolean)
-    deleted?: Boolean;
+    success?: Boolean;
 }
 
 @ObjectType()

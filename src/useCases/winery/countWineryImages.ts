@@ -1,7 +1,7 @@
 // import userResolversErrors from "../../resolvers/User/userResolversErrors";
 import WineryImageGalleryServices from "../../dataServices/wineryImageGallery"
 
-const getImagesNumberInGallery = async (idGallery : number) : Promise<Number> => {
+const getImagesNumberInGallery = async (idGallery : number) : Promise<number> => {
     try {
         return await WineryImageGalleryServices.getImagesNumberGallery(idGallery)
     } catch (error) {
