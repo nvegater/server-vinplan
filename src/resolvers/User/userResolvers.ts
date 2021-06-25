@@ -103,9 +103,7 @@ export class UserResolver {
         @Arg("wineryDataInputs") wineryDataInputs: WineryDataInputs,
         @Ctx() {req}: ApolloRedisContext
     ): Promise<WineryResponse> {
-        // @ts-ignore
-        const userId = req.session.userId;
-        return await registerWinery(registerInputs, wineryDataInputs, userId);
+        return await registerWinery(registerInputs, wineryDataInputs, req);
     }
 
     @Mutation(() => UserResponse)

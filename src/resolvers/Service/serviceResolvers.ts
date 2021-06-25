@@ -4,7 +4,7 @@ import {
     BookServiceResponse,
     CreateServiceResponse,
     ServiceResponse,
-    UpdateServiceResponse
+    UpdateServiceResponse, FindExperienceResponse
 } from "./serviceResolversOutputs";
 import {isAuth} from "../Universal/utils";
 import {ApolloRedisContext} from "../../apollo-config";
@@ -21,6 +21,7 @@ import getServices from "../../useCases/service/getServices";
 import showServices from "../../useCases/service/showServices";
 import createService from "../../useCases/service/createService";
 import updateService from "../../useCases/service/updateService";
+import findExperienceById from "../../useCases/service/findExperienceById";
 
 @Resolver(Service)
 export class ServiceResolver {
@@ -66,6 +67,13 @@ export class ServiceResolver {
         // validate winery
         return await createService(createServiceInputs, userId);
     }
+
+    @Query(() => FindExperienceResponse)
+    async findExperienceById(
+        @Arg('experienceId', () => Int) experienceId: number
+    ): Promise<FindExperienceResponse> {
+        return await findExperienceById(experienceId);
+    };
 
     @Mutation(() => CreateServiceResponse)
     @UseMiddleware(isAuth)

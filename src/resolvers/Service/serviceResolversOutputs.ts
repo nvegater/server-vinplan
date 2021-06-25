@@ -22,6 +22,14 @@ export class CreateServiceResponse {
 }
 
 @ObjectType()
+export class FindExperienceResponse {
+    @Field(() => [FieldError], {nullable: true})
+    errors?: FieldError[]
+    @Field(() => Service, {nullable: true})
+    service?: Service
+}
+
+@ObjectType()
 export class UpdateServiceResponse {
     @Field(() => [FieldError], {nullable: true})
     errors?: FieldError[]
