@@ -31,7 +31,7 @@ export async function getPresignedUrl(presignedUrl: PresignedUrlInput) {
         const {fileName} = presignedUrl
         const expireSeconds = 60 * 5
         const numElementsInAlbum = await getElementsInAlbum(presignedUrl);
-
+        console.log('numElementsInAlbum',numElementsInAlbum);
         for (let i = 0; i < fileName.length; i++) {
             multimediaInfo = await getMultimediaInfo(presignedUrl, fileName[i], numElementsInAlbum + i);
             if (multimediaInfo.error) {
@@ -89,6 +89,9 @@ const getMultimediaInfo = async (presignedUrl: PresignedUrlInput, fileName : str
             key = `${prefix}`
         }
         if (uploadType == 'servicealbum'){
+            if (numberOfElements > 9) {
+                return { error: true, }
+            }
             prefix = `service/${serviceId}-album`;
             contentType = mime.getType(ext) || '';
             key = `${prefix}`

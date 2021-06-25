@@ -1,12 +1,11 @@
 import {ServiceImageGallery} from "../entities/ServiceImageGallery"
 import {getConnection} from "typeorm";
 
-const insertImageInServiceGallery = async (serviceId: number, urlImage: string) => {
-    const serviceFound = await ServiceImageGallery.find({serviceId: serviceId})
+const insertImageInServiceGallery = async (serviceId: number, urlImage: string, coverPage: boolean) => {
     const serviceImage = ServiceImageGallery.create({ 
         serviceId: serviceId,
         imageUrl: urlImage,
-        coverPage : !serviceFound.length,
+        coverPage : coverPage,
     })
     return await serviceImage.save()
 }

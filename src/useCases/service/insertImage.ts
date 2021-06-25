@@ -1,21 +1,32 @@
 import {ServiceInsertImageResponse} from "../../resolvers/Service/serviceResolversOutputs"
 import ServiceImageGalleryServices from "../../dataServices/serviceImageGallery"
 import {ServiceImageGallery} from "../../entities/ServiceImageGallery"
+import wineryResolverErrors from "../../resolvers/Winery/wineryResolversErrors"
 
 const insertImage = async (serviceId: number, urlImages: string[]): Promise<ServiceInsertImageResponse> => {
     try {
         const serviceImageArray : ServiceImageGallery[] = []
-        await urlImages.forEach(async (image) => { 
-            const serviceInserted = await ServiceImageGalleryServices.insertImageInServiceGallery(serviceId, image)
-            serviceImageArray.push(serviceInserted)
-        });
+        let imagesCount = await ServiceImageGalleryServices.getImagesNumberGallery(serviceId);
+        let currentNumberOfImages = 0;
+        for(let i = 0; i < urlImages.length; i++) {
+            currentNumberOfImages = i + imagesCount;
+            if (currentNumberOfImages > 9) { 
+                break;
+            }
+            const serviceInserted = await ServiceImageGalleryServices.insertImageInServiceGallery(serviceId, urlImages[i], currentNumberOfImages == 0);
+            serviceImageArray.push(serviceInserted);
+        }  
+        const response : ServiceInsertImageResponse = {
+            inserted : true
+        }
+
+        if (currentNumberOfImages > 9) {
+            response.inserted = false
+            response.errors = [wineryResolverErrors.maxElements]
+        }
+
+        return response
         
-        if (serviceImageArray.length != urlImages.length) {
-            return {inserted : true}
-        }
-        else {
-            return {errors: []}
-        }
         
     } catch (error) {
         throw new Error(error)
