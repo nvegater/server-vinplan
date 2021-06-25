@@ -8,7 +8,7 @@ export class PresignedResolver {
 
     @Query(() => GetPreSignedUrlResponse)
     async preSignedUrl(
-        @Arg('fileName') fileName : string,
+        @Arg('fileName', () => [String]) fileName : string[],
         @Arg('uploadType', () => UploadType ) uploadType : UploadType,
         @Arg('wineryId', () => Int, {nullable: true}) wineryId: number,
         @Arg('serviceId', () => Int, {nullable: true}) serviceId: number,
@@ -21,7 +21,6 @@ export class PresignedResolver {
             presignedUrlInput.wineryId = wineryId;
             presignedUrlInput.serviceId = serviceId;
             presignedUrlInput.userId = userId;
-
             return await getPresignedUrl(presignedUrlInput);
         } catch (error) {
             return error

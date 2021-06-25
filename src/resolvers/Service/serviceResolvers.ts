@@ -90,7 +90,7 @@ export class ServiceResolver {
     @Mutation(() => ServiceImageResponse)
     async insertImageService(
         @Arg('serviceId', () => Int) serviceId: number,
-        @Arg('urlImage', () => String) urlImage: string,
+        @Arg('urlImage', () => [String]) urlImage: string[],
     ): Promise<ServiceImageResponse> {
         try {            
             return await insertImage(serviceId,urlImage)
