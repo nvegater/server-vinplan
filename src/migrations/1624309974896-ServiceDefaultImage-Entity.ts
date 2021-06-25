@@ -16,6 +16,9 @@ export class ServiceDefaultImageEntity1624309974896 implements MigrationInterfac
         await queryRunner.query(`ALTER TABLE "service_image_gallery" ALTER COLUMN "coverPage" SET DEFAULT 'false'`);
         await queryRunner.query(`COMMENT ON COLUMN "winery_image_gallery"."coverPage" IS NULL`);
         await queryRunner.query(`ALTER TABLE "winery_image_gallery" ALTER COLUMN "coverPage" SET DEFAULT 'false'`);
+        await queryRunner.query(`INSERT INTO public.service_default_image("defaultImageUrl", "eventType") VALUES('https://do-spaces-vinplan.fra1.digitaloceanspaces.com/assests/assests/experiences/degustacion-event.png', 'Comida/Cena Maridaje');`)
+        await queryRunner.query(`INSERT INTO public.service_default_image("defaultImageUrl", "eventType") VALUES('https://do-spaces-vinplan.fra1.digitaloceanspaces.com/assests/assests/experiences/comida-event.png', 'Degustación');`)
+        await queryRunner.query(`INSERT INTO public.service_default_image("defaultImageUrl", "eventType") VALUES('https://do-spaces-vinplan.fra1.digitaloceanspaces.com/assests/assests/experiences/concert-event.png', 'Concierto');`)
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
