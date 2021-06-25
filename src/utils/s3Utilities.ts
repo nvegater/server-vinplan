@@ -2,7 +2,9 @@ import AWS from 'aws-sdk';
 import mime from 'mime';
 import {PresignedUrlInput} from "../resolvers/PreSignedUrl/presignedInputs"
 import { PresignedResponse } from "../resolvers/PreSignedUrl/presignedOutputs"
-// import imagesNumberGallery from "../useCases/winery/countWineryImages"
+import imagesNumberWineryGallery from "../useCases/winery/countWineryImages"
+import imagesNumberExperiencesGallery from "../useCases/service/countExperiencesImages"
+import {GetPreSignedUrlResponse} from "../resolvers/PreSignedUrl/presignedOutputs"
 
 const spacesEndpoint = new AWS.Endpoint(process.env.NEXT_PUBLIC_DO_SPACES_ENDPOINT as string);
 const config: AWS.S3.Types.ClientConfiguration = {
@@ -13,35 +15,55 @@ const config: AWS.S3.Types.ClientConfiguration = {
 
 const s3 = new AWS.S3(config);
 
+const getElementsInAlbum = async (presignedUrl: PresignedUrlInput) => {
+    if (presignedUrl.uploadType == 'winerybook') {
+        return await imagesNumberWineryGallery(presignedUrl.wineryId) 
+    } else if (presignedUrl.uploadType == 'servicealbum') {
+        return await imagesNumberExperiencesGallery(presignedUrl.serviceId);
+    }
+    return 0 
+}
+
 export async function getPresignedUrl(presignedUrl: PresignedUrlInput) {
     try {
         const arrayUrl : PresignedResponse[] = []
         let preSignedPutUrl, multimediaInfo, key, getUrl;
         const {fileName} = presignedUrl
         const expireSeconds = 60 * 5
-        
-        await fileName.forEach(async (element) => {
-            multimediaInfo = await getMultimediaInfo(presignedUrl, element);
+        const numElementsInAlbum = await getElementsInAlbum(presignedUrl);
+
+        for (let i = 0; i < fileName.length; i++) {
+            multimediaInfo = await getMultimediaInfo(presignedUrl, fileName[i], numElementsInAlbum + i);
+            if (multimediaInfo.error) {
+                break;
+            }
             key = multimediaInfo.key;
             preSignedPutUrl = await s3.getSignedUrl('putObject',{
                 Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}/${key}`,
                 ContentType: multimediaInfo.contentType,
                 ACL: 'public-read', 
                 Expires: expireSeconds,
-                Key: `${element}`,
+                Key: `${fileName[i]}`,
             });
-            getUrl = `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${key}/${element}`;
+            getUrl = `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${key}/${fileName[i]}`;
             arrayUrl.push({putUrl : preSignedPutUrl, getUrl : getUrl});
-        });
-        return {
-            arrayUrl : arrayUrl
-        };
+        }
+        let response : GetPreSignedUrlResponse = { 
+            arrayUrl : arrayUrl,
+        }
+        if (multimediaInfo?.error) {
+            response.errors = [{
+                field: "maxElements",
+                message: "Max elements in gallery"
+            }]
+        }
+        return response
     } catch (error) {
         throw new Error(error)
     }
 }
 
-const getMultimediaInfo = async (presignedUrl: PresignedUrlInput, fileName : string) => {
+const getMultimediaInfo = async (presignedUrl: PresignedUrlInput, fileName : string, numberOfElements: number) => {
     try {
         const {uploadType, wineryId, userId, serviceId} = presignedUrl
         const imagesTypes = ['apng', 'avif', 'gif', 'jpg', 'jpeg', 'jfif', 'pjpeg', 'pjp', 'png', 'svg', 'webp' ];
@@ -53,14 +75,13 @@ const getMultimediaInfo = async (presignedUrl: PresignedUrlInput, fileName : str
         let prefix = '';
         let contentType = '';
         if (uploadType == 'winerybook') {
-            // TODO: revisar el porque no se pueden validar solo 10 elementos
             // Numero de elementos para poner la validacion
-            // if (await imagesNumberGallery(wineryId) > 10) {
-            //     throw new Error('Numero maximo de imagenes');
-            // }
-                prefix = `winery/${wineryId}-album`;
-                contentType = mime.getType(ext) || '';
-                key = `${prefix}`
+            if (numberOfElements > 9) {
+                return { error: true, }
+            }
+            prefix = `winery/${wineryId}-album`;
+            contentType = mime.getType(ext) || '';
+            key = `${prefix}`
         }
         if (uploadType == 'userprofilepicture'){
             prefix = `user/${userId}-pictureProfile`;

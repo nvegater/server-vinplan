@@ -40,15 +40,15 @@ export class WineryResolver {
             const insertImageResponse : WineryImageGalleryResponse = await insertImage(wineryId,urlImage);
             const wineryInfo : WineryServicesResponse = await getWineryWithServices(wineryId);
             const wineryImages: WineryImageGallery[] | undefined = insertImageResponse.images
-
-            if (!wineryInfo.errors && !insertImageResponse.errors) {
+            if (!wineryInfo.errors) {
                 return {
                     ...wineryInfo,
-                    images: wineryImages
+                    images: wineryImages,
+                    errors: insertImageResponse.errors
                 }
             } else {
                 return {
-                    errors : wineryInfo.errors ? wineryInfo.errors : insertImageResponse.errors
+                    errors : wineryInfo.errors
                 }
             }
         } catch (error) {

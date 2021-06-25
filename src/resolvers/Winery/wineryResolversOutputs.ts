@@ -30,7 +30,7 @@ export class WineryServicesResponse {
 export class WineryImageGalleryResponse {
     @Field(() => [FieldError], {nullable: true})
     errors?: FieldError[]
-    @Field(() => [WineryImageGallery])
+    @Field(() => [WineryImageGallery], {nullable: true})
     images?: WineryImageGallery[];
 }
 
