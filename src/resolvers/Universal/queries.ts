@@ -126,7 +126,7 @@ export const SQL_QUERY_SELECT_PAGINATED_EXPERIENCES = `
 export const SQL_QUERY_SELECT_PAGINATED_EXPERIENCES_WITH_CURSOR = `
     select ser.*
     from service ser
-    where ser."startDateTime" < $2
+    where ser."startDateTime" < $2 and title like $3
     order by ser."createdAt" DESC
     limit $1
 `;

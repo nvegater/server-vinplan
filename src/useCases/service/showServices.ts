@@ -2,14 +2,13 @@ import {PaginatedExperiences} from "../../resolvers/Service/serviceResolversOutp
 import {Service} from "../../entities/Service"
 import services from "../../dataServices/service"
 
-const getServices = async (limit: number, cursor : string | null): Promise<PaginatedExperiences> => {
+const getServices = async (limit: number, cursor : string | null, vinicolaName : string | null): Promise<PaginatedExperiences> => {
     try {
         const realLimit = Math.min(50, limit);
         let paginatedServicesDB: Service[];
 
         if (cursor) {
-            console.log(cursor);
-            paginatedServicesDB = await services.experiencesWithCursor(limit, cursor);
+            paginatedServicesDB = await services.experiencesWithCursor(limit, cursor, vinicolaName);
         } else {
             paginatedServicesDB = await services.experiences(limit);
         }

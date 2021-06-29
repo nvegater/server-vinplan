@@ -34,14 +34,15 @@ export class ServiceResolver {
         }) limit: number,
         @Arg('cursor', () => String, {nullable: true,
             description: "For pagination." +
-                "Offset=10 means, retrieve the 10th post. Cursor in contrast depends on the sorting" +
+                "Offset=10 means, retrieve the 10th experience. Cursor in contrast depends on the sorting" +
                 "Default sorting: (createdAt, DESC) (new first)" +
                 "The cursor accepts a string timestamp, the createdAt." +
-                "Returns all the posts after the given timestamp"
+                "Returns all the experiences after the given timestamp"
         }) cursor: string | null,
+        @Arg('vinicolaName', () => String, {nullable: true}) vinicolaName: string | null,
     ): Promise<PaginatedExperiences> {
         try {
-            return await showServices(limit, cursor);
+            return await showServices(limit, cursor, vinicolaName);
         } catch (error) {
             throw new Error(error)
         }

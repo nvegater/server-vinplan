@@ -4,8 +4,8 @@ import {SQL_QUERY_SELECT_PAGINATED_EXPERIENCES_WITH_CURSOR,
     SQL_QUERY_SELECT_PAGINATED_EXPERIENCES} from "../resolvers/Universal/queries";
 import {UpdateServiceInputs} from "../resolvers/Service/serviceResolversInputs";
 
-const experiencesWithCursor = async (realLimit: number, cursor : string) => {
-    const replacements: any = [realLimit + 1, new Date(cursor)];
+const experiencesWithCursor = async (realLimit: number, cursor : string, vinicolaName : string | null) => {
+    const replacements: any = [realLimit + 1, new Date(cursor), vinicolaName];
     return await getConnection().query(SQL_QUERY_SELECT_PAGINATED_EXPERIENCES_WITH_CURSOR, replacements);
 }
 
