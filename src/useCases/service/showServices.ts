@@ -8,9 +8,10 @@ const getServices = async (limit: number, cursor : string | null): Promise<Pagin
         let paginatedServicesDB: Service[];
 
         if (cursor) {
+            console.log(cursor);
             paginatedServicesDB = await services.experiencesWithCursor(limit, cursor);
         } else {
-            paginatedServicesDB = paginatedServicesDB = await services.experiences(limit);
+            paginatedServicesDB = await services.experiences(limit);
         }
         return {
             experiences: paginatedServicesDB.slice(0, realLimit),

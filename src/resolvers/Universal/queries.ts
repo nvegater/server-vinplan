@@ -124,8 +124,10 @@ export const SQL_QUERY_SELECT_PAGINATED_EXPERIENCES = `
 `;
 
 export const SQL_QUERY_SELECT_PAGINATED_EXPERIENCES_WITH_CURSOR = `
-    select ser.* from service ser
-    order by ser."startDateTime" DESC
+    select ser.*
+    from service ser
+    where ser."startDateTime" < $2
+    order by ser."createdAt" DESC
     limit $1
 `;
 

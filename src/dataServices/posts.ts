@@ -22,14 +22,14 @@ const updatePostByIdAndCreatorId = async (id: number, userId : number, title : s
 }
 
 const PostsWithCursorUserLogged = async (realLimit: number, userId : number, cursor : string) => {
-    const replacements: any = [realLimit + 1, userId, new Date(parseInt(cursor))];
+    const replacements: any = [realLimit + 1, userId, new Date(cursor)];
     return await getConnection().query(
         SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR_USER_LOGGED_IN,replacements
     );
 }
 
 const PostsWithCursor = async (realLimit: number, cursor : string) => {
-    const replacements: any = [realLimit + 1, new Date(parseInt(cursor))];
+    const replacements: any = [realLimit + 1, new Date(cursor)];
     return await getConnection().query(SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR, replacements);
 }
 
