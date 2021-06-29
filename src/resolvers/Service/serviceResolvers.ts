@@ -39,12 +39,9 @@ export class ServiceResolver {
                 "The cursor accepts a string timestamp, the createdAt." +
                 "Returns all the posts after the given timestamp"
         }) cursor: string | null,
-        @Ctx() {req}: ApolloRedisContext
     ): Promise<PaginatedExperiences> {
         try {
-            // @ts-ignore
-            const {userId} = req.session;
-            return await showServices(limit, cursor, userId);
+            return await showServices(limit, cursor);
         } catch (error) {
             throw new Error(error)
         }

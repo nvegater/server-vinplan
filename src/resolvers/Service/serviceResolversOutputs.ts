@@ -14,6 +14,16 @@ export class ServiceResponse {
 }
 
 @ObjectType()
+export class PaginatedExperiences {
+    @Field(() => [FieldError], {nullable: true})
+    errors?: FieldError[]
+    @Field(() => [Service], {nullable: true})
+    experiences?: Service[]
+    @Field()
+    moreExperiencesAvailable: boolean;
+}
+
+@ObjectType()
 export class CreateServiceResponse {
     @Field(() => [FieldError], {nullable: true})
     errors?: FieldError[]
