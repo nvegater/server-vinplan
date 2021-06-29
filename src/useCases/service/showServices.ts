@@ -1,30 +1,29 @@
-import {getConnection} from "typeorm";
-import {SQL_QUERY_SELECT_SERVICES_WITH_WINERY} from "../../resolvers/Universal/queries";
-import {ServiceResponse} from "../../resolvers/Service/serviceResolversOutputs";
-import {FieldError} from "../../resolvers/User/userResolversOutputs";
+import {PaginatedExperiences} from "../../resolvers/Service/serviceResolversOutputs";
+import {Service} from "../../entities/Service"
+import services from "../../dataServices/service"
 
-const getServices = async (limit: number): Promise<ServiceResponse> => {
+const getServices = async (limit: number, cursor : string | null, userId: number): Promise<PaginatedExperiences> => {
     try {
         const realLimit = Math.min(50, limit);
-        const replacements = [realLimit + 1]
-        const paginatedServicesDB = await getConnection()
-            .query(SQL_QUERY_SELECT_SERVICES_WITH_WINERY, replacements);
+        let paginatedServicesDB: Service[];
 
-        if (paginatedServicesDB !== undefined) {
-            return {
-                paginatedServices: paginatedServicesDB.slice(0, realLimit),
-                moreServicesAvailable: paginatedServicesDB.length === (realLimit + 1) // DB has more posts than requested
-            };
-        } else {
-            const fieldError: FieldError = {
-                field: "allServices",
-                message: "All allServices finding returns undefined"
+        if (cursor) {
+            if (userId) {
+                paginatedServicesDB = await services.experiencesWithCursorUserLogged(limit, userId, cursor);
+            } else {
+                paginatedServicesDB = await services.experiencesWithCursor(limit, cursor);
             }
-            return {
-                errors: [fieldError],
-                moreServicesAvailable: false
+        } else {
+            if (userId) {
+                paginatedServicesDB = await services.experiencesUserLogged(limit, userId);
+            } else {
+                paginatedServicesDB = paginatedServicesDB = await services.experiences(limit);
             }
         }
+        return {
+            paginatedServices: paginatedServicesDB.slice(0, realLimit),
+                moreServicesAvailable: paginatedServicesDB.length === (realLimit + 1) // DB has more posts than requested
+        };
     } catch (error) {
         throw new Error(error)
     }

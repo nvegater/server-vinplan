@@ -1,6 +1,31 @@
 import {Service} from "../entities/Service";
 import {getConnection, Not} from "typeorm";
+import {SQL_QUERY_SELECT_SERVICES_WITH_WINERY} from "../resolvers/Universal/queries";
 import {UpdateServiceInputs} from "../resolvers/Service/serviceResolversInputs";
+
+const experiencesWithCursorUserLogged = async (realLimit: number, userId : number, cursor : string) => {
+    const replacements: any = [realLimit + 1, userId, new Date(parseInt(cursor))];
+    return await getConnection().query(
+        SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR_USER_LOGGED_IN,replacements
+    );
+}
+
+const experiencesWithCursor = async (realLimit: number, cursor : string) => {
+    const replacements: any = [realLimit + 1, new Date(parseInt(cursor))];
+    return await getConnection().query(SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR, replacements);
+}
+
+const experiencesUserLogged = async (realLimit: number, userId : number) => {
+    const replacements: any = [realLimit + 1, userId];
+    return await getConnection().query(
+        SQL_QUERY_SELECT_PAGINATED_POSTS_USER_LOGGED_IN, replacements
+    );
+}
+
+const experiences = async (realLimit: number) => {
+    const replacements: any = [realLimit + 1];
+    return await getConnection().query(SQL_QUERY_SELECT_SERVICES_WITH_WINERY, replacements);
+}
 
 const findServiceNotMadeByCreatorByServiceAndCreatorId = async (serviceId:number, userId:number) => {
     return await Service.findOne({
@@ -63,6 +88,10 @@ const findServiceById = async (serviceId:number) => {
 }
 
 export default {
+    experiencesWithCursorUserLogged,
+    experiencesWithCursor, 
+    experiencesUserLogged, 
+    experiences,
     findServiceNotMadeByCreatorByServiceAndCreatorId,
     findServiceByParentIdAndStartDateTime,
     updateAttendeesByIdAndCreator,

@@ -3,7 +3,7 @@ import {Service, EventType} from "../../entities/Service";
 import {
     BookServiceResponse,
     CreateServiceResponse,
-    ServiceResponse,
+    ServiceResponse, PaginatedExperiences,
     UpdateServiceResponse, FindExperienceResponse
 } from "./serviceResolversOutputs";
 import {isAuth} from "../Universal/utils";
@@ -26,14 +26,28 @@ import findExperienceById from "../../useCases/service/findExperienceById";
 @Resolver(Service)
 export class ServiceResolver {
 
-    @Query(() => ServiceResponse)
+    @Query(() => PaginatedExperiences)
     async allServices(
         @Arg('limit', () => Int, {
             description: "For pagination." +
-                "Max number of posts. Default is 50"
-        }) limit: number
-    ): Promise<ServiceResponse> {
-        return await showServices(limit);
+                "Max number of experiences. Default is 50"
+        }) limit: number,
+        @Arg('cursor', () => String, {nullable: true,
+            description: "For pagination." +
+                "Offset=10 means, retrieve the 10th post. Cursor in contrast depends on the sorting" +
+                "Default sorting: (createdAt, DESC) (new first)" +
+                "The cursor accepts a string timestamp, the createdAt." +
+                "Returns all the posts after the given timestamp"
+        }) cursor: string | null,
+        @Ctx() {req}: ApolloRedisContext
+    ): Promise<PaginatedExperiences> {
+        try {
+            // @ts-ignore
+            const {userId} = req.session;
+            return await showServices(limit, cursor, userId);
+        } catch (error) {
+            throw new Error(error)
+        }
     };
 
     @Query(() => ServiceResponse)
