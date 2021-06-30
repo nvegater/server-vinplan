@@ -1,11 +1,22 @@
 import {Service} from "../entities/Service";
 import {getConnection, Not} from "typeorm";
-import {SQL_QUERY_SELECT_PAGINATED_EXPERIENCES_WITH_CURSOR,
+import {
     SQL_QUERY_SELECT_PAGINATED_EXPERIENCES} from "../resolvers/Universal/queries";
 import {UpdateServiceInputs} from "../resolvers/Service/serviceResolversInputs";
 
 const experiencesWithCursor = async (realLimit: number, cursor : string, vinicolaName : string | null) => {
-    const replacements: any = [realLimit + 1, new Date(cursor), vinicolaName];
+    const replacements: any = [realLimit + 1, new Date(cursor)];
+    if (vinicolaName) {
+        replacements.push(vinicolaName)
+    }
+    const SQL_QUERY_SELECT_PAGINATED_EXPERIENCES_WITH_CURSOR =`
+        select ser.*
+        from service ser
+        where ser."startDateTime" < $2 
+        ${vinicolaName ? 'and title like $3' : ''}
+        order by ser."createdAt" DESC
+        limit $1
+    `
     return await getConnection().query(SQL_QUERY_SELECT_PAGINATED_EXPERIENCES_WITH_CURSOR, replacements);
 }
 
