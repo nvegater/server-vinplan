@@ -123,14 +123,6 @@ export const SQL_QUERY_SELECT_PAGINATED_EXPERIENCES = `
     limit $1
 `;
 
-export const SQL_QUERY_SELECT_PAGINATED_EXPERIENCES_WITH_CURSOR = `
-    select ser.*
-    from service ser
-    where ser."startDateTime" < $2 and title like $3
-    order by ser."createdAt" DESC
-    limit $1
-`;
-
 export const SQL_QUERY_SELECT_RESERVATIONS_WITH_USER_AND_SERVICE = `
     select sr.*,
            json_build_object(

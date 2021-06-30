@@ -1,30 +1,26 @@
 import {Service, EventType} from "../entities/Service";
-import {getConnection, Not} from "typeorm";
+import {getConnection, Not, getRepository} from "typeorm";
 import {
     SQL_QUERY_SELECT_PAGINATED_EXPERIENCES} from "../resolvers/Universal/queries";
 import {UpdateServiceInputs} from "../resolvers/Service/serviceResolversInputs";
 
 const experiencesWithCursor = async (realLimit: number, cursor : string, experienceName : string | null, eventType : EventType | null) => {
-    const replacements: any = [realLimit + 1, new Date(cursor)];
+    
+    //TODO: obtener estado y valle, datos que vienen de los wineries
+    const qs = getRepository(Service).
+    createQueryBuilder('experience').
+    where('experience."startDateTime" < :startDateTime ', {startDateTime:cursor}).
+    orderBy("experience.createdAt", "DESC").
+    take(realLimit + 1);
+
     if (experienceName) {
-        replacements.push(experienceName)
+        qs.andWhere("experience.title like :title", { title:`%${experienceName}%` })
     }
     if (eventType) {
-        replacements.push(eventType)
+        qs.andWhere('experience."eventType" = :eventType', { eventType:eventType })
     }
-    //TODO: pasar a queries con parametros o convertir en sentencia sql
-    //TODO: like con porcentaje a la derecha para predecir
-    //TODO: obtener estado y valle, datos que vienen de los wineries
-    const SQL_QUERY_SELECT_PAGINATED_EXPERIENCES_WITH_CURSOR =`
-        select ser.*
-        from service ser
-        where ser."startDateTime" < $2 
-        ${experienceName ? 'and title like $3' : ''}
-        ${eventType ? 'and ser."eventType" = $'+replacements.length : ''}
-        order by ser."createdAt" DESC
-        limit $1
-    `
-    return await getConnection().query(SQL_QUERY_SELECT_PAGINATED_EXPERIENCES_WITH_CURSOR, replacements);
+
+    return await qs.getMany();
 }
 
 const experiences = async (realLimit: number) => {
