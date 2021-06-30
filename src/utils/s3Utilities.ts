@@ -1,7 +1,10 @@
 import AWS from 'aws-sdk';
 import mime from 'mime';
 import {PresignedUrlInput} from "../resolvers/PreSignedUrl/presignedInputs"
-import imagesNumberGallery from "../useCases/winery/countWineryImages"
+import { PresignedResponse } from "../resolvers/PreSignedUrl/presignedOutputs"
+import imagesNumberWineryGallery from "../useCases/winery/countWineryImages"
+import imagesNumberExperiencesGallery from "../useCases/service/countExperiencesImages"
+import {GetPreSignedUrlResponse} from "../resolvers/PreSignedUrl/presignedOutputs"
 
 const spacesEndpoint = new AWS.Endpoint(process.env.NODE_ENV === "production" ?
     process.env.NEXT_PUBLIC_DO_SPACES_ENDPOINT as string : "bla");
@@ -14,33 +17,56 @@ const config: AWS.S3.Types.ClientConfiguration = {
 
 const s3 = new AWS.S3(config);
 
+const getElementsInAlbum = async (presignedUrl: PresignedUrlInput) => {
+    if (presignedUrl.uploadType == 'winerybook') {
+        return await imagesNumberWineryGallery(presignedUrl.wineryId)
+    } else if (presignedUrl.uploadType == 'servicealbum') {
+        return await imagesNumberExperiencesGallery(presignedUrl.serviceId);
+    }
+    return 0
+}
+
 export async function getPresignedUrl(presignedUrl: PresignedUrlInput) {
     try {
+        const arrayUrl : PresignedResponse[] = []
+        let preSignedPutUrl, multimediaInfo, key, getUrl;
         const {fileName} = presignedUrl
-        const multimediaInfo = await getMultimediaInfo(presignedUrl);
-        const key = multimediaInfo.key;
         const expireSeconds = 60 * 5
-
-        const preSignedPutUrl = await s3.getSignedUrl('putObject', {
-            Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}/${key}`,
-            ContentType: multimediaInfo.contentType,
-            ACL: 'public-read',
-            Expires: expireSeconds,
-            Key: `${fileName}`,
-        });
-        const getUrl = `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${key}/${fileName}`;
-        return {
-            putUrl: preSignedPutUrl,
-            getUrl: getUrl,
-        };
+        const numElementsInAlbum = await getElementsInAlbum(presignedUrl);
+        for (let i = 0; i < fileName.length; i++) {
+            multimediaInfo = await getMultimediaInfo(presignedUrl, fileName[i], numElementsInAlbum + i);
+            if (multimediaInfo.error) {
+                break;
+            }
+            key = multimediaInfo.key;
+            preSignedPutUrl = await s3.getSignedUrl('putObject', {
+                Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}/${key}`,
+                ContentType: multimediaInfo.contentType,
+                ACL: 'public-read',
+                Expires: expireSeconds,
+                Key: `${fileName[i]}`,
+            });
+            getUrl = `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${key}/${fileName[i]}`;
+            arrayUrl.push({putUrl : preSignedPutUrl, getUrl : getUrl});
+        }
+        let response : GetPreSignedUrlResponse = {
+            arrayUrl : arrayUrl,
+        }
+        if (multimediaInfo?.error) {
+            response.errors = [{
+                field: "maxElements",
+                message: "Max elements in gallery"
+            }]
+        }
+        return response
     } catch (error) {
         throw new Error(error)
     }
 }
 
-const getMultimediaInfo = async (presignedUrl: PresignedUrlInput) => {
+const getMultimediaInfo = async (presignedUrl: PresignedUrlInput, fileName : string, numberOfElements: number) => {
     try {
-        const {fileName, uploadType, wineryId, userId, serviceId} = presignedUrl
+        const {uploadType, wineryId, userId, serviceId} = presignedUrl
         const imagesTypes = ['apng', 'avif', 'gif', 'jpg', 'jpeg', 'jfif', 'pjpeg', 'pjp', 'png', 'svg', 'webp'];
         const ext = fileName.split('.').pop() || 'badFormat';
         let key = null
@@ -51,8 +77,8 @@ const getMultimediaInfo = async (presignedUrl: PresignedUrlInput) => {
         let contentType = '';
         if (uploadType == 'winerybook') {
             // Numero de elementos para poner la validacion
-            if (await imagesNumberGallery(wineryId) > 10) {
-                throw new Error('Numero maximo de imagenes');
+            if (numberOfElements > 9) {
+                return { error: true, }
             }
             prefix = `winery/${wineryId}-album`;
             contentType = mime.getType(ext) || '';
@@ -64,6 +90,9 @@ const getMultimediaInfo = async (presignedUrl: PresignedUrlInput) => {
             key = `${prefix}`
         }
         if (uploadType == 'servicealbum') {
+            if (numberOfElements > 9) {
+                return { error: true, }
+            }
             prefix = `service/${serviceId}-album`;
             contentType = mime.getType(ext) || '';
             key = `${prefix}`

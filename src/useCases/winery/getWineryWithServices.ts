@@ -23,10 +23,13 @@ const getWineryWithServices = async(wineryId : number) : Promise<WineryServicesR
         
         const coverImages = await Promise.all(wineryWithServices.map(async (ser) => {
             const imageSelected = await ServiceGalleryServices.getCoverImageGallery(ser.id) || undefined
-            return imageSelected?.imageUrl || ""
+            if (imageSelected) {
+                return imageSelected.imageUrl
+            } else {
+                const defaultData = await ServiceGalleryServices.findDefaultImageByEventType(ser.eventType)
+                return defaultData?.defaultImageUrl
+            }
         }))
-
-        console.log(coverImages);
 
         // correct dates to UTC
         const servicesWithUTCDates:Service[] = wineryWithServices.map((ser,i)=>{
