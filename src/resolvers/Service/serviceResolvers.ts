@@ -39,10 +39,11 @@ export class ServiceResolver {
                 "The cursor accepts a string timestamp, the createdAt." +
                 "Returns all the experiences after the given timestamp"
         }) cursor: string | null,
-        @Arg('vinicolaName', () => String, {nullable: true}) vinicolaName: string | null,
+        @Arg('experienceName', () => String, {nullable: true}) experienceName: string | null,
+        @Arg('eventType', () => EventType, {nullable: true}) eventType: EventType,
     ): Promise<PaginatedExperiences> {
         try {
-            return await showServices(limit, cursor, vinicolaName);
+            return await showServices(limit, cursor, experienceName, eventType);
         } catch (error) {
             throw new Error(error)
         }

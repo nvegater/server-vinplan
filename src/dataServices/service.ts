@@ -1,19 +1,26 @@
-import {Service} from "../entities/Service";
+import {Service, EventType} from "../entities/Service";
 import {getConnection, Not} from "typeorm";
 import {
     SQL_QUERY_SELECT_PAGINATED_EXPERIENCES} from "../resolvers/Universal/queries";
 import {UpdateServiceInputs} from "../resolvers/Service/serviceResolversInputs";
 
-const experiencesWithCursor = async (realLimit: number, cursor : string, vinicolaName : string | null) => {
+const experiencesWithCursor = async (realLimit: number, cursor : string, experienceName : string | null, eventType : EventType | null) => {
     const replacements: any = [realLimit + 1, new Date(cursor)];
-    if (vinicolaName) {
-        replacements.push(vinicolaName)
+    if (experienceName) {
+        replacements.push(experienceName)
     }
+    if (eventType) {
+        replacements.push(eventType)
+    }
+    //TODO: pasar a queries con parametros o convertir en sentencia sql
+    //TODO: like con porcentaje a la derecha para predecir
+    //TODO: obtener estado y valle, datos que vienen de los wineries
     const SQL_QUERY_SELECT_PAGINATED_EXPERIENCES_WITH_CURSOR =`
         select ser.*
         from service ser
         where ser."startDateTime" < $2 
-        ${vinicolaName ? 'and title like $3' : ''}
+        ${experienceName ? 'and title like $3' : ''}
+        ${eventType ? 'and ser."eventType" = $'+replacements.length : ''}
         order by ser."createdAt" DESC
         limit $1
     `
