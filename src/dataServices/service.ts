@@ -1,12 +1,21 @@
 import {Service, EventType} from "../entities/Service";
+import {Valley} from "../entities/Winery";
 import {getConnection, Not, getRepository} from "typeorm";
-import {
-    SQL_QUERY_SELECT_PAGINATED_EXPERIENCES} from "../resolvers/Universal/queries";
+import {SQL_QUERY_SELECT_PAGINATED_EXPERIENCES} from "../resolvers/Universal/queries";
 import {UpdateServiceInputs} from "../resolvers/Service/serviceResolversInputs";
+import valleyServices from "../dataServices/winery";
 
-const experiencesWithCursor = async (realLimit: number, cursor : string, experienceName : string | null, eventType : EventType | null) => {
-    
-    //TODO: obtener estado y valle, datos que vienen de los wineries
+const experiencesWithCursor = async (
+    realLimit: number, 
+    cursor : string, 
+    experienceName : string | null, 
+    eventType : EventType[] | null,
+    valley: Valley[] | null,
+    state: string | null
+    ) => {
+    // se deja el state listo para el proximo query
+    console.log(state);
+
     const qs = getRepository(Service).
     createQueryBuilder('experience').
     where('experience."startDateTime" < :startDateTime ', {startDateTime:cursor}).
@@ -17,7 +26,13 @@ const experiencesWithCursor = async (realLimit: number, cursor : string, experie
         qs.andWhere("experience.title like :title", { title:`%${experienceName}%` })
     }
     if (eventType) {
-        qs.andWhere('experience."eventType" = :eventType', { eventType:eventType })
+        qs.andWhere('experience."eventType" IN (:...eventType)', { eventType:eventType })
+    }
+    if(valley){
+        const wineries = await valleyServices.findWineryByValley(valley);
+        const wineriesIds = wineries.map((winery) => winery.id)
+        console.log(wineriesIds);
+        qs.andWhere('experience."wineryId" IN (:...wineriesIds)', { wineriesIds:wineriesIds })
     }
 
     return await qs.getMany();

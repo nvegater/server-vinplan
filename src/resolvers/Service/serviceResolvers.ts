@@ -1,5 +1,6 @@
 import {Arg, Ctx, Int, Mutation, Query, Resolver, UseMiddleware} from "type-graphql";
 import {Service, EventType} from "../../entities/Service";
+import {Valley} from "../../entities/Winery";
 import {
     BookServiceResponse,
     CreateServiceResponse,
@@ -40,10 +41,12 @@ export class ServiceResolver {
                 "Returns all the experiences after the given timestamp"
         }) cursor: string | null,
         @Arg('experienceName', () => String, {nullable: true}) experienceName: string | null,
-        @Arg('eventType', () => EventType, {nullable: true}) eventType: EventType,
+        @Arg('eventType', () => [EventType], {nullable: true}) eventType: EventType[] | null,
+        @Arg('valley', () => [Valley], {nullable: true}) valley: Valley[],
+        @Arg('state', () => String, {nullable: true}) state: string | null,
     ): Promise<PaginatedExperiences> {
         try {
-            return await showServices(limit, cursor, experienceName, eventType);
+            return await showServices(limit, cursor, experienceName, eventType, valley, state);
         } catch (error) {
             throw new Error(error)
         }
