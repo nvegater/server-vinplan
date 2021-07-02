@@ -1,7 +1,8 @@
 import {PaginatedExperiences} from "../../resolvers/Service/serviceResolversOutputs";
 import {Service, EventType} from "../../entities/Service";
 import {Valley} from "../../entities/Winery";
-import services from "../../dataServices/service"
+import services from "../../dataServices/service";
+import getImageCover from "../../utils/getImageCover";
 
 const getServices = async (
     limit: number, 
@@ -19,6 +20,9 @@ const getServices = async (
             paginatedServicesDB = await services.experiencesWithCursor(limit, cursor, experienceName, eventType, valley, state);
         } else {
             paginatedServicesDB = await services.experiences(limit);
+        }
+        for(let i = 0; i < paginatedServicesDB.length; i++) {
+            paginatedServicesDB[i].urlImageCover = await getImageCover.experience(paginatedServicesDB[i])
         }
         return {
             experiences: paginatedServicesDB.slice(0, realLimit),

@@ -3,7 +3,7 @@ import {Valley} from "../entities/Winery";
 import {getConnection, Not, getRepository} from "typeorm";
 import {SQL_QUERY_SELECT_PAGINATED_EXPERIENCES} from "../resolvers/Universal/queries";
 import {UpdateServiceInputs} from "../resolvers/Service/serviceResolversInputs";
-import valleyServices from "../dataServices/winery";
+import wineryServices from "../dataServices/winery";
 
 const experiencesWithCursor = async (
     realLimit: number, 
@@ -29,7 +29,7 @@ const experiencesWithCursor = async (
         qs.andWhere('experience."eventType" IN (:...eventType)', { eventType:eventType })
     }
     if(valley){
-        const wineries = await valleyServices.findWineryByValley(valley);
+        const wineries = await wineryServices.findWineryByValley(valley);
         const wineriesIds = wineries.map((winery) => winery.id)
         console.log(wineriesIds);
         qs.andWhere('experience."wineryId" IN (:...wineriesIds)', { wineriesIds:wineriesIds })
