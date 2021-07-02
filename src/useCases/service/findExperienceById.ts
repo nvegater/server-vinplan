@@ -7,6 +7,13 @@ const findExperienceById = async (experienceId : number): Promise<FindExperience
         const experienceFound = await dataServices.findServiceById(experienceId);
             if (experienceFound != undefined) {
                 experienceFound.gallery = await ServiceImageGalleryServices.getServiceGalleryById(experienceFound?.id);
+                const imageSelected = await ServiceImageGalleryServices.getCoverImageGallery(experienceFound?.id) || undefined
+                if (imageSelected) {
+                    experienceFound.urlImageCover = imageSelected.imageUrl
+                } else {
+                    const defaultData = await ServiceImageGalleryServices.findDefaultImageByEventType(experienceFound?.eventType)
+                    experienceFound.urlImageCover = defaultData?.defaultImageUrl
+                }
                 return {service : experienceFound}
             } else {
                 return {errors: [{
