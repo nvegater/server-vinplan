@@ -31,7 +31,6 @@ const experiencesWithCursor = async (
     if(valley){
         const wineries = await wineryServices.findWineryByValley(valley);
         const wineriesIds = wineries.map((winery) => winery.id)
-        console.log(wineriesIds);
         qs.andWhere('experience."wineryId" IN (:...wineriesIds)', { wineriesIds:wineriesIds })
     }
 

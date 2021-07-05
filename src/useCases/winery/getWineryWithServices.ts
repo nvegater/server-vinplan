@@ -66,7 +66,6 @@ const getWineryWithServices = async(wineryId : number) : Promise<WineryServicesR
             const languages: WineryLanguage[] | undefined = await WineryLanguageServices.getWineryLanguageByWineryId(winery.id)
 
             const amenities: WineryAmenity[] | undefined = await WineryAmenityServices.getWineryAmenityByWineryId(winery.id)
-            console.log(servicesWithUTCDates)
 
             return {
                 winery: {
