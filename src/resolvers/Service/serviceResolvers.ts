@@ -1,9 +1,10 @@
 import {Arg, Ctx, Int, Mutation, Query, Resolver, UseMiddleware} from "type-graphql";
 import {Service, EventType} from "../../entities/Service";
+import {Valley} from "../../entities/Winery";
 import {
     BookServiceResponse,
     CreateServiceResponse,
-    ServiceResponse,
+    ServiceResponse, PaginatedExperiences,
     UpdateServiceResponse, FindExperienceResponse
 } from "./serviceResolversOutputs";
 import {isAuth} from "../Universal/utils";
@@ -26,14 +27,29 @@ import findExperienceById from "../../useCases/service/findExperienceById";
 @Resolver(Service)
 export class ServiceResolver {
 
-    @Query(() => ServiceResponse)
+    @Query(() => PaginatedExperiences)
     async allServices(
         @Arg('limit', () => Int, {
             description: "For pagination." +
-                "Max number of posts. Default is 50"
-        }) limit: number
-    ): Promise<ServiceResponse> {
-        return await showServices(limit);
+                "Max number of experiences. Default is 50"
+        }) limit: number,
+        @Arg('cursor', () => String, {nullable: true,
+            description: "For pagination." +
+                "Offset=10 means, retrieve the 10th experience. Cursor in contrast depends on the sorting" +
+                "Default sorting: (createdAt, DESC) (new first)" +
+                "The cursor accepts a string timestamp, the createdAt." +
+                "Returns all the experiences after the given timestamp"
+        }) cursor: string | null,
+        @Arg('experienceName', () => String, {nullable: true}) experienceName: string | null,
+        @Arg('eventType', () => [EventType], {nullable: true}) eventType: EventType[] | null,
+        @Arg('valley', () => [Valley], {nullable: true}) valley: Valley[],
+        @Arg('state', () => String, {nullable: true}) state: string | null,
+    ): Promise<PaginatedExperiences> {
+        try {
+            return await showServices(limit, cursor, experienceName, eventType, valley, state);
+        } catch (error) {
+            throw new Error(error)
+        }
     };
 
     @Query(() => ServiceResponse)

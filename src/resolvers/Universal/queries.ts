@@ -111,7 +111,7 @@ export const SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR_USER_LOGGED_IN = `
     limit $1
 `;
 
-export const SQL_QUERY_SELECT_SERVICES_WITH_WINERY = `
+export const SQL_QUERY_SELECT_PAGINATED_EXPERIENCES = `
     select ser.*,
            json_build_object(
                    'id', w.id,

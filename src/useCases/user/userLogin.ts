@@ -50,10 +50,6 @@ const userLogin = async (loginInputs : LoginInputs, req: Request): Promise<UserR
                 } else {
                     user.wineryId = null;
                 }
-
-                // @ts-ignore
-                console.log("Login mutation, this is the user Id", req.session.userId)
-
                 return {user: user}
             }
         }

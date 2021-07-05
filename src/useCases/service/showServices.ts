@@ -1,30 +1,36 @@
-import {getConnection} from "typeorm";
-import {SQL_QUERY_SELECT_SERVICES_WITH_WINERY} from "../../resolvers/Universal/queries";
-import {ServiceResponse} from "../../resolvers/Service/serviceResolversOutputs";
-import {FieldError} from "../../resolvers/User/userResolversOutputs";
+import {PaginatedExperiences} from "../../resolvers/Service/serviceResolversOutputs";
+import {Service, EventType} from "../../entities/Service";
+import {Valley} from "../../entities/Winery";
+import services from "../../dataServices/service";
+import getImageCover from "../../utils/getImageCover";
+import {convertDateToUTC} from "../../utils/dateUtils";
 
-const getServices = async (limit: number): Promise<ServiceResponse> => {
+const getServices = async (
+    limit: number, 
+    cursor : string | null, 
+    experienceName : string | null, 
+    eventType : EventType[] | null,
+    valley: Valley[] | null,
+    state: string | null
+    ): Promise<PaginatedExperiences> => {
     try {
         const realLimit = Math.min(50, limit);
-        const replacements = [realLimit + 1]
-        const paginatedServicesDB = await getConnection()
-            .query(SQL_QUERY_SELECT_SERVICES_WITH_WINERY, replacements);
+        let paginatedServicesDB: Service[];
 
-        if (paginatedServicesDB !== undefined) {
-            return {
-                paginatedServices: paginatedServicesDB.slice(0, realLimit),
-                moreServicesAvailable: paginatedServicesDB.length === (realLimit + 1) // DB has more posts than requested
-            };
+        if (cursor) {
+            paginatedServicesDB = await services.experiencesWithCursor(limit, cursor, experienceName, eventType, valley, state);
         } else {
-            const fieldError: FieldError = {
-                field: "allServices",
-                message: "All allServices finding returns undefined"
-            }
-            return {
-                errors: [fieldError],
-                moreServicesAvailable: false
-            }
+            paginatedServicesDB = await services.experiences(limit);
         }
+        for(let i = 0; i < paginatedServicesDB.length; i++) {
+            paginatedServicesDB[i].startDateTime = convertDateToUTC(paginatedServicesDB[i].startDateTime);
+            paginatedServicesDB[i].endDateTime = convertDateToUTC(paginatedServicesDB[i].endDateTime);
+            paginatedServicesDB[i].urlImageCover = await getImageCover.experience(paginatedServicesDB[i])
+        }
+        return {
+            experiences: paginatedServicesDB.slice(0, realLimit),
+            moreExperiencesAvailable: paginatedServicesDB.length === (realLimit + 1) // DB has more posts than requested
+        };
     } catch (error) {
         throw new Error(error)
     }

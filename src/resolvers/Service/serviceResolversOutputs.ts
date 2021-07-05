@@ -1,6 +1,7 @@
 import {Field, ObjectType} from "type-graphql";
 import {FieldError} from "../User/userResolversOutputs";
 import {Service} from "../../entities/Service";
+import {Winery} from "../../entities/Winery"
 import {ServiceImageGallery} from "../../entities/ServiceImageGallery"
 
 @ObjectType()
@@ -11,6 +12,16 @@ export class ServiceResponse {
     paginatedServices?: Service[]
     @Field()
     moreServicesAvailable: boolean;
+}
+
+@ObjectType()
+export class PaginatedExperiences {
+    @Field(() => [FieldError], {nullable: true})
+    errors?: FieldError[]
+    @Field(() => [Service], {nullable: true})
+    experiences?: Service[]
+    @Field()
+    moreExperiencesAvailable: boolean;
 }
 
 @ObjectType()
@@ -27,6 +38,8 @@ export class FindExperienceResponse {
     errors?: FieldError[]
     @Field(() => Service, {nullable: true})
     service?: Service
+    @Field(() => Winery, {nullable: true})
+    winery?: Winery
 }
 
 @ObjectType()
