@@ -3,6 +3,7 @@ import {Service, EventType} from "../../entities/Service";
 import {Valley} from "../../entities/Winery";
 import services from "../../dataServices/service";
 import getImageCover from "../../utils/getImageCover";
+import {convertDateToUTC} from "../../utils/dateUtils";
 
 const getServices = async (
     limit: number, 
@@ -22,6 +23,8 @@ const getServices = async (
             paginatedServicesDB = await services.experiences(limit);
         }
         for(let i = 0; i < paginatedServicesDB.length; i++) {
+            paginatedServicesDB[i].startDateTime = convertDateToUTC(paginatedServicesDB[i].startDateTime);
+            paginatedServicesDB[i].endDateTime = convertDateToUTC(paginatedServicesDB[i].endDateTime);
             paginatedServicesDB[i].urlImageCover = await getImageCover.experience(paginatedServicesDB[i])
         }
         return {
