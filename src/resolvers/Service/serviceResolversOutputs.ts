@@ -36,10 +36,10 @@ export class CreateServiceResponse {
 export class FindExperienceResponse {
     @Field(() => [FieldError], {nullable: true})
     errors?: FieldError[]
-    @Field(() => Service, {nullable: true})
+    @Field(() => Service)
     service?: Service
-    @Field(() => Winery, {nullable: true})
-    winery?: Winery
+    @Field(() => Winery)
+    winery?: Winery;
 }
 
 @ObjectType()
