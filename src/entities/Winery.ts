@@ -24,7 +24,8 @@ export enum Valley {
     "OJOS_NEGROS"="Ojos Negros",
     "GRULLA"="La Grulla",
     "SAN_VICENTE"="San Vicente",
-    "SAN_QUINTIN"="San Quintín"
+    "SAN_QUINTIN"="San Quintín",
+    "CALAFIA" = "Calafia"
 }
 
 registerEnumType(Valley, {
