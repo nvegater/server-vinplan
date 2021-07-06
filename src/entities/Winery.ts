@@ -92,30 +92,18 @@ export class Winery extends BaseEntity {
     @Field(() => [ProductionType])
     @OneToMany(() => WineProductionType, wineProductionType => wineProductionType.winery)
     productionType: WineProductionType[];
-    
-    @Field(() => [ProductionType])
-    typeProduction: ProductionType[];
 
     @Field(() => [TypeWine], {nullable: true})
     @OneToMany(() => WineType, wineType => wineType.winery)
     wineType: WineType[];
 
-    @Field(() => [TypeWine], {nullable: true})
-    typeWine: TypeWine[];
-
     @Field(()=>[SupportedLanguage], {nullable: true})
     @OneToMany(()=>WineryLanguage, serviceLanguage => serviceLanguage.winery, {nullable: true})
     supportedLanguages?: WineryLanguage[];
 
-    @Field(()=>[SupportedLanguage], {nullable: true})
-    languageSupported?: SupportedLanguage[];
-
     @Field(()=>[Amenity], {nullable: true})
     @OneToMany(()=>WineryAmenity, wineryAmenity => wineryAmenity.winery, {nullable: true})
     amenities?: WineryAmenity[];
-
-    @Field(()=>[Amenity], {nullable: true})
-    wineryAmenity?: Amenity[];
 
     //FK
     @Column()
