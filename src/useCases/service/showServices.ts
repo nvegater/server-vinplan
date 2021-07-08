@@ -27,9 +27,11 @@ const getServices = async (
             paginatedServicesDB[i].endDateTime = convertDateToUTC(paginatedServicesDB[i].endDateTime);
             paginatedServicesDB[i].urlImageCover = await getImageCover.experience(paginatedServicesDB[i])
         }
+        
         return {
             experiences: paginatedServicesDB.slice(0, realLimit),
-            moreExperiencesAvailable: paginatedServicesDB.length === (realLimit + 1) // DB has more posts than requested
+            moreExperiencesAvailable: paginatedServicesDB.length === (realLimit + 1), // DB has more posts than requested
+            totalExperiences: (await services.getAllExperiences()).length
         };
     } catch (error) {
         throw new Error(error)

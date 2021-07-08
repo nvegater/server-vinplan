@@ -42,6 +42,10 @@ const experiences = async (realLimit: number) => {
     return await getConnection().query(SQL_QUERY_SELECT_PAGINATED_EXPERIENCES, replacements);
 }
 
+const getAllExperiences = async () => {
+    return await Service.find();
+}
+
 const findServiceNotMadeByCreatorByServiceAndCreatorId = async (serviceId:number, userId:number) => {
     return await Service.findOne({
         where: {id: serviceId, creatorId: Not(userId)} // creator cant book its own service
@@ -111,6 +115,6 @@ export default {
     findServicesByWinery,
     findServiceById,
     findServicesByIds,
-    updateService
-    // getAllService,
+    updateService,
+    getAllExperiences
 }
