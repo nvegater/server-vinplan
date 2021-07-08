@@ -7,7 +7,7 @@ import wineryServices from "../dataServices/winery";
 
 const experiencesWithCursor = async (
     realLimit: number, 
-    cursor : string, 
+    cursor : string | null, 
     experienceName : string | null, 
     eventType : EventType[] | null,
     valley: Valley[] | null,
@@ -18,9 +18,12 @@ const experiencesWithCursor = async (
 
     const qs = getRepository(Service).
     createQueryBuilder('experience').
-    where('experience."startDateTime" < :startDateTime ', {startDateTime:cursor}).
     orderBy("experience.createdAt", "DESC").
     take(realLimit + 1);
+    
+    if (cursor) {
+        qs.andWhere('experience."startDateTime" < :startDateTime ', {startDateTime:cursor})
+    }
 
     if (experienceName) {
         qs.andWhere("experience.title like :title", { title:`%${experienceName}%` })

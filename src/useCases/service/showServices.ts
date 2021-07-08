@@ -2,6 +2,7 @@ import {PaginatedExperiences} from "../../resolvers/Service/serviceResolversOutp
 import {Service, EventType} from "../../entities/Service";
 import {Valley} from "../../entities/Winery";
 import services from "../../dataServices/service";
+import wineryServices from "../../dataServices/winery";
 import getImageCover from "../../utils/getImageCover";
 import {convertDateToUTC} from "../../utils/dateUtils";
 
@@ -15,17 +16,16 @@ const getServices = async (
     ): Promise<PaginatedExperiences> => {
     try {
         const realLimit = Math.min(50, limit);
-        let paginatedServicesDB: Service[];
+        let paginatedServicesDB: Service[] = await services.experiencesWithCursor(limit, cursor, experienceName, eventType, valley, state);
 
-        if (cursor) {
-            paginatedServicesDB = await services.experiencesWithCursor(limit, cursor, experienceName, eventType, valley, state);
-        } else {
-            paginatedServicesDB = await services.experiences(limit);
-        }
         for(let i = 0; i < paginatedServicesDB.length; i++) {
             paginatedServicesDB[i].startDateTime = convertDateToUTC(paginatedServicesDB[i].startDateTime);
             paginatedServicesDB[i].endDateTime = convertDateToUTC(paginatedServicesDB[i].endDateTime);
             paginatedServicesDB[i].urlImageCover = await getImageCover.experience(paginatedServicesDB[i])
+            const wineryFound = await wineryServices.findWineryById(paginatedServicesDB[i].wineryId);
+            if (wineryFound) {
+                paginatedServicesDB[i].winery = wineryFound;
+            }
         }
         
         return {
