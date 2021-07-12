@@ -20,9 +20,9 @@ const experiencesWithCursor = async (
     createQueryBuilder('experience').
     orderBy("experience.createdAt", "DESC").
     take(realLimit + 1);
-    
+
     if (cursor) {
-        qs.andWhere('experience."startDateTime" < :startDateTime ', {startDateTime:cursor})
+        qs.andWhere('experience."created_at" < :created_at ', {createdAt:new Date(cursor)})
     }
 
     if (experienceName) {
