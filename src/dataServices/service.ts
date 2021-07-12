@@ -18,11 +18,11 @@ const experiencesWithCursor = async (
 
     const qs = getRepository(Service).
     createQueryBuilder('experience').
-    orderBy("experience.createdAt", "DESC").
+    orderBy("experience.startDateTime", "DESC").
     take(realLimit + 1);
 
     if (cursor) {
-        qs.andWhere('experience."created_at" < :created_at ', {createdAt:new Date(cursor)})
+        qs.andWhere('experience."startDateTime" < :startDateTime ', {startDateTime:cursor})
     }
 
     if (experienceName) {
@@ -31,7 +31,7 @@ const experiencesWithCursor = async (
     if (eventType) {
         qs.andWhere('experience."eventType" IN (:...eventType)', { eventType:eventType })
     }
-    if(valley){
+    if (valley) {
         const wineries = await wineryServices.findWineryByValley(valley);
         const wineriesIds = wineries.map((winery) => winery.id)
         qs.andWhere('experience."wineryId" IN (:...wineriesIds)', { wineriesIds:wineriesIds })
