@@ -18,11 +18,11 @@ const experiencesWithCursor = async (
 
     const qs = getRepository(Service).
     createQueryBuilder('experience').
-    orderBy("experience.startDateTime", "DESC").
+    orderBy("experience.createdAt", "DESC").
     take(realLimit + 1);
 
     if (cursor) {
-        qs.andWhere('experience."startDateTime" < :startDateTime ', {startDateTime:cursor})
+        qs.andWhere('experience."createdAt" < :createdAt ', {createdAt:cursor})
     }
 
     if (experienceName) {
