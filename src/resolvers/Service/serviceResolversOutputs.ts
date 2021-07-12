@@ -22,6 +22,8 @@ export class PaginatedExperiences {
     experiences?: Service[]
     @Field()
     moreExperiencesAvailable: boolean;
+    @Field(() => Number)
+    totalExperiences: number
 }
 
 @ObjectType()

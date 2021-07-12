@@ -7,7 +7,7 @@ import wineryServices from "../dataServices/winery";
 
 const experiencesWithCursor = async (
     realLimit: number, 
-    cursor : string, 
+    cursor : string | null, 
     experienceName : string | null, 
     eventType : EventType[] | null,
     valley: Valley[] | null,
@@ -18,9 +18,12 @@ const experiencesWithCursor = async (
 
     const qs = getRepository(Service).
     createQueryBuilder('experience').
-    where('experience."startDateTime" < :startDateTime ', {startDateTime:cursor}).
     orderBy("experience.createdAt", "DESC").
     take(realLimit + 1);
+
+    if (cursor) {
+        qs.andWhere('experience."createdAt" < :createdAt ', {createdAt:cursor})
+    }
 
     if (experienceName) {
         qs.andWhere("experience.title like :title", { title:`%${experienceName}%` })
@@ -28,7 +31,7 @@ const experiencesWithCursor = async (
     if (eventType) {
         qs.andWhere('experience."eventType" IN (:...eventType)', { eventType:eventType })
     }
-    if(valley){
+    if (valley) {
         const wineries = await wineryServices.findWineryByValley(valley);
         const wineriesIds = wineries.map((winery) => winery.id)
         qs.andWhere('experience."wineryId" IN (:...wineriesIds)', { wineriesIds:wineriesIds })
@@ -40,6 +43,10 @@ const experiencesWithCursor = async (
 const experiences = async (realLimit: number) => {
     const replacements: any = [realLimit + 1];
     return await getConnection().query(SQL_QUERY_SELECT_PAGINATED_EXPERIENCES, replacements);
+}
+
+const getAllExperiences = async () => {
+    return await Service.find();
 }
 
 const findServiceNotMadeByCreatorByServiceAndCreatorId = async (serviceId:number, userId:number) => {
@@ -111,6 +118,6 @@ export default {
     findServicesByWinery,
     findServiceById,
     findServicesByIds,
-    updateService
-    // getAllService,
+    updateService,
+    getAllExperiences
 }
