@@ -6,7 +6,7 @@ import {UpdateServiceInputs} from "../resolvers/Service/serviceResolversInputs";
 import wineryServices from "../dataServices/winery";
 
 const experiencesWithCursor = async (
-    realLimit: number, 
+    realLimit: number | null,
     cursor : string | null, 
     experienceName : string | null, 
     eventType : EventType[] | null,
@@ -18,8 +18,7 @@ const experiencesWithCursor = async (
 
     const qs = getRepository(Service).
     createQueryBuilder('experience').
-    orderBy("experience.createdAt", "DESC").
-    take(realLimit + 1);
+    orderBy("experience.createdAt", "DESC")
 
     if (cursor) {
         qs.andWhere('experience."createdAt" < :createdAt ', {createdAt:cursor})
@@ -35,6 +34,9 @@ const experiencesWithCursor = async (
         const wineries = await wineryServices.findWineryByValley(valley);
         const wineriesIds = wineries.map((winery) => winery.id)
         qs.andWhere('experience."wineryId" IN (:...wineriesIds)', { wineriesIds:wineriesIds })
+    }
+    if(realLimit){
+        qs.take(realLimit + 1);
     }
 
     return await qs.getMany();
