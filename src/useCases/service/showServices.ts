@@ -31,7 +31,7 @@ const getServices = async (
         return {
             experiences: paginatedServicesDB.slice(0, realLimit),
             moreExperiencesAvailable: paginatedServicesDB.length === (realLimit + 1), // DB has more posts than requested
-            totalExperiences: (await services.getAllExperiences()).length
+            totalExperiences: (await services.experiencesWithCursor(null, cursor, experienceName, eventType, valley, state)).length
         };
     } catch (error) {
         throw new Error(error)
