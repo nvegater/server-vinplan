@@ -33,7 +33,12 @@ const experiencesWithCursor = async (
     if (valley) {
         const wineries = await wineryServices.findWineryByValley(valley);
         const wineriesIds = wineries.map((winery) => winery.id)
-        qs.andWhere('experience."wineryId" IN (:...wineriesIds)', { wineriesIds:wineriesIds })
+        if(wineriesIds.length > 0) {
+            qs.andWhere('experience."wineryId" IN (:...wineriesIds)', { wineriesIds:wineriesIds })
+        } else {
+            // se fuerza el error porque no hay 
+            qs.andWhere('experience."wineryId" = -1', { wineriesIds:wineriesIds })
+        }
     }
     if(realLimit){
         qs.take(realLimit + 1);
