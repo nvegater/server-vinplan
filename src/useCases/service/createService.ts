@@ -7,13 +7,22 @@ const getServices = async (createServiceInputs: CreateServiceInputs, userId : nu
     try {
         const service = await Service.findOne({where: {title: createServiceInputs.title}});
         if (!service) {
-            const service = await Service.create({
-                ...createServiceInputs,
-                creatorId: userId,
-                duration: createServiceInputs.duration,
-                noOfAttendees: 0,
-            });
-            await service.save();
+            try {
+                const service = await Service.create({
+                    ...createServiceInputs,
+                    creatorId: userId,
+                    duration: createServiceInputs.duration,
+                    noOfAttendees: 0,
+                });
+                await service.save();
+            } catch (e) {
+                console.log("Error creating service", e);
+                const error: FieldError = {
+                    field: "title",
+                    message: "Error creating service"
+                }
+                return { errors: [error]}
+            }
             return {service: service};
         } else {
             const error: FieldError = {
