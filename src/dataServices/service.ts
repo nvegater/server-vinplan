@@ -11,7 +11,8 @@ const experiencesWithCursor = async (
     experienceName : string | null, 
     eventType : EventType[] | null,
     valley: Valley[] | null,
-    state: string | null
+    state: string | null,
+    count: boolean = false,
     ) => {
     // se deja el state listo para el proximo query
     console.log(state);
@@ -39,6 +40,9 @@ const experiencesWithCursor = async (
             // se fuerza el error porque no hay 
             qs.andWhere('experience."wineryId" = -1', { wineriesIds:wineriesIds })
         }
+    }
+    if(count){
+        qs.andWhere('experience.parentServiceId is null')
     }
     if(realLimit){
         qs.take(realLimit + 1);

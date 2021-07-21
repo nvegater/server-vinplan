@@ -3,11 +3,11 @@ import serviceReservationDataServices from "../../dataServices/serviceReservatio
 import serviceDataServices from "../../dataServices/service";
 import userServices from "../../dataServices/user";
 import wineryServices from "../../dataServices/winery";
-// import wineryImagesServices from "../../dataServices/wineryImageGallery"
 import {Service} from "../../entities/Service";
 import {ReserveServiceInputs} from "../../resolvers/Service/serviceResolversInputs";
 import sendEmail from "../../utils/sendEmail"
 import bookedService, {BookedServiceData} from "../../utils/emailsTemplates/emailConfirmationRegistration/bookedService"
+import {convertDateToUTC} from "../../utils/dateUtils";
 
 interface ReservationInputs extends ReserveServiceInputs {
     userId: number,
@@ -147,7 +147,6 @@ const prepareRecurrentInstance = async (inputs: ReservationInputs, parentService
 
 
 const reserve = async (inputs: ReservationInputs) => {
-
     const reservation = await serviceReservationDataServices
         .findUserReservationByIdAndUserId(inputs.serviceId, inputs.userId);
 
@@ -157,10 +156,10 @@ const reserve = async (inputs: ReservationInputs) => {
     const parentService = await serviceDataServices
         .findServiceNotMadeByCreatorByServiceAndCreatorId(inputs.serviceId, inputs.userId);
 
-    if (parentService === undefined)
+    if (parentService === undefined) {
         return {errors: [{field: "yourOwnService", message: "youre trying to book a service you created"}]}
-
-    const bookRecurrentInstance = inputs.startDateTime.toISOString() !== parentService.startDateTime.toISOString();
+    }
+    const bookRecurrentInstance = inputs.startDateTime.toISOString() !== convertDateToUTC(parentService.startDateTime).toISOString();
 
     return bookRecurrentInstance
         ? prepareRecurrentInstance(inputs, parentService)
