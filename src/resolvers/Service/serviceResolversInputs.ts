@@ -41,6 +41,8 @@ export class ReserveServiceInputs {
     paymentCreationDateTime: string;
     @Field(() => Float)
     pricePerPersonInDollars: number;
+    @Field((() => Number))
+    getTimezoneOffset: number;
 }
 
 
