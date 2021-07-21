@@ -151,9 +151,6 @@ const reserve = async (inputs: ReservationInputs) => {
     }
     const bookRecurrentInstance = inputs.startDateTime.toISOString() !== convertDateToUTC(parentService.startDateTime).toISOString();
 
-    console.log('entrada',inputs.startDateTime);
-    console.log('entrada',inputs.startDateTime.toISOString());
-    console.log('database', convertDateToUTC(parentService.startDateTime).toISOString());
     return bookRecurrentInstance
         ? prepareRecurrentInstance(inputs, parentService)
         : makeReservation(inputs, parentService)

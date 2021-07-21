@@ -44,7 +44,7 @@ export default (registerData : BookedServiceData) => {
 						Booked service with $${registerData.cost}:</p>
 						<a style="color: #8CC63F;"></a>
 						<ul style="text-align: justify;">
-							<li>${registerData.eventType} en ${registerData.wineryName} - ${format(registerData.startDateTime, "KK aaa cccc d MMMM RRRR")}</li>
+							<li>${registerData.eventType} en ${registerData.wineryName} - ${format(registerData.startDateTime, "KK mm aaa cccc d MMMM RRRR")}</li>
 						</ul>
 						<br><br><br>
 						<div style="width: 100%; text-align: center">
