@@ -33,3 +33,6 @@ yarn-error.log*
 /ldb-mvp-frontend.iws
 
 junit.xml
+
+#orm
+ormlogs.log
