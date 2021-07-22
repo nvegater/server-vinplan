@@ -7,15 +7,17 @@ import {Service} from "../../entities/Service";
 import {ReserveServiceInputs} from "../../resolvers/Service/serviceResolversInputs";
 import sendEmail from "../../utils/sendEmail"
 import bookedService, {BookedServiceData} from "../../utils/emailsTemplates/emailConfirmationRegistration/bookedService"
-import {convertDateToUTC} from "../../utils/dateUtils";
 
 interface ReservationInputs extends ReserveServiceInputs {
     userId: number,
 }
 
-const makeReservation = async (inputs: ReservationInputs, serviceToBook: Service, parentService?: Service) => {
+const makeReservation = async (inputs: ReservationInputs, serviceToBook: Service, parentService: Service) => {
 
-    if ((serviceToBook.noOfAttendees + inputs.noOfAttendees) > serviceToBook.limitOfAttendees)
+    const attendeesAfterBooking = serviceToBook.noOfAttendees + inputs.noOfAttendees;
+    const tooManyPeople = attendeesAfterBooking > serviceToBook.limitOfAttendees;
+
+    if (tooManyPeople)
         return {
             errors: [{
                 field: "updateServiceFull",
@@ -33,11 +35,12 @@ const makeReservation = async (inputs: ReservationInputs, serviceToBook: Service
                 inputs.pricePerPersonInDollars,
                 inputs.paymentCreationDateTime,
                 inputs.status,
-                serviceToBook.creatorId,
-                !!parentService ? parentService.id : serviceToBook.id
+                parentService.creatorId,
+                parentService.id
             )
     } catch (e) {
-        console.log(e)
+        console.log("Error updating service", e)
+        return {errors: [{field: "makeReservation", message: "Error updating service"}]}
     }
 
     const updatedService = await serviceDataServices.findServiceById(serviceToBook.id)
@@ -47,7 +50,10 @@ const makeReservation = async (inputs: ReservationInputs, serviceToBook: Service
     }    
 
     const user = await userServices.findUserById(inputs.userId);
-    const wineryData = await wineryServices.findWineryById(serviceToBook.wineryId);
+    const winery = await wineryServices.findWineryById(serviceToBook.wineryId);
+
+    if (winery ===  undefined)
+        return {errors: [{field: "makeReservation", message: "User didnt create a winery"}]}
 
     // TODO: esperar definicion de funcionalidad
     // const allServices = await serviceDataServices.getAllService();
@@ -62,7 +68,7 @@ const makeReservation = async (inputs: ReservationInputs, serviceToBook: Service
         cost: inputs.noOfAttendees * inputs.pricePerPersonInDollars,
         eventType: serviceToBook.eventType,
         startDateTime: serviceToBook.startDateTime,
-        wineryName: wineryData ? wineryData.name : "",
+        wineryName: winery.name
         // recommendedEventType: randomService?.eventType,
         // recommendedWineryName: randomWinery?.name,
         // recommendedWineryId: randomWinery?.id,
@@ -120,21 +126,8 @@ const createRecurrentInstance= async (inputs: ReservationInputs, parentService: 
     } catch (e) {
         console.log(e)
     }
-    return {service: newRecurrentInstanceFromService};
+    return newRecurrentInstanceFromService
 }
-
-const prepareRecurrentInstance = async (inputs: ReservationInputs, parentService: Service) => {
-    let recurrentInstance = await serviceDataServices
-        .findServiceByParentIdAndStartDateTime(inputs.serviceId, inputs.startDateTime);
-    if (recurrentInstance === undefined) {
-        // si no existe la instancia se genera
-        const recurrentInstancePromise = await createRecurrentInstance(inputs, parentService)
-        recurrentInstance = recurrentInstancePromise.service;
-    }
-    return makeReservation(inputs, recurrentInstance, parentService)
-
-}
-
 
 const reserve = async (inputs: ReservationInputs) => {
     const reservation = await serviceReservationDataServices
@@ -149,11 +142,15 @@ const reserve = async (inputs: ReservationInputs) => {
     if (parentService === undefined) {
         return {errors: [{field: "yourOwnService", message: "youre trying to book a service you created"}]}
     }
-    const bookRecurrentInstance = inputs.startDateTime.toISOString() !== convertDateToUTC(parentService.startDateTime).toISOString();
 
-    return bookRecurrentInstance
-        ? prepareRecurrentInstance(inputs, parentService)
-        : makeReservation(inputs, parentService)
+    const recurrentInstance = await serviceDataServices
+        .findServiceByParentIdAndStartDateTime(inputs.serviceId, inputs.startDateTime);
+
+    return makeReservation(
+        inputs,
+        recurrentInstance ? recurrentInstance : await createRecurrentInstance(inputs, parentService),
+        parentService
+    )
 
 }
 
