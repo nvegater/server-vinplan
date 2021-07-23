@@ -7,6 +7,7 @@ enum Fields {
     token = "token",
     newPassword = "newPassword",
     userType = "userType",
+    winery = "name"
 }
 
 const userNotFoundError: FieldError = {
@@ -79,6 +80,11 @@ const usernameInUseError: FieldError = {
     message: "User already exists"
 }
 
+const wineryNameInUseError: FieldError = {
+    field: Fields.winery,
+    message: "Winery already exists"
+}
+
 const wineryFromUserDeleted: FieldError = {
     field: "usernameOrEmail",
     message: "your winery was deleted, please register a new one"
@@ -119,6 +125,7 @@ const userResolversErrors = {
     invalidUserTypeInputError,
     invalidCredentials,
     usernameInUseError,
+    wineryNameInUseError,
     emailInUseError,
     tokenExpired,
     tokenUserError,

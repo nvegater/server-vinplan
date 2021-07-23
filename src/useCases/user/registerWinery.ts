@@ -31,7 +31,7 @@ const registerWinery = async (registerInputs : RegisterInputs, wineryDataInputs 
                 const wineryWithThatNameExists: Winery | undefined = await Winery.findOne({where: {name: wineryDataInputs.name}});
                 if (wineryWithThatNameExists) {
                     // Level 3
-                    return {errors: inputErrors.concat(userResolversErrors.usernameInUseError)}
+                    return {errors: inputErrors.concat(userResolversErrors.wineryNameInUseError)}
                 } else {
                     const newUser = await userDataServices.createUser(registerInputs);
                     
