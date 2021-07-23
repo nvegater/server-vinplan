@@ -3,6 +3,8 @@ import {WineriesResponse, WineryServicesResponse, WineryChangeResponse} from "./
 import {Winery} from "../../entities/Winery";
 import {WineryImageGallery} from "../../entities/WineryImageGallery"
 import {WineryImageGalleryResponse} from "./wineryResolversOutputs"
+import {UpdateWineryInputs} from "./wineryResolversInputs";
+import updateWinery from "../../useCases/winery/updateWinery"
 import getWineryWithServices from "../../useCases/winery/getWineryWithServices"
 import insertImage from "../../useCases/winery/insertImage"
 import deleteImage from "../../useCases/winery/deleteImage"
@@ -74,6 +76,17 @@ export class WineryResolver {
     ): Promise<WineryChangeResponse> {
         try {
             return await changeCoverPage(wineryId,wineryImageId)
+        } catch (error) {
+            throw new Error(error)
+        }
+    }
+
+    @Mutation(() => WineryServicesResponse )
+    async updateWinery(
+        @Arg('wineryData', () => UpdateWineryInputs) wineryData : UpdateWineryInputs
+    ): Promise <WineryServicesResponse> {
+        try {
+            return await updateWinery(wineryData)
         } catch (error) {
             throw new Error(error)
         }
