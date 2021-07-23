@@ -64,7 +64,7 @@ export class ServiceResolver {
 
     @Query(() => SalesConcentrate)
     async salesConcentrate(
-        @Arg('paypalTransaccionId', () => String) paypalTransaccionId: string
+        @Arg('paypalTransaccionId', () => String, {nullable: true}) paypalTransaccionId: string | null,
     ): Promise<SalesConcentrate> {
         return await getSalesConcentrate(paypalTransaccionId)
     }

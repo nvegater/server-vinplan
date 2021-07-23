@@ -6,7 +6,7 @@ const Excel = require('exceljs');
 
 const getColumns = (obj: any) => Object.keys(obj).map((key) => ({header: key, key}));
 
-const salesConcentrate = async (paypalTransaccionId : string) : Promise<SalesConcentrate> => {
+const salesConcentrate = async (paypalTransaccionId : string | null) : Promise<SalesConcentrate> => {
     try {
         const data = await experiencesDataServices.payPalReports(paypalTransaccionId);
 
@@ -21,7 +21,7 @@ const salesConcentrate = async (paypalTransaccionId : string) : Promise<SalesCon
         reportSheet.addRows(responseObject);
 
         const date = new Date();
-        const filename = `reports/experiences/sales-concentrate/report_${date.getDay()}_${date.getMonth()}_${date.getFullYear()}.xlsx`;
+        const filename = `reports/experiences/sales-concentrate/report_${date.getDate()}_${date.getMonth() + 1}_${date.getFullYear()}.xlsx`;
         const xlsxBuffer = await workbook.xlsx.writeBuffer();
 
         const signedUrl = await s3UploadFile(xlsxBuffer, filename, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

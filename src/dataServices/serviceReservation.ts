@@ -73,7 +73,7 @@ const insertOrUpdateReservation = async (
     });
 }
 
-const payPalReports = async (paypalId:string) => {
+const payPalReports = async (paypalId: string | null) => {
     const qs = getRepository(ServiceReservation).
     createQueryBuilder('experienceServices').
     innerJoinAndSelect("experienceServices.user", "user").
