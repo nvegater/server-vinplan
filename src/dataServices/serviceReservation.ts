@@ -1,4 +1,4 @@
-import {getConnection} from "typeorm";
+import {getConnection, getRepository} from "typeorm";
 import {
     SQL_QUERY_GET_RESERVED_SERVICES_IDS,
     SQL_QUERY_INSERT_RESERVATION,
@@ -73,11 +73,26 @@ const insertOrUpdateReservation = async (
     });
 }
 
+const payPalReports = async (paypalId: string | null) => {
+    const qs = getRepository(ServiceReservation).
+    createQueryBuilder('experienceServices').
+    innerJoinAndSelect("experienceServices.user", "user").
+    innerJoinAndSelect("experienceServices.service", "service").
+    innerJoinAndSelect("service.winery", "winery")
+    
+    if (paypalId) {
+        qs.andWhere('experienceServices.paypalOrderId = :paypalOrderId ', {paypalOrderId: paypalId})
+    }
+
+    return await qs.getMany() 
+}
+
 export default {
     findIdsFromServicesReservedByUserId,
     findUserReservations,
     findUserReservationByIdAndUserId,
     insertOrUpdateReservation,
     findWineryReservations,
-    findReservationByServiceId
+    findReservationByServiceId,
+    payPalReports
 }
