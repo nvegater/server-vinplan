@@ -114,3 +114,31 @@ export async function deleteImageFromS3(url: string) {
         throw new Error(error)
     }
 }
+
+export async function s3UploadFile(file: any, fileName: string, contentType: string) {
+    try {
+        const params = {
+            Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}`,
+            Key: fileName,
+            Body: file,
+            ACL: 'public-read',
+            ContentType: contentType,
+        };
+        await s3UploadWrapper(params, params.Key);
+        return `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${fileName}`;
+    } catch (error) {
+        throw new Error(error)
+    }
+}
+
+  const s3UploadWrapper = (params : any, keyName: string) => {
+    return new Promise((resolve, reject) => {
+        s3.putObject(params, function(err, data) {
+            if (err) {
+                reject({err: err, key: keyName});
+            } else {
+                resolve({data: data, key: keyName});
+            }
+        });
+    });
+  }

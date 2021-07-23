@@ -41,6 +41,7 @@
     "cors": "^2.8.5",
     "date-fns": "^2.17.0",
     "dotenv-safe": "^8.2.0",
+    "exceljs": "^4.2.1",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "graphql": "^15.4.0",

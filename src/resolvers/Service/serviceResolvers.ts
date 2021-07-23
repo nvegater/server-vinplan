@@ -2,6 +2,7 @@ import {Arg, Ctx, Int, Mutation, Query, Resolver, UseMiddleware} from "type-grap
 import {Service, EventType} from "../../entities/Service";
 import {Valley} from "../../entities/Winery";
 import {
+    SalesConcentrate,
     BookServiceResponse,
     CreateServiceResponse,
     ServiceResponse, PaginatedExperiences,
@@ -23,6 +24,7 @@ import showServices from "../../useCases/service/showServices";
 import createService from "../../useCases/service/createService";
 import updateService from "../../useCases/service/updateService";
 import findExperienceById from "../../useCases/service/findExperienceById";
+import getSalesConcentrate from "../../useCases/service/salesConcentrate"
 
 @Resolver(Service)
 export class ServiceResolver {
@@ -59,6 +61,15 @@ export class ServiceResolver {
     ): Promise<ServiceResponse> {
        return await getServices(serviceIds)
     };
+
+    @Query(() => SalesConcentrate)
+    async salesConcentrate(
+        @Arg('paypalTransaccionId', () => String, {nullable: true, description: "if you put null or undefined" +
+        "the query will return all events registration"}) paypalTransaccionId: string | null,
+        
+    ): Promise<SalesConcentrate> {
+        return await getSalesConcentrate(paypalTransaccionId)
+    }
 
     @Mutation(() => BookServiceResponse)
     @UseMiddleware(isAuth)

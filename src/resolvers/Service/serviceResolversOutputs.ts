@@ -95,3 +95,11 @@ export class BookServiceResponse {
     @Field(() => Service, {nullable: true})
     service?: Service
 }
+
+@ObjectType()
+export class SalesConcentrate{
+    @Field(() => [FieldError], {nullable: true})
+    errors?: FieldError[]
+    @Field(() => String, {nullable: true})
+    url: string
+}
