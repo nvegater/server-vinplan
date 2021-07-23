@@ -10,8 +10,6 @@ const getColumns = (obj: any) => Object.keys(obj).map((key) => ({header: key, ke
 
 export async function buildExcelAsBuffer (excelInfo : buildExcelAsBuffer) {
 
-    console.log('desde el excelUtilities', excelInfo);
-
     const workbook = new Excel.Workbook();
         workbook.creator = excelInfo.creator;
 
