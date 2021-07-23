@@ -24,7 +24,7 @@ import showServices from "../../useCases/service/showServices";
 import createService from "../../useCases/service/createService";
 import updateService from "../../useCases/service/updateService";
 import findExperienceById from "../../useCases/service/findExperienceById";
-import salesConcentrate from "../../useCases/service/salesConcentrate"
+import getSalesConcentrate from "../../useCases/service/salesConcentrate"
 
 @Resolver(Service)
 export class ServiceResolver {
@@ -65,8 +65,8 @@ export class ServiceResolver {
     @Query(() => SalesConcentrate)
     async salesConcentrate(
         @Arg('paypalTransaccionId', () => String) paypalTransaccionId: string
-    ): Promise<String> {
-        return await salesConcentrate(paypalTransaccionId)
+    ): Promise<SalesConcentrate> {
+        return await getSalesConcentrate(paypalTransaccionId)
     }
 
     @Mutation(() => BookServiceResponse)
