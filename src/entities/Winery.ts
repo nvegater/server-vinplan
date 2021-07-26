@@ -86,6 +86,50 @@ export class Winery extends BaseEntity {
     @Field({nullable: true})
     urlImageCover : string;
 
+    @Field({nullable: true})
+    @Column({nullable: true})
+    logo : string;
+
+    @Field({nullable: true})
+    @Column({nullable: true})
+    contactName: string;
+
+    @Field({nullable: true})
+    @Column({nullable: true})
+    productRegion: string;
+
+    @Field({nullable: true})
+    @Column({nullable: true})
+    postalCode: string;
+
+    @Field({nullable: true})
+    @Column({nullable: true})
+    architecturalReferences: boolean;
+
+    @Field()
+    @Column({nullable: true})
+    younerFriendly: boolean;
+    
+    @Field()
+    @Column({nullable: true})
+    petFriendly: boolean;
+
+    @Field()
+    @Column({nullable: true})
+    enologoName: boolean;
+
+    @Field()
+    @Column({nullable: true})
+    handicappedFriendly: boolean;
+
+    @Field(() => Valley)
+    @Column('enum', {name: 'valley', enum: Valley})
+    grapesTypes: Valley;
+
+    @Field(() => Valley)
+    @Column('enum', {name: 'valley', enum: Valley})
+    othersServices: Valley;
+
     @Field(() => Valley)
     @Column('enum', {name: 'valley', enum: Valley})
     valley: Valley;

@@ -4,7 +4,7 @@ import {Winery} from "../../entities/Winery";
 import {WineryImageGallery} from "../../entities/WineryImageGallery"
 import {WineryImageGalleryResponse} from "./wineryResolversOutputs"
 import {UpdateWineryInputs} from "./wineryResolversInputs";
-import updateWinery from "../../useCases/winery/updateWinery"
+import updateWineryFunction from "../../useCases/winery/updateWinery"
 import getWineryWithServices from "../../useCases/winery/getWineryWithServices"
 import insertImage from "../../useCases/winery/insertImage"
 import deleteImage from "../../useCases/winery/deleteImage"
@@ -12,7 +12,6 @@ import changeCoverPage from "../../useCases/winery/changeCoverPage"
 import {WineryDeleteImageResponse} from "./wineryResolversOutputs";
 import showWineries from "../../useCases/winery/showWineries";
 
-//TODO: se debe de separar la logica y la logica de la base de datos
 @Resolver(Winery)
 export class WineryResolver {
     @Query(() => WineriesResponse)
@@ -86,7 +85,7 @@ export class WineryResolver {
         @Arg('wineryData', () => UpdateWineryInputs) wineryData : UpdateWineryInputs
     ): Promise <WineryServicesResponse> {
         try {
-            return await updateWinery(wineryData)
+            return await updateWineryFunction(wineryData)
         } catch (error) {
             throw new Error(error)
         }

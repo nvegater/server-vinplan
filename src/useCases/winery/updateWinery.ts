@@ -20,6 +20,8 @@ import {convertDateToUTC} from "../../utils/dateUtils";
 
 const updateWinery = async(updateWineryInputs : UpdateWineryInputs) : Promise<WineryServicesResponse> => {
     try {
+
+        console.log(updateWineryInputs);
         const wineryId = updateWineryInputs.id
         const wineryWithServices = await ServiceServices.findServicesByWinery(wineryId);
         
