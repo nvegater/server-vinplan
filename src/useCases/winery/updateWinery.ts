@@ -13,7 +13,9 @@ import {FieldError} from "../../resolvers/User/userResolversOutputs";
 import {UpdateWineryInputs} from "../../resolvers/Winery/wineryResolversInputs"
 import {WineryServicesResponse} from "../../resolvers/Winery/wineryResolversOutputs";
 import WineryGrapesServicesResponse from "../../dataServices/wineryGrapes";
+import {Grape} from "../../entities/WineGrapesProduction"
 import WineryOtherServicesResponse from "../../dataServices/wineryOthersServices";
+import {OtherServices} from "../../entities/WineryOtherServices"
 
 // import {WineryImageGallery} from "../../entities/WineryImageGallery"
 // import {WineType} from "../../entities/WineType"
@@ -25,65 +27,25 @@ import {arrayAreEquals, getDifferentsElements} from "../../utils/arrayUtilities"
 const updateWinery = async(updateWineryInputs : UpdateWineryInputs) : Promise<WineryServicesResponse> => {
     try {
         //TODO: refactorizar
-        const winery:any = await WineryServices.findWineryById(updateWineryInputs.id);
-        winery.id = updateWineryInputs.id;
-        winery.name = updateWineryInputs.name;
-        winery.description = updateWineryInputs.description;
-        winery.foundationYear = updateWineryInputs.foundationYear;
-        winery.googleMapsUrl = updateWineryInputs.googleMapsUrl;
-        winery.yearlyWineProduction = updateWineryInputs.yearlyWineProduction;
-        winery.contactEmail = updateWineryInputs.contactEmail;
-        winery.contactPhoneNumber = updateWineryInputs.contactPhoneNumber;
-        winery.covidLabel = updateWineryInputs.covidLabel;
-        winery.logo = updateWineryInputs.logo;
-        winery.contactName = updateWineryInputs.contactName;
-        winery.productRegion = updateWineryInputs.productRegion;
-        winery.postalAddress = updateWineryInputs.postalAddress;
-        winery.architecturalReferences = updateWineryInputs.architecturalReferences;
-        winery.enologoName = updateWineryInputs.enologoName;
-        winery.younerFriendly = updateWineryInputs.younerFriendly;
-        winery.petFriendly = updateWineryInputs.petFriendly;
-        winery.handicappedFriendly = updateWineryInputs.handicappedFriendly;
-        winery.valley = updateWineryInputs.valley;
+        const winery:any = await saveWineryWithOwnData(updateWineryInputs)
+
+        const arrayPromises = [];
 
         if (updateWineryInputs.wineGrapesProduction) {
-            const wineGrapesF = await WineryGrapesServicesResponse.getWineGrapesById(updateWineryInputs.id);
-            const wineGrapesFound = wineGrapesF.map(grapes => grapes.wineGrapesProduction);
-            if (!arrayAreEquals(wineGrapesFound, updateWineryInputs.wineGrapesProduction)){
-                //son diferentes
-                //se van a insertar
-                getDifferentsElements(updateWineryInputs.wineGrapesProduction,wineGrapesFound)
-                .forEach(async (grape) => {
-                    await WineryGrapesServicesResponse.insertGrapesToWinery(updateWineryInputs.id, grape)
-                })
-                //se van a eliminar 
-                getDifferentsElements(wineGrapesFound, updateWineryInputs.wineGrapesProduction)
-                .forEach(async (grape) => await WineryGrapesServicesResponse.deleteGrapesToWinery(updateWineryInputs.id, grape))
-            }
+            arrayPromises.push(saveWineryGrapesProduction(updateWineryInputs.id, updateWineryInputs.wineGrapesProduction))
         }
         
         if (updateWineryInputs.othersServices) {
-            const servicesF = await WineryOtherServicesResponse.getWineryOtherServicesById(updateWineryInputs.id);
-            const servicesFound = servicesF.map(oServices => oServices.service);
-            if (!arrayAreEquals(servicesFound, updateWineryInputs.othersServices)){
-                //son diferentes
-                //se van a insertar
-                getDifferentsElements(updateWineryInputs.othersServices,servicesFound)
-                .forEach(async (grape) => {
-                    await WineryGrapesServicesResponse.insertGrapesToWinery(updateWineryInputs.id, grape)
-                })
-                //se van a eliminar 
-                getDifferentsElements(servicesFound, updateWineryInputs.othersServices)
-                .forEach(async (grape) => await WineryGrapesServicesResponse.deleteGrapesToWinery(updateWineryInputs.id, grape))
-            }
+            arrayPromises.push(saveWineryOtherServices(updateWineryInputs.id, updateWineryInputs.othersServices))
         }
+
+        await Promise.all(arrayPromises);
+
         // winery.othersServices = updateWineryInputs.othersServices;
         //winery.productionType = updateWineryInputs.productionType;
         //winery.wineType = updateWineryInputs.wineType;
         //winery.supportedLanguages = updateWineryInputs.supportedLanguages;
         //winery.amenities = updateWineryInputs.amenities;
-        const wineryUpdated = await WineryServices.updateWinery(winery);
-        console.log(wineryUpdated);
         if (winery) {
             return {
                 winery: {
@@ -105,10 +67,85 @@ const updateWinery = async(updateWineryInputs : UpdateWineryInputs) : Promise<Wi
                 errors: [fieldError]
             }
         }
-        
+    }
+    catch (err) {
+        throw new Error(err)
+    }
+}
+
+const saveWineryGrapesProduction = async (id : number, wineGrapesProduction:Grape[]) => {
+    const wineGrapesF = await WineryGrapesServicesResponse.getWineGrapesById(id);
+    const wineGrapesFound = wineGrapesF.map(grapes => grapes.wineGrapesProduction);
+    if (!arrayAreEquals(wineGrapesFound, wineGrapesProduction)){
+        //son diferentes
+        //se van a insertar
+        getDifferentsElements(wineGrapesProduction,wineGrapesFound)
+        .forEach(async (grape) => {
+            await WineryGrapesServicesResponse.insertGrapesToWinery(id, grape)
+        })
+        //se van a eliminar 
+        getDifferentsElements(wineGrapesFound, wineGrapesProduction)
+        .forEach(async (grape) => await WineryGrapesServicesResponse.deleteGrapesToWinery(id, grape))
+    }
+}
+
+const saveWineryOtherServices = async (id : number, othersServices:OtherServices[]) => {
+    const servicesF = await WineryOtherServicesResponse.getWineryOtherServicesById(id);
+    const servicesFound = servicesF.map(oServices => oServices.service);
+    
+    if (!arrayAreEquals(servicesFound, othersServices)){
+        //son diferentes
+        //se van a insertar
+        getDifferentsElements(othersServices,servicesFound)
+        .forEach(async (service) => {
+            await WineryOtherServicesResponse.insertOtherServiceToWinery(id, service)
+        })
+        //se van a eliminar 
+        getDifferentsElements(servicesFound, othersServices)
+        .forEach(async (service) => await WineryOtherServicesResponse.deleteOtherServiceToWinery(id, service))
+    }
+}
+
+const saveWineryWithOwnData = async (updateWineryInputs: UpdateWineryInputs) => {
+    try {
+        const winery: any = await WineryServices.findWineryById(updateWineryInputs.id);
+        winery.id = updateWineryInputs.id;
+        winery.name = updateWineryInputs.name;
+        winery.description = updateWineryInputs.description;
+        winery.foundationYear = updateWineryInputs.foundationYear;
+        winery.googleMapsUrl = updateWineryInputs.googleMapsUrl;
+        winery.yearlyWineProduction = updateWineryInputs.yearlyWineProduction;
+        winery.contactEmail = updateWineryInputs.contactEmail;
+        winery.contactPhoneNumber = updateWineryInputs.contactPhoneNumber;
+        winery.covidLabel = updateWineryInputs.covidLabel;
+        winery.logo = updateWineryInputs.logo;
+        winery.contactName = updateWineryInputs.contactName;
+        winery.productRegion = updateWineryInputs.productRegion;
+        winery.postalAddress = updateWineryInputs.postalAddress;
+        winery.architecturalReferences = updateWineryInputs.architecturalReferences;
+        winery.enologoName = updateWineryInputs.enologoName;
+        winery.younerFriendly = updateWineryInputs.younerFriendly;
+        winery.petFriendly = updateWineryInputs.petFriendly;
+        winery.handicappedFriendly = updateWineryInputs.handicappedFriendly;
+        winery.valley = updateWineryInputs.valley;
+        const wineryUpdated = await WineryServices.updateWinery(winery);
+        console.log(wineryUpdated);
+        return winery;
+    } catch (error) {
+        throw new Error(error);
+    }
+    
+}
+
+export default updateWinery;
 
 
-        // const wineryId = updateWineryInputs.id
+
+
+
+
+
+// const wineryId = updateWineryInputs.id
         // const wineryWithServices = await ServiceServices.findServicesByWinery(wineryId);
         
         // const coverImages = await Promise.all(wineryWithServices.map(async (ser) => {
@@ -177,10 +214,3 @@ const updateWinery = async(updateWineryInputs : UpdateWineryInputs) : Promise<Wi
         //         errors: [fieldError]
         //     }
         // }
-    }
-    catch (err) {
-        throw new Error(err)
-    }
-}
-
-export default updateWinery;

@@ -8,9 +8,9 @@ const getWineryOtherServicesById = async (wineryId : number) => {
 }
 
 const insertOtherServiceToWinery = async (wineryId : number, othersService : OtherServices) => {
-    console.log(othersService);
     return await WineryOtherServices.create({
-        wineryId : wineryId
+        wineryId : wineryId,
+        service : othersService,
     }).save()
     
 }
@@ -18,7 +18,8 @@ const insertOtherServiceToWinery = async (wineryId : number, othersService : Oth
 const deleteOtherServiceToWinery = async (wineryId : number, othersService : OtherServices) => {
     console.log(othersService);
     return await WineryOtherServices.delete({
-        wineryId: wineryId
+        wineryId: wineryId,
+        service : othersService,
     });
 }
 
