@@ -1,13 +1,4 @@
-// import ServiceServices from "../../dataServices/service";
-// import ServiceGalleryServices from "../../dataServices/serviceImageGallery";
 import WineryServices from "../../dataServices/winery";
-// import WineryImageGalleryServices from "../../dataServices/wineryImageGallery";
-// import WineTypeServices from "../../dataServices/wineType";
-// import WineryLanguageServices from "../../dataServices/wineryLanguage";
-// import WineryAmenityServices from "../../dataServices/wineryAmenity";
-// import {WineProductionType} from "../../entities/WineProductionType";
-// import {WineryLanguage} from "../../entities/WineryLanguage";
-// import {WineryAmenity} from "../../entities/WineryAmenity";
 import {FieldError} from "../../resolvers/User/userResolversOutputs";
 import {UpdateWineryInputs} from "../../resolvers/Winery/wineryResolversInputs"
 import {WineryServicesResponse} from "../../resolvers/Winery/wineryResolversOutputs";
@@ -17,10 +8,8 @@ import WineryOtherServicesResponse from "../../dataServices/wineryOthersServices
 import {OtherServices} from "../../entities/WineryOtherServices"
 import WineProductionTypeServices from "../../dataServices/wineProductionType";
 import {ProductionType} from "../../entities/WineProductionType"
-// import {WineryImageGallery} from "../../entities/WineryImageGallery"
-// import {WineType} from "../../entities/WineType"
-// import {Service} from "../../entities/Service";
-// import {convertDateToUTC} from "../../utils/dateUtils";
+import WineTypeServices from "../../dataServices/wineType";
+import {TypeWine} from "../../entities/WineType"
 
 import {arrayAreEquals, getDifferentsElements} from "../../utils/arrayUtilities"
 
@@ -41,6 +30,10 @@ const updateWinery = async(updateWineryInputs : UpdateWineryInputs) : Promise<Wi
 
         if (updateWineryInputs.productionType) {
             arrayPromises.push(saveWineryProductionType(updateWineryInputs.id, updateWineryInputs.productionType))
+        }
+
+        if (updateWineryInputs.wineType){
+            arrayPromises.push(saveWineryWineType(updateWineryInputs.id, updateWineryInputs.wineType))
         }
 
 
@@ -124,6 +117,23 @@ const saveWineryProductionType = async (id : number, productionType:ProductionTy
         //se van a eliminar 
         getDifferentsElements(productionTypesFound, productionType)
         .forEach(async (productionT) => await WineProductionTypeServices.deleteProductionTypeToWinery(id, productionT))
+    }
+}
+
+const saveWineryWineType = async (id : number, wineType:TypeWine[]) => {
+    const wineTypesF = await WineTypeServices.getWineTypeByWineryId(id)
+    const wineTypesFound = wineTypesF.map(wineType => wineType.wineType);
+    
+    if (!arrayAreEquals(wineTypesFound, wineType)){
+        //son diferentes
+        //se van a insertar
+        getDifferentsElements(wineType,wineTypesFound)
+        .forEach(async (wineT) => {
+            await WineTypeServices.insertWineTypeToWinery(id, wineT)
+        })
+        //se van a eliminar 
+        getDifferentsElements(wineTypesFound, wineType)
+        .forEach(async (wineT) => await WineTypeServices.deleteWineTypeToWinery(id, wineT))
     }
 }
 
