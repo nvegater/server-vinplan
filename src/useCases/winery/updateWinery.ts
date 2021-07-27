@@ -12,11 +12,14 @@ import WineryServices from "../../dataServices/winery";
 import {FieldError} from "../../resolvers/User/userResolversOutputs";
 import {UpdateWineryInputs} from "../../resolvers/Winery/wineryResolversInputs"
 import {WineryServicesResponse} from "../../resolvers/Winery/wineryResolversOutputs";
+import WineryGrapesServicesResponse from "../../dataServices/wineryGrapes";
 
 // import {WineryImageGallery} from "../../entities/WineryImageGallery"
 // import {WineType} from "../../entities/WineType"
 // import {Service} from "../../entities/Service";
 // import {convertDateToUTC} from "../../utils/dateUtils";
+
+import {arrayAreEquals, getDifferentsElements} from "../../utils/arrayUtilities"
 
 const updateWinery = async(updateWineryInputs : UpdateWineryInputs) : Promise<WineryServicesResponse> => {
     try {
@@ -40,9 +43,25 @@ const updateWinery = async(updateWineryInputs : UpdateWineryInputs) : Promise<Wi
         winery.younerFriendly = updateWineryInputs.younerFriendly;
         winery.petFriendly = updateWineryInputs.petFriendly;
         winery.handicappedFriendly = updateWineryInputs.handicappedFriendly;
+        winery.valley = updateWineryInputs.valley;
+
+        if (updateWineryInputs.wineGrapesProduction) {
+            const wineGrapesF = await WineryGrapesServicesResponse.getWineGrapesById(updateWineryInputs.id);
+            const wineGrapesFound = wineGrapesF.map(grapes => grapes.wineGrapesProduction);
+            if (!arrayAreEquals(wineGrapesFound, updateWineryInputs.wineGrapesProduction)){
+                //son diferentes
+                //se van a insertar
+                getDifferentsElements(updateWineryInputs.wineGrapesProduction,wineGrapesFound)
+                .forEach(async (grape) => {
+                    await WineryGrapesServicesResponse.insertGrapesToWinery(updateWineryInputs.id, grape)
+                })
+                //se van a eliminar 
+                getDifferentsElements(wineGrapesFound, updateWineryInputs.wineGrapesProduction)
+                .forEach(async (grape) => await WineryGrapesServicesResponse.deleteGrapesToWinery(updateWineryInputs.id, grape))
+            }
+        }
         // winery.grapesTypes = updateWineryInputs.grapesTypes;
         // winery.othersServices = updateWineryInputs.othersServices;
-        winery.valley = updateWineryInputs.valley;
         //winery.productionType = updateWineryInputs.productionType;
         //winery.wineType = updateWineryInputs.wineType;
         //winery.supportedLanguages = updateWineryInputs.supportedLanguages;

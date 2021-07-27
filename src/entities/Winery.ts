@@ -122,9 +122,9 @@ export class Winery extends BaseEntity {
     @Column({nullable: true})
     handicappedFriendly: boolean;
 
-    @Field(() => Grape)
+    @Field(() => [Grape])
     @OneToMany(() => WineGrapesProduction, wineGrapesProduction => wineGrapesProduction.winery)
-    wineGrapesProduction: Grape;
+    wineGrapesProduction: Grape[];
 
     @Field(() => [ProductionType])
     @OneToMany(() => WineProductionType, wineProductionType => wineProductionType.winery)
@@ -132,7 +132,7 @@ export class Winery extends BaseEntity {
     
     @Field(() => OtherServices)
     @OneToMany(() => WineryOtherServices, wineryOtherServices => wineryOtherServices.winery)
-    othersServices: OtherServices;
+    othersServices: OtherServices[];
 
     @Field(() => Valley)
     @Column('enum', {name: 'valley', enum: Valley})
