@@ -12,6 +12,8 @@ import WineTypeServices from "../../dataServices/wineType";
 import {TypeWine} from "../../entities/WineType"
 import wineryLanguajeServices from "../../dataServices/wineryLanguage";
 import {SupportedLanguage} from "../../entities/WineryLanguage"
+import wineryAmenityServices from "../../dataServices/wineryAmenity";
+import {Amenity} from "../../entities/WineryAmenity"
 
 import {arrayAreEquals, getDifferentsElements} from "../../utils/arrayUtilities"
 
@@ -42,11 +44,12 @@ const updateWinery = async(updateWineryInputs : UpdateWineryInputs) : Promise<Wi
             arrayPromises.push(saveWinerySupportedLanguages(updateWineryInputs.id, updateWineryInputs.supportedLanguages))
         }
 
+        if (updateWineryInputs.amenities){
+            arrayPromises.push(saveWineryAmenity(updateWineryInputs.id, updateWineryInputs.amenities))
+        }
+
 
         await Promise.all(arrayPromises);
-
-        //winery.supportedLanguages = updateWineryInputs.supportedLanguages;
-        //winery.amenities = updateWineryInputs.amenities;
         if (winery) {
             return {
                 winery: {
@@ -155,6 +158,23 @@ const saveWinerySupportedLanguages = async (id : number, supportedLanguages:Supp
         //se van a eliminar 
         getDifferentsElements(wineSupportedLanguajesFound, supportedLanguages)
         .forEach(async (supportL) => await wineryLanguajeServices.deleteSupportedLanguajeToWinery(id, supportL))
+    }
+}
+
+const saveWineryAmenity = async (id : number, amenity:Amenity[]) => {
+    const wineryAmenitiesF = await wineryAmenityServices.getWineryAmenityByWineryId(id)
+    const wineryAmenitiesFound = wineryAmenitiesF.map(wineryAmenities => wineryAmenities.amenity);
+    
+    if (!arrayAreEquals(wineryAmenitiesFound, amenity)){
+        //son diferentes
+        //se van a insertar
+        getDifferentsElements(amenity,wineryAmenitiesFound)
+        .forEach(async (amenity) => {
+            await wineryAmenityServices.insertAmenityToWinery(id, amenity)
+        })
+        //se van a eliminar 
+        getDifferentsElements(wineryAmenitiesFound, amenity)
+        .forEach(async (amenity) => await wineryAmenityServices.deleteAmenityToWinery(id, amenity))
     }
 }
 
