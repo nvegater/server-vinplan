@@ -3,7 +3,6 @@
 import WineryServices from "../../dataServices/winery";
 // import WineryImageGalleryServices from "../../dataServices/wineryImageGallery";
 // import WineTypeServices from "../../dataServices/wineType";
-// import WineProductionTypeServices from "../../dataServices/wineProductionType";
 // import WineryLanguageServices from "../../dataServices/wineryLanguage";
 // import WineryAmenityServices from "../../dataServices/wineryAmenity";
 // import {WineProductionType} from "../../entities/WineProductionType";
@@ -16,7 +15,8 @@ import WineryGrapesServicesResponse from "../../dataServices/wineryGrapes";
 import {Grape} from "../../entities/WineGrapesProduction"
 import WineryOtherServicesResponse from "../../dataServices/wineryOthersServices";
 import {OtherServices} from "../../entities/WineryOtherServices"
-
+import WineProductionTypeServices from "../../dataServices/wineProductionType";
+import {ProductionType} from "../../entities/WineProductionType"
 // import {WineryImageGallery} from "../../entities/WineryImageGallery"
 // import {WineType} from "../../entities/WineType"
 // import {Service} from "../../entities/Service";
@@ -39,9 +39,13 @@ const updateWinery = async(updateWineryInputs : UpdateWineryInputs) : Promise<Wi
             arrayPromises.push(saveWineryOtherServices(updateWineryInputs.id, updateWineryInputs.othersServices))
         }
 
+        if (updateWineryInputs.productionType) {
+            arrayPromises.push(saveWineryProductionType(updateWineryInputs.id, updateWineryInputs.productionType))
+        }
+
+
         await Promise.all(arrayPromises);
 
-        // winery.othersServices = updateWineryInputs.othersServices;
         //winery.productionType = updateWineryInputs.productionType;
         //winery.wineType = updateWineryInputs.wineType;
         //winery.supportedLanguages = updateWineryInputs.supportedLanguages;
@@ -103,6 +107,23 @@ const saveWineryOtherServices = async (id : number, othersServices:OtherServices
         //se van a eliminar 
         getDifferentsElements(servicesFound, othersServices)
         .forEach(async (service) => await WineryOtherServicesResponse.deleteOtherServiceToWinery(id, service))
+    }
+}
+
+const saveWineryProductionType = async (id : number, productionType:ProductionType[]) => {
+    const productionTypesF = await WineProductionTypeServices.getProductionTypeByWineryId(id);
+    const productionTypesFound = productionTypesF.map(prodType => prodType.productionType);
+    
+    if (!arrayAreEquals(productionTypesFound, productionType)){
+        //son diferentes
+        //se van a insertar
+        getDifferentsElements(productionType,productionTypesFound)
+        .forEach(async (productionT) => {
+            await WineProductionTypeServices.insertProductionTypeToWinery(id, productionT)
+        })
+        //se van a eliminar 
+        getDifferentsElements(productionTypesFound, productionType)
+        .forEach(async (productionT) => await WineProductionTypeServices.deleteProductionTypeToWinery(id, productionT))
     }
 }
 
