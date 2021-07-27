@@ -31,7 +31,7 @@ export class UpdateWineryInputs{
     @Field({ nullable: true, description: 'opcional' })
     productRegion?: string;
     @Field({ nullable: true, description: 'opcional' })
-    postalCode?: number;
+    postalAddress?: string;
     @Field({ nullable: true, description: 'opcional' })
     architecturalReferences?: boolean;
     @Field({ nullable: true, description: 'opcional' })

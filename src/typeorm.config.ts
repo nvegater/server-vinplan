@@ -13,6 +13,8 @@ import {WineryLanguage} from "./entities/WineryLanguage";
 import {WineryImageGallery} from "./entities/WineryImageGallery";
 import {ServiceImageGallery} from "./entities/ServiceImageGallery"
 import {ServiceDefaultImage} from "./entities/ServiceDefaultImage"
+import {WineGrapesProduction} from "./entities/WineGrapesProduction"
+import {WineryOtherServices} from "./entities/WineryOtherServices"
 
 export default {
     type: 'postgres',
@@ -22,5 +24,6 @@ export default {
     synchronize: false,
     migrations: [path.join(__dirname, "./migrations/*")],
     entities: [Post, User, Upvote, Service, Winery,ServiceReservation, WineProductionType, WineType, 
-        WineryAmenity, WineryLanguage, WineryImageGallery, ServiceImageGallery, ServiceDefaultImage]
+        WineryAmenity, WineryLanguage, WineryImageGallery, WineGrapesProduction, 
+        WineryOtherServices, ServiceImageGallery, ServiceDefaultImage]
 } as ConnectionOptions

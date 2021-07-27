@@ -15,6 +15,8 @@ import {ProductionType, WineProductionType} from "./WineProductionType";
 import {TypeWine, WineType} from "./WineType";
 import {Amenity, WineryAmenity} from "./WineryAmenity";
 import {WineryLanguage, SupportedLanguage} from "./WineryLanguage";
+import {Grape, WineGrapesProduction} from "./WineGrapesProduction";
+import {OtherServices, WineryOtherServices} from "./WineryOtherServices";
 
 export enum Valley {
     "GUADALUPE"="Guadalupe",
@@ -32,8 +34,6 @@ registerEnumType(Valley, {
     name: "Valley",
     description: "A winery is in an unique valley, valleys are not identifiable through addresses"
 });
-
-
 @ObjectType()
 @Entity()
 export class Winery extends BaseEntity {
@@ -100,7 +100,7 @@ export class Winery extends BaseEntity {
 
     @Field({nullable: true})
     @Column({nullable: true})
-    postalCode: string;
+    postalAddress: string;
 
     @Field({nullable: true})
     @Column({nullable: true})
@@ -122,21 +122,22 @@ export class Winery extends BaseEntity {
     @Column({nullable: true})
     handicappedFriendly: boolean;
 
-    // @Field(() => Valley)
-    // @Column('enum', {name: 'valley', enum: Valley})
-    // grapesTypes: Valley;
+    @Field(() => Grape)
+    @OneToMany(() => WineGrapesProduction, wineGrapesProduction => wineGrapesProduction.winery)
+    wineGrapesProduction: Grape;
 
-    // @Field(() => Valley)
-    // @Column('enum', {name: 'valley', enum: Valley})
-    // othersServices: Valley;
+    @Field(() => [ProductionType])
+    @OneToMany(() => WineProductionType, wineProductionType => wineProductionType.winery)
+    productionType: WineProductionType[];
+    
+    @Field(() => OtherServices)
+    @OneToMany(() => WineryOtherServices, wineryOtherServices => wineryOtherServices.winery)
+    othersServices: OtherServices;
 
     @Field(() => Valley)
     @Column('enum', {name: 'valley', enum: Valley})
     valley: Valley;
 
-    @Field(() => [ProductionType])
-    @OneToMany(() => WineProductionType, wineProductionType => wineProductionType.winery)
-    productionType: WineProductionType[];
 
     @Field(() => [TypeWine], {nullable: true})
     @OneToMany(() => WineType, wineType => wineType.winery)
