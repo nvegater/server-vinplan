@@ -122,13 +122,13 @@ export class Winery extends BaseEntity {
     @Column({nullable: true})
     handicappedFriendly: boolean;
 
-    @Field(() => Valley)
-    @Column('enum', {name: 'valley', enum: Valley})
-    grapesTypes: Valley;
+    // @Field(() => Valley)
+    // @Column('enum', {name: 'valley', enum: Valley})
+    // grapesTypes: Valley;
 
-    @Field(() => Valley)
-    @Column('enum', {name: 'valley', enum: Valley})
-    othersServices: Valley;
+    // @Field(() => Valley)
+    // @Column('enum', {name: 'valley', enum: Valley})
+    // othersServices: Valley;
 
     @Field(() => Valley)
     @Column('enum', {name: 'valley', enum: Valley})
