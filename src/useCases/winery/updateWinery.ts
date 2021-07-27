@@ -10,6 +10,8 @@ import WineProductionTypeServices from "../../dataServices/wineProductionType";
 import {ProductionType} from "../../entities/WineProductionType"
 import WineTypeServices from "../../dataServices/wineType";
 import {TypeWine} from "../../entities/WineType"
+import wineryLanguajeServices from "../../dataServices/wineryLanguage";
+import {SupportedLanguage} from "../../entities/WineryLanguage"
 
 import {arrayAreEquals, getDifferentsElements} from "../../utils/arrayUtilities"
 
@@ -35,12 +37,14 @@ const updateWinery = async(updateWineryInputs : UpdateWineryInputs) : Promise<Wi
         if (updateWineryInputs.wineType){
             arrayPromises.push(saveWineryWineType(updateWineryInputs.id, updateWineryInputs.wineType))
         }
+        
+        if (updateWineryInputs.supportedLanguages){
+            arrayPromises.push(saveWinerySupportedLanguages(updateWineryInputs.id, updateWineryInputs.supportedLanguages))
+        }
 
 
         await Promise.all(arrayPromises);
 
-        //winery.productionType = updateWineryInputs.productionType;
-        //winery.wineType = updateWineryInputs.wineType;
         //winery.supportedLanguages = updateWineryInputs.supportedLanguages;
         //winery.amenities = updateWineryInputs.amenities;
         if (winery) {
@@ -134,6 +138,23 @@ const saveWineryWineType = async (id : number, wineType:TypeWine[]) => {
         //se van a eliminar 
         getDifferentsElements(wineTypesFound, wineType)
         .forEach(async (wineT) => await WineTypeServices.deleteWineTypeToWinery(id, wineT))
+    }
+}
+
+const saveWinerySupportedLanguages = async (id : number, supportedLanguages:SupportedLanguage[]) => {
+    const wineSupportedLanguajesF = await wineryLanguajeServices.getWineryLanguageByWineryId(id)
+    const wineSupportedLanguajesFound = wineSupportedLanguajesF.map(supportLanguaje => supportLanguaje.supportedLanguage);
+    
+    if (!arrayAreEquals(wineSupportedLanguajesFound, supportedLanguages)){
+        //son diferentes
+        //se van a insertar
+        getDifferentsElements(supportedLanguages,wineSupportedLanguajesFound)
+        .forEach(async (supportL) => {
+            await wineryLanguajeServices.insertSupportedLanguajeToWinery(id, supportL)
+        })
+        //se van a eliminar 
+        getDifferentsElements(wineSupportedLanguajesFound, supportedLanguages)
+        .forEach(async (supportL) => await wineryLanguajeServices.deleteSupportedLanguajeToWinery(id, supportL))
     }
 }
 
