@@ -22,8 +22,8 @@ export class WineryOtherServices extends BaseEntity {
     @Column()
     wineryId: number;
 
-    @Column('enum', {name: 'Grape', enum: OtherServices})
-    wineGrapesProduction: OtherServices;
+    @Column('enum', {name: 'OtherServices', enum: OtherServices})
+    service: OtherServices;
 
     @ManyToOne(() => Winery, (winery) => winery.wineGrapesProduction)
     winery: Winery;

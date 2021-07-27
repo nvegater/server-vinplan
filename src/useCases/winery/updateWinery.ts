@@ -13,6 +13,7 @@ import {FieldError} from "../../resolvers/User/userResolversOutputs";
 import {UpdateWineryInputs} from "../../resolvers/Winery/wineryResolversInputs"
 import {WineryServicesResponse} from "../../resolvers/Winery/wineryResolversOutputs";
 import WineryGrapesServicesResponse from "../../dataServices/wineryGrapes";
+import WineryOtherServicesResponse from "../../dataServices/wineryOthersServices";
 
 // import {WineryImageGallery} from "../../entities/WineryImageGallery"
 // import {WineType} from "../../entities/WineType"
@@ -60,7 +61,22 @@ const updateWinery = async(updateWineryInputs : UpdateWineryInputs) : Promise<Wi
                 .forEach(async (grape) => await WineryGrapesServicesResponse.deleteGrapesToWinery(updateWineryInputs.id, grape))
             }
         }
-        // winery.grapesTypes = updateWineryInputs.grapesTypes;
+        
+        if (updateWineryInputs.othersServices) {
+            const servicesF = await WineryOtherServicesResponse.getWineryOtherServicesById(updateWineryInputs.id);
+            const servicesFound = servicesF.map(oServices => oServices.service);
+            if (!arrayAreEquals(servicesFound, updateWineryInputs.othersServices)){
+                //son diferentes
+                //se van a insertar
+                getDifferentsElements(updateWineryInputs.othersServices,servicesFound)
+                .forEach(async (grape) => {
+                    await WineryGrapesServicesResponse.insertGrapesToWinery(updateWineryInputs.id, grape)
+                })
+                //se van a eliminar 
+                getDifferentsElements(servicesFound, updateWineryInputs.othersServices)
+                .forEach(async (grape) => await WineryGrapesServicesResponse.deleteGrapesToWinery(updateWineryInputs.id, grape))
+            }
+        }
         // winery.othersServices = updateWineryInputs.othersServices;
         //winery.productionType = updateWineryInputs.productionType;
         //winery.wineType = updateWineryInputs.wineType;

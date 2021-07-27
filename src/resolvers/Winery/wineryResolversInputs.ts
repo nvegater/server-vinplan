@@ -5,6 +5,7 @@ import {TypeWine} from "../../entities/WineType";
 import {Amenity} from "../../entities/WineryAmenity";
 import {SupportedLanguage} from "../../entities/WineryLanguage";
 import {Grape} from "../../entities/WineGrapesProduction";
+import {OtherServices} from "../../entities/WineryOtherServices";
 @InputType()
 export class UpdateWineryInputs{
     @Field({ nullable: true, description: 'opcional' })
@@ -45,8 +46,8 @@ export class UpdateWineryInputs{
     handicappedFriendly?: boolean;
     @Field(() => [Grape])
     wineGrapesProduction?: Grape[];
-    // @Field(() => [Valley])
-    // othersServices?: Valley[];
+    @Field(() => [OtherServices])
+    othersServices?: OtherServices[];
     @Field(() => Valley, { nullable: true, description: 'opcional' })
     valley?: Valley;
     @Field(() => [ProductionType])

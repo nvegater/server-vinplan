@@ -27,8 +27,8 @@ export class WineryEnums1627341975952 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "service" ALTER COLUMN "noOfAttendees" SET DEFAULT 0`);
         await queryRunner.query(`ALTER TABLE "winery_image_gallery" ALTER COLUMN "coverPage" SET DEFAULT 'false'`);
         await queryRunner.query(`ALTER TABLE "wine_grapes_production" ADD CONSTRAINT "FK_d5efed0d81dd5a9b001ac7e54f0" FOREIGN KEY ("wineryId") REFERENCES "winery"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`CREATE TYPE "winery_other_services_grape_enum" AS ENUM('Hospedaje', 'Restaurante', 'Barra de Alimentos (Tapas)')`);
-        await queryRunner.query(`CREATE TABLE "winery_other_services" ("id" SERIAL NOT NULL, "wineryId" integer NOT NULL, "Grape" "winery_other_services_grape_enum" NOT NULL, CONSTRAINT "PK_6fa8c02a5ca52b6c7ef3b0d3a16" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TYPE "winery_other_services_otherservices_enum" AS ENUM('Hospedaje', 'Restaurante', 'Barra de Alimentos (Tapas)')`);
+        await queryRunner.query(`CREATE TABLE "winery_other_services" ("id" SERIAL NOT NULL, "wineryId" integer NOT NULL, "OtherServices" "winery_other_services_otherservices_enum" NOT NULL, CONSTRAINT "PK_6fa8c02a5ca52b6c7ef3b0d3a16" PRIMARY KEY ("id"))`);
         await queryRunner.query(`ALTER TABLE "winery_other_services" ADD CONSTRAINT "FK_6cc398dd7b2383db976495eb6bc" FOREIGN KEY ("wineryId") REFERENCES "winery"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
     }
 
@@ -60,7 +60,6 @@ export class WineryEnums1627341975952 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "winery" RENAME COLUMN "postalAddress" TO "postalCode"`);
         await queryRunner.query(`ALTER TABLE "winery_other_services" DROP CONSTRAINT "FK_6cc398dd7b2383db976495eb6bc"`);
         await queryRunner.query(`DROP TABLE "winery_other_services"`);
-        await queryRunner.query(`DROP TYPE "winery_other_services_grape_enum"`);
     }
 
 }
