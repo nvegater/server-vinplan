@@ -13,14 +13,15 @@ import {TypeWine} from "../../entities/WineType"
 import wineryLanguajeServices from "../../dataServices/wineryLanguage";
 import {SupportedLanguage} from "../../entities/WineryLanguage"
 import wineryAmenityServices from "../../dataServices/wineryAmenity";
-import {Amenity} from "../../entities/WineryAmenity"
+import {Amenity} from "../../entities/WineryAmenity";
+import {deleteImageFromS3} from "../../utils/s3Utilities"
 
 import {arrayAreEquals, getDifferentsElements} from "../../utils/arrayUtilities"
 
 const updateWinery = async(updateWineryInputs : UpdateWineryInputs) : Promise<WineryServicesResponse> => {
     try {
         //TODO: refactorizar
-        const winery:any = await saveWineryWithOwnData(updateWineryInputs)
+        const winery:any = await saveWineryWithOwnData(updateWineryInputs);
 
         const arrayPromises = [];
 
@@ -181,6 +182,9 @@ const saveWineryAmenity = async (id : number, amenity:Amenity[]) => {
 const saveWineryWithOwnData = async (updateWineryInputs: UpdateWineryInputs) => {
     try {
         const winery: any = await WineryServices.findWineryById(updateWineryInputs.id);
+        if (updateWineryInputs.logo && (winery.logo != updateWineryInputs.logo)){
+            await deleteImageFromS3(winery.logo); 
+        }
         winery.id = updateWineryInputs.id;
         winery.name = updateWineryInputs.name;
         winery.description = updateWineryInputs.description;
@@ -200,8 +204,7 @@ const saveWineryWithOwnData = async (updateWineryInputs: UpdateWineryInputs) => 
         winery.petFriendly = updateWineryInputs.petFriendly;
         winery.handicappedFriendly = updateWineryInputs.handicappedFriendly;
         winery.valley = updateWineryInputs.valley;
-        const wineryUpdated = await WineryServices.updateWinery(winery);
-        console.log(wineryUpdated);
+        await WineryServices.updateWinery(winery);
         return winery;
     } catch (error) {
         throw new Error(error);
