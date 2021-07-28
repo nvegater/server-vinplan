@@ -128,10 +128,10 @@ export class ServiceResolver {
 
     @Mutation(() => ServiceImageResponse)
     async deleteImageService(
-        @Arg('serviceId', () => Int) serviceId: number,
+        @Arg('serviceImageId', () => Int) serviceImageId: number,
     ): Promise<ServiceImageResponse> {
         try {            
-            return await deleteImage(serviceId)
+            return await deleteImage(serviceImageId)
         } catch (error) {
             throw new Error(error)
         }
