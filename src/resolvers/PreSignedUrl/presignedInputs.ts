@@ -5,7 +5,8 @@ const UPLOAD_TYPE_DESCRIPTION = `Se pueden cargar imagenes para distintos elemen
 export enum UploadType {
     WINERYALBUM = "winerybook",
     USERPROFILEPICTURE = "userprofilepicture",
-    SERVICEALBUM = "servicealbum"
+    SERVICEALBUM = "servicealbum",
+    WINERYLOGO = "winerylogo",
 }
 
 registerEnumType(UploadType, {name : "UploadType", description: UPLOAD_TYPE_DESCRIPTION})

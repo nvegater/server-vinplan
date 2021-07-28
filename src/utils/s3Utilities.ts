@@ -82,6 +82,11 @@ const getMultimediaInfo = async (presignedUrl: PresignedUrlInput, fileName : str
             contentType = mime.getType(ext) || '';
             key = `${prefix}`
         }
+        if (uploadType == 'winerylogo') {
+            prefix = `winery/${wineryId}-logo`;
+            contentType = mime.getType(ext) || '';
+            key = `${prefix}`
+        }
         if (uploadType == 'userprofilepicture'){
             prefix = `user/${userId}-pictureProfile`;
             contentType = mime.getType(ext) || '';
