@@ -3,10 +3,10 @@ import {Winery} from "./Winery";
 import {registerEnumType} from "type-graphql";
 
 export enum TypeWine {
-    "BLANCO"="Blanco joven",
+    "BLANCO_JOVEN"="Blanco joven",
     "BLANCO_CON_BARRICA"="Blanco con barrica",
     "ROSADO"="Rosado",
-    "TINTO_SIN_BARRICA"="Tinto sin barrica",
+    "TINTO_JOVEN"="Tinto joven",
     "TINTO_CRIANZA_BARRICA"="Tinto con barrica",
     "GENEROSO_FORTIFICADO"="Generoso / fortificado",
     "ESPUMOSO"="Espumoso",
