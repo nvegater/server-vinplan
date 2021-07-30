@@ -16,8 +16,16 @@ const findWineryByValley = async (valley : Valley[]) => {
     .getMany();
 }
 
+const updateWinery = async (winery: Winery) => {
+    return await Winery.update(
+        winery.id ,
+        winery
+      );
+}
+
 export default {
     findWineryByCreator,
     findWineryById,
-    findWineryByValley
+    findWineryByValley,
+    updateWinery
 }

@@ -1,4 +1,4 @@
-import {WineType} from "../entities/WineType"
+import {WineType, TypeWine} from "../entities/WineType"
 
 const getWineTypeByWineryId = async (wineryId: number) => {
     return await WineType.find({
@@ -6,6 +6,23 @@ const getWineTypeByWineryId = async (wineryId: number) => {
     });
 } 
 
+const insertWineTypeToWinery = async (wineryId : number, typeWine : TypeWine) => {
+    return await WineType.create({
+        wineryId : wineryId, 
+        wineType: typeWine,
+    }).save()
+    
+}
+
+const deleteWineTypeToWinery = async (wineryId : number, typeWine : TypeWine) => {
+    return await WineType.delete({
+        wineryId: wineryId, 
+        wineType: typeWine,
+    });
+}
+
 export default {
     getWineTypeByWineryId,
+    insertWineTypeToWinery,
+    deleteWineTypeToWinery,
 }
