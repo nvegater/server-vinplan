@@ -183,7 +183,9 @@ const saveWineryWithOwnData = async (updateWineryInputs: UpdateWineryInputs) => 
     try {
         const winery: any = await WineryServices.findWineryById(updateWineryInputs.id);
         if (updateWineryInputs.logo && (winery.logo != updateWineryInputs.logo)){
-            await deleteImageFromS3(winery.logo); 
+            if (winery.logo) {
+                await deleteImageFromS3(winery.logo); 
+            }
         }
         winery.id = updateWineryInputs.id;
         winery.name = updateWineryInputs.name;
