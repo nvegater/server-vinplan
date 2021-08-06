@@ -6,6 +6,8 @@ import WineTypeServices from "../../dataServices/wineType";
 import WineProductionTypeServices from "../../dataServices/wineProductionType";
 import WineryLanguageServices from "../../dataServices/wineryLanguage";
 import WineryAmenityServices from "../../dataServices/wineryAmenity";
+import WineryGrapesServices from "../../dataServices/wineryGrapes";
+import WineryOtherServicesServices from "../../dataServices/wineryOthersServices";
 import {WineProductionType} from "../../entities/WineProductionType";
 import {WineryLanguage} from "../../entities/WineryLanguage";
 import {WineryAmenity} from "../../entities/WineryAmenity";
@@ -14,6 +16,9 @@ import {WineryServicesResponse} from "../../resolvers/Winery/wineryResolversOutp
 
 import {WineryImageGallery} from "../../entities/WineryImageGallery"
 import {WineType} from "../../entities/WineType"
+import {WineGrapesProduction} from "../../entities/WineGrapesProduction"
+import {WineryOtherServices} from "../../entities/WineryOtherServices"
+
 import {Service} from "../../entities/Service";
 import {convertDateToUTC} from "../../utils/dateUtils";
 
@@ -62,10 +67,10 @@ const getWineryWithServices = async(wineryId : number) : Promise<WineryServicesR
         if (servicesWithUTCDates && winery) {
             const wineTypesOfWinery: WineType[] | undefined = await WineTypeServices.getWineTypeByWineryId(winery.id)
             const prodTypesOfWinery: WineProductionType[] | undefined = await WineProductionTypeServices.getProductionTypeByWineryId(winery.id)
-
             const languages: WineryLanguage[] | undefined = await WineryLanguageServices.getWineryLanguageByWineryId(winery.id)
-
             const amenities: WineryAmenity[] | undefined = await WineryAmenityServices.getWineryAmenityByWineryId(winery.id)
+            const wineGrapesProduction: WineGrapesProduction[] | undefined = await WineryGrapesServices.getWineGrapesById(winery.id)
+            const wineryOthersServices: WineryOtherServices[] | undefined = await WineryOtherServicesServices.getWineryOtherServicesById(winery.id)
 
             return {
                 winery: {
@@ -73,7 +78,9 @@ const getWineryWithServices = async(wineryId : number) : Promise<WineryServicesR
                     wineType: wineTypesOfWinery.map((wt)=>wt.wineType),
                     productionType: prodTypesOfWinery.map((pt)=>pt.productionType),
                     supportedLanguages: languages.map((lan)=>lan.supportedLanguage),
-                    amenities: amenities.map((amen) => amen.amenity)
+                    amenities: amenities.map((amen) => amen.amenity),
+                    wineGrapesProduction: wineGrapesProduction.map((wg) => wg.wineGrapesProduction),
+                    othersServices: wineryOthersServices.map((wos) => wos.service)
                 },
                 images: wineryImages,
                 services: servicesWithUTCDates
