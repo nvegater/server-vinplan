@@ -116,7 +116,7 @@ export class Winery extends BaseEntity {
 
     @Field()
     @Column({nullable: true})
-    enologoName: boolean;
+    enologoName: string;
 
     @Field()
     @Column({nullable: true})
@@ -130,7 +130,7 @@ export class Winery extends BaseEntity {
     @OneToMany(() => WineProductionType, wineProductionType => wineProductionType.winery)
     productionType: WineProductionType[];
     
-    @Field(() => OtherServices)
+    @Field(() => [OtherServices])
     @OneToMany(() => WineryOtherServices, wineryOtherServices => wineryOtherServices.winery)
     othersServices: OtherServices[];
 
