@@ -7,7 +7,7 @@ import {ReservationResponse} from "./reservationsOutputs";
 import {ApolloRedisContext} from "../../apollo-config";
 import getUserReservations from "../../useCases/reservation/getUserReservations";
 import getWineryReservations from "../../useCases/reservation/getWineryReservations";
-import {ReservationsWinery} from "../../resolvers/Reservations/reservationsOutputs"
+// import {ReservationsWinery} from "../../resolvers/Reservations/reservationsOutputs"
 
 @Resolver(ServiceReservation)
 export class ReservationResolver {
@@ -49,10 +49,10 @@ export class ReservationResolver {
         return await getUserReservations(userId)
     }
 
-    @Query(() => [ReservationsWinery])
+    @Query(() => [ServiceReservation])
     async wineryReservations(
         @Arg('wineryId', () => Int) wineryId: number
-    ):  Promise<ReservationsWinery[]>{
+    ):  Promise<ServiceReservation[]>{
       return await getWineryReservations(wineryId)
     }
 
