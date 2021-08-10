@@ -7,7 +7,7 @@ import WineProductionTypeServices from "../../dataServices/wineProductionType";
 import WineryLanguageServices from "../../dataServices/wineryLanguage";
 import WineryAmenityServices from "../../dataServices/wineryAmenity";
 import WineryGrapesServices from "../../dataServices/wineryGrapes";
-import WineryOthersServices from "../../dataServices/wineryOthersServices";
+import WineryOthersServicesServices from "../../dataServices/wineryOthersServices";
 import {WineProductionType} from "../../entities/WineProductionType";
 import {WineryLanguage} from "../../entities/WineryLanguage";
 import {WineryAmenity} from "../../entities/WineryAmenity";
@@ -16,10 +16,11 @@ import {WineryServicesResponse} from "../../resolvers/Winery/wineryResolversOutp
 
 import {WineryImageGallery} from "../../entities/WineryImageGallery"
 import {WineType} from "../../entities/WineType"
+import {WineGrapesProduction} from "../../entities/WineGrapesProduction"
+import {WineryOtherServices} from "../../entities/WineryOtherServices"
+
 import {Service} from "../../entities/Service";
 import {convertDateToUTC} from "../../utils/dateUtils";
-import { WineGrapesProduction } from "src/entities/WineGrapesProduction";
-import { WineryOtherServices } from "src/entities/WineryOtherServices";
 
 const getWineryWithServices = async(wineryId : number) : Promise<WineryServicesResponse> => {
     try {
@@ -68,8 +69,8 @@ const getWineryWithServices = async(wineryId : number) : Promise<WineryServicesR
             const prodTypesOfWinery: WineProductionType[] | undefined = await WineProductionTypeServices.getProductionTypeByWineryId(winery.id)
             const wineGrapesProduction: WineGrapesProduction[] | undefined = await WineryGrapesServices.getWineGrapesById(winery.id)
             const languages: WineryLanguage[] | undefined = await WineryLanguageServices.getWineryLanguageByWineryId(winery.id)
-            const wineryOthersProducts: WineryOtherServices[] | undefined = await WineryOthersServices.getWineryOtherServicesById(winery.id)
             const amenities: WineryAmenity[] | undefined = await WineryAmenityServices.getWineryAmenityByWineryId(winery.id)
+            const wineryOthersServices: WineryOtherServices[] | undefined = await WineryOthersServicesServices.getWineryOtherServicesById(winery.id)
 
             return {
                 winery: {
@@ -79,7 +80,7 @@ const getWineryWithServices = async(wineryId : number) : Promise<WineryServicesR
                     supportedLanguages: languages.map((lan)=>lan.supportedLanguage),
                     amenities: amenities.map((amen) => amen.amenity),
                     wineGrapesProduction: wineGrapesProduction.map((wg => wg.wineGrapesProduction)),
-                    othersServices: wineryOthersProducts.map((ot => ot.service)),
+                    othersServices: wineryOthersServices.map((ot => ot.service)),
                 },
                 images: wineryImages,
                 services: servicesWithUTCDates

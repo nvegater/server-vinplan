@@ -63,7 +63,7 @@ const selectCoverPageImage = async(serviceImageId: number) => {
         .set({
             coverPage: true
         })
-        .where('id = :serviceImageId', {wineryImageId: serviceImageId})
+        .where('id = :serviceImageId', {serviceImageId: serviceImageId})
         .returning("*")
         .execute();
 }

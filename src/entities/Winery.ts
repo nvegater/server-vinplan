@@ -122,15 +122,15 @@ export class Winery extends BaseEntity {
     @Column({nullable: true})
     handicappedFriendly: boolean;
 
-    @Field(() => [Grape])
+    @Field(() => [Grape], {nullable: true})
     @OneToMany(() => WineGrapesProduction, wineGrapesProduction => wineGrapesProduction.winery)
     wineGrapesProduction: Grape[];
 
-    @Field(() => [ProductionType])
+    @Field(() => [ProductionType], {nullable: true})
     @OneToMany(() => WineProductionType, wineProductionType => wineProductionType.winery)
     productionType: WineProductionType[];
     
-    @Field(() => [OtherServices])
+    @Field(() => [OtherServices], {nullable: true})
     @OneToMany(() => WineryOtherServices, wineryOtherServices => wineryOtherServices.winery)
     othersServices: OtherServices[];
 
