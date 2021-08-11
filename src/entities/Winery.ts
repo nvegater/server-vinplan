@@ -106,19 +106,19 @@ export class Winery extends BaseEntity {
     @Column({nullable: true})
     architecturalReferences: boolean;
 
-    @Field()
+    @Field({nullable: true})
     @Column({nullable: true})
     younerFriendly: boolean;
     
-    @Field()
+    @Field({nullable: true})
     @Column({nullable: true})
     petFriendly: boolean;
 
-    @Field()
+    @Field({nullable: true})
     @Column({nullable: true})
     enologoName: string;
 
-    @Field()
+    @Field({nullable: true})
     @Column({nullable: true})
     handicappedFriendly: boolean;
 
