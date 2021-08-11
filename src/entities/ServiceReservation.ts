@@ -38,6 +38,12 @@ export class ServiceReservation extends BaseEntity {
     @Column({type:"float", nullable: true})
     pricePerPersonInDollars: number;
 
+    @Field(() => User)
+    userInfo: User
+
+    @Field(() => Service)
+    experienceInfo: Service
+
     @ManyToOne(() => User, (user) => user.reservedServices)
     user: User;
 

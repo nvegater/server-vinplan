@@ -7,6 +7,7 @@ import {ReservationResponse} from "./reservationsOutputs";
 import {ApolloRedisContext} from "../../apollo-config";
 import getUserReservations from "../../useCases/reservation/getUserReservations";
 import getWineryReservations from "../../useCases/reservation/getWineryReservations";
+// import {ReservationsWinery} from "../../resolvers/Reservations/reservationsOutputs"
 
 @Resolver(ServiceReservation)
 export class ReservationResolver {
