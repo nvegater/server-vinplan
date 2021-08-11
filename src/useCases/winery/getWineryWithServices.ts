@@ -7,7 +7,7 @@ import WineProductionTypeServices from "../../dataServices/wineProductionType";
 import WineryLanguageServices from "../../dataServices/wineryLanguage";
 import WineryAmenityServices from "../../dataServices/wineryAmenity";
 import WineryGrapesServices from "../../dataServices/wineryGrapes";
-import WineryOtherServicesServices from "../../dataServices/wineryOthersServices";
+import WineryOthersServicesServices from "../../dataServices/wineryOthersServices";
 import {WineProductionType} from "../../entities/WineProductionType";
 import {WineryLanguage} from "../../entities/WineryLanguage";
 import {WineryAmenity} from "../../entities/WineryAmenity";
@@ -67,10 +67,10 @@ const getWineryWithServices = async(wineryId : number) : Promise<WineryServicesR
         if (servicesWithUTCDates && winery) {
             const wineTypesOfWinery: WineType[] | undefined = await WineTypeServices.getWineTypeByWineryId(winery.id)
             const prodTypesOfWinery: WineProductionType[] | undefined = await WineProductionTypeServices.getProductionTypeByWineryId(winery.id)
+            const wineGrapesProduction: WineGrapesProduction[] | undefined = await WineryGrapesServices.getWineGrapesById(winery.id)
             const languages: WineryLanguage[] | undefined = await WineryLanguageServices.getWineryLanguageByWineryId(winery.id)
             const amenities: WineryAmenity[] | undefined = await WineryAmenityServices.getWineryAmenityByWineryId(winery.id)
-            const wineGrapesProduction: WineGrapesProduction[] | undefined = await WineryGrapesServices.getWineGrapesById(winery.id)
-            const wineryOthersServices: WineryOtherServices[] | undefined = await WineryOtherServicesServices.getWineryOtherServicesById(winery.id)
+            const wineryOthersServices: WineryOtherServices[] | undefined = await WineryOthersServicesServices.getWineryOtherServicesById(winery.id)
 
             return {
                 winery: {
@@ -79,8 +79,8 @@ const getWineryWithServices = async(wineryId : number) : Promise<WineryServicesR
                     productionType: prodTypesOfWinery.map((pt)=>pt.productionType),
                     supportedLanguages: languages.map((lan)=>lan.supportedLanguage),
                     amenities: amenities.map((amen) => amen.amenity),
-                    wineGrapesProduction: wineGrapesProduction.map((wg) => wg.wineGrapesProduction),
-                    othersServices: wineryOthersServices.map((wos) => wos.service)
+                    wineGrapesProduction: wineGrapesProduction.map((wg => wg.wineGrapesProduction)),
+                    othersServices: wineryOthersServices.map((ot => ot.service)),
                 },
                 images: wineryImages,
                 services: servicesWithUTCDates
