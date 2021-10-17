@@ -43,10 +43,29 @@ runcmd:
   - echo "dokku dokku/vhost_enable boolean true" | debconf-set-selections
   - echo "dokku dokku/nginx_enable boolean true" | debconf-set-selections
   - echo "dokku dokku/skip_key_file boolean true" | debconf-set-selections
-  - echo "dokku dokku/key_file string /root/.ssh/id_rsa.pub" | debconf-set-selections
+  - echo "dokku dokku/key_file string /nico/.ssh/id_rsa.pub" | debconf-set-selections
   - echo "dokku dokku/hostname string ${hostname}" | debconf-set-selections
   - apt-get install dokku -y
   - dokku plugin:install-dependencies --core
-  - dokku plugin:install https://github.com/dokku/dokku-postgres.git  # For postgres databases
-  - dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git  # For SSL certificates
-  - dokku letsencrypt:cron-job --add  # To auto-renew SSL certificates
+  - dokku plugin:install https://github.com/dokku/dokku-postgres.git postgres
+  - dokku plugin:install https://github.com/dokku/dokku-redis.git redis
+  - dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git letsencrypt
+  - dokku letsencrypt:cron-job --add
+  - dokku apps:create ${hostname}
+  - dokku postgres:create ${postgres}
+  - dokku postgres:link ${postgres} ${hostname}
+  - dokku redis:create ${redis}
+  - dokku redis:link ${redis} ${hostname}
+  - docker pull ${docker_registry_prefix}:${docker_tag_version}
+  - docker tag ${docker_registry_prefix}:${docker_tag_version} dokku/${hostname}:${docker_tag_version}
+  - dokku domains:remove-global ${hostname}
+  - dokku domains:remove ${hostname} ${hostname}.${hostname}
+  - dokku domains:add-global ${domain_name}
+  - dokku domains:add ${hostname} ${hostname}.${domain_name}
+  - dokku proxy:ports-clear ${hostname}
+  - dokku proxy:ports-add ${hostname} http:80:8080
+  - dokku tags:deploy ${hostname} ${docker_tag_version}
+  - dokku proxy:ports-remove ${hostname} http:8080:8080
+  - dokku config:set --no-restart ${hostname} DOKKU_LETSENCRYPT_EMAIL=${cert_maintainer_email}
+  - dokku letsencrypt:enable ${hostname}
+  - dokku tags:deploy ${hostname} ${docker_tag_version}

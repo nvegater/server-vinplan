@@ -7,4 +7,4 @@ read VERSION
 docker build -t nvegater/vinplan-server:$VERSION .
 docker push nvegater/vinplan-server:$VERSION
 
-ssh root@165.227.151.179 "docker pull nvegater/vinplan-server:$VERSION && docker tag nvegater/vinplan-server:$VERSION dokku/server-vinplan:$VERSION && dokku tags:deploy server-vinplan $VERSION"
+ssh root@159.223.21.125 "docker pull nvegater/vinplan-server:$VERSION && docker tag nvegater/vinplan-server:$VERSION dokku/wenoserver:$VERSION && dokku tags:deploy wenoserver $VERSION"
