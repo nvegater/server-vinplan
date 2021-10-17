@@ -3,7 +3,7 @@ import {CreateServiceInputs} from "../../resolvers/Service/serviceResolversInput
 import {CreateServiceResponse} from "../../resolvers/Service/serviceResolversOutputs";
 import {FieldError} from "../../resolvers/User/userResolversOutputs";
 
-const getServices = async (createServiceInputs: CreateServiceInputs, userId : number): Promise<CreateServiceResponse> => {
+const createService = async (createServiceInputs: CreateServiceInputs, userId : number): Promise<CreateServiceResponse> => {
     try {
         const service = await Service.findOne({where: {title: createServiceInputs.title}});
         if (!service) {
@@ -35,4 +35,4 @@ const getServices = async (createServiceInputs: CreateServiceInputs, userId : nu
     }
 }
 
-export default getServices;
+export default createService;
