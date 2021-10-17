@@ -16,14 +16,19 @@ provider "digitalocean" {
   spaces_secret_key = var.spaces-secret-key
 }
 
+resource "digitalocean_ssh_key" "terraform_dokku" {
+  name       = "Terraform Dokku"
+  public_key = var.ssh_public_key
+}
 
 resource "digitalocean_droplet" "wenoserver" {
   image     = "ubuntu-18-04-x64"
-  name      = "wenoserver"
+  name      = var.hostname
   region    = var.do-region
   size      = var.do-droplet-size
   ssh_keys = [
-    var.ssh_key_fingerprint
+    var.ssh_key_fingerprint,
+    digitalocean_ssh_key.terraform_dokku.fingerprint
   ]
   user_data = data.template_file.cloud-init-yaml.rendered
 }
@@ -47,5 +52,6 @@ data "template_file" "cloud-init-yaml" {
   template = file("${path.module}/files/cloud-init.yaml")
   vars = {
     init_ssh_public_key = var.ssh_public_key
+    hostname = var.hostname
   }
 }

@@ -33,3 +33,20 @@ runcmd:
   - systemctl enable docker
   - curl -L "https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
   - chmod +x /usr/local/bin/docker-compose
+  - wget -nv -O - https://packagecloud.io/dokku/dokku/gpgkey | apt-key add -
+  - export SOURCE="https://packagecloud.io/dokku/dokku/ubuntu/"
+  - export OS_ID="$(lsb_release -cs 2>/dev/null || echo "bionic")"
+  - echo "xenial bionic focal" | grep -q "$OS_ID" || OS_ID="bionic"
+  - echo "deb $SOURCE $OS_ID main" | tee /etc/apt/sources.list.d/dokku.list
+  - apt-get update
+  - echo "dokku dokku/web_config boolean false" | debconf-set-selections
+  - echo "dokku dokku/vhost_enable boolean true" | debconf-set-selections
+  - echo "dokku dokku/nginx_enable boolean true" | debconf-set-selections
+  - echo "dokku dokku/skip_key_file boolean true" | debconf-set-selections
+  - echo "dokku dokku/key_file string /root/.ssh/id_rsa.pub" | debconf-set-selections
+  - echo "dokku dokku/hostname string ${hostname}" | debconf-set-selections
+  - apt-get install dokku -y
+  - dokku plugin:install-dependencies --core
+  - dokku plugin:install https://github.com/dokku/dokku-postgres.git  # For postgres databases
+  - dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git  # For SSL certificates
+  - dokku letsencrypt:cron-job --add  # To auto-renew SSL certificates

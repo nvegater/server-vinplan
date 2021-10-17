@@ -33,4 +33,8 @@ variable "spaces-endpoint" {
   type = string
 }
 
-// --- SSH
+// --- App
+
+variable "hostname" {
+  default = "wenoserver"
+}
