@@ -4,6 +4,7 @@
 /.idea
 /dist
 
+/terraform/terraform.tfvars
 # dependencies
 /node_modules
 /.pnp
