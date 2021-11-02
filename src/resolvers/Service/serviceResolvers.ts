@@ -1,4 +1,4 @@
-import {Arg, Ctx, Int, Mutation, Query, Resolver, UseMiddleware} from "type-graphql";
+import {Arg, Ctx, Directive, Int, Mutation, Query, Resolver, UseMiddleware} from "type-graphql";
 import {Service, EventType} from "../../entities/Service";
 import {Valley} from "../../entities/Winery";
 import {
@@ -9,7 +9,7 @@ import {
     UpdateServiceResponse, FindExperienceResponse
 } from "./serviceResolversOutputs";
 import {isAuth} from "../Universal/utils";
-import {ApolloRedisContext} from "../../apollo-config";
+import {ApolloKeycloakContext, ApolloRedisContext} from "../../apollo-config";
 import {ServiceImageResponse, ServiceCoverImageChangeResponse} from "./serviceResolversOutputs"
 import createDefaultImageToEvent from "../../useCases/service/createDefaultImageToEvent"
 import updateDefaultImageToEvent from "../../useCases/service/updateDefaultImageToEvent"
@@ -72,14 +72,16 @@ export class ServiceResolver {
     }
 
     @Mutation(() => BookServiceResponse)
-    @UseMiddleware(isAuth)
+    @Directive("@auth")
     async reserve(
         @Arg('reserveServiceInputs') reserveServiceInputs: ReserveServiceInputs,
-        @Ctx() {req}: ApolloRedisContext
+        @Ctx() apolloKeycloakContext: ApolloKeycloakContext
     ): Promise<BookServiceResponse> {
+        const {kauth} = apolloKeycloakContext
         // @ts-ignore
-        const {userId} = req.session;
-        return await reserve({userId, ...reserveServiceInputs})
+        console.log(kauth.accessToken!.content)
+
+        return await reserve({userId: 1, ...reserveServiceInputs})
 
     }
 

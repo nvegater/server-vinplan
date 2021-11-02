@@ -14,12 +14,10 @@ import {buildRedisSession} from "./redis-config";
 import {Connection, createConnection} from "typeorm";
 import typeOrmPostgresConfig from "./typeorm.config"
 
-import {ApolloServer} from "apollo-server-express";
-import {
-    registerExpressServer,
-    apolloExpressRedisContext
-} from "./apollo-config";
-import {ApolloServerExpressConfig} from "apollo-server-express/dist/ApolloServer";
+import {ApolloServer, ApolloServerExpressConfig} from "apollo-server-express";
+import {apolloKeycloakExpressContext, registerExpressServer} from "./apollo-config";
+
+import Keycloak from "keycloak-connect"
 
 
 const start_server = async () => {
@@ -46,10 +44,19 @@ const start_server = async () => {
     //await Post.delete({});
     // npx typeorm migration:create -n FakePosts <----for migrations
 
-    // Apollo
-    const apolloConfig: ApolloServerExpressConfig = await apolloExpressRedisContext(redisClient);
+    // Keycloak
+    const keycloak = new Keycloak()
 
-    new ApolloServer(apolloConfig)
+    app.use("/graphql", keycloak.middleware())
+
+
+    // Apollo-redis
+    // const apolloConfig: ApolloServerExpressConfig = await apolloExpressRedisContext(redisClient);
+
+    // Apollo-Keycloak
+    const apolloKeycloakConfig: ApolloServerExpressConfig = await apolloKeycloakExpressContext(keycloak)
+
+    new ApolloServer(apolloKeycloakConfig)
         .applyMiddleware(registerExpressServer(app))
 
     // Start server
