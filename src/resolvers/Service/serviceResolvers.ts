@@ -1,5 +1,6 @@
 import {
   Arg,
+  // Authorized,
   Ctx,
   Directive,
   Int,
@@ -46,6 +47,8 @@ import getSalesConcentrate from "../../useCases/service/salesConcentrate";
 
 @Resolver(Service)
 export class ServiceResolver {
+  //@Authorized()
+  //@Authorized("weno-service-provider")
   @Query(() => PaginatedExperiences)
   async allServices(
     @Arg("limit", () => Int, {
