@@ -1,11 +1,13 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class nameOfMigration1627655414833 implements MigrationInterface {
-    name = 'nameOfMigration1627655414833'
+  name = "nameOfMigration1627655414833";
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`ALTER TYPE "wine_type_winetype_enum" RENAME TO "wine_type_winetype_enum_old"`);
-        await queryRunner.query(`CREATE TYPE "wine_type_winetype_enum" AS ENUM(
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TYPE "wine_type_winetype_enum" RENAME TO "wine_type_winetype_enum_old"`
+    );
+    await queryRunner.query(`CREATE TYPE "wine_type_winetype_enum" AS ENUM(
             'Blanco joven',
             'Blanco con barrica',
             'Rosado',
@@ -21,7 +23,7 @@ export class nameOfMigration1627655414833 implements MigrationInterface {
             'Orgánico',
             'Biodinámico', 
             'Natural');`);
-            await queryRunner.query(`ALTER TABLE "wine_type" ALTER column "wineType" 
+    await queryRunner.query(`ALTER TABLE "wine_type" ALTER column "wineType" 
             TYPE "wine_type_winetype_enum" 
             USING(
             CASE 
@@ -32,12 +34,14 @@ export class nameOfMigration1627655414833 implements MigrationInterface {
                 when "wineType"::text = 'Exclusivo de venta en el lugar' then 'Exclusivos de venta en el lugar'
             else "wineType"::text
             END)::"wine_type_winetype_enum";`);
-            await queryRunner.query(`DROP TYPE "wine_type_winetype_enum_old"`);
-    }
+    await queryRunner.query(`DROP TYPE "wine_type_winetype_enum_old"`);
+  }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`ALTER TYPE "wine_type_winetype_enum" RENAME TO "wine_type_winetype_enum_old"`);
-        await queryRunner.query(`CREATE TYPE "wine_type_winetype_enum" AS ENUM(
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TYPE "wine_type_winetype_enum" RENAME TO "wine_type_winetype_enum_old"`
+    );
+    await queryRunner.query(`CREATE TYPE "wine_type_winetype_enum" AS ENUM(
             'Blanco',
             'Blanco joven',
             'Blanco con barrica',
@@ -57,8 +61,9 @@ export class nameOfMigration1627655414833 implements MigrationInterface {
             'Orgánico',
             'Biodinámico', 
             'Natural');`);
-            await queryRunner.query(`ALTER TABLE "wine_type" ALTER COLUMN "wineType" TYPE "wine_type_winetype_enum" USING "wineType"::"text"::"wine_type_winetype_enum"`);
-            await queryRunner.query(`DROP TYPE "wine_type_winetype_enum_old"`);
-    }
-
+    await queryRunner.query(
+      `ALTER TABLE "wine_type" ALTER COLUMN "wineType" TYPE "wine_type_winetype_enum" USING "wineType"::"text"::"wine_type_winetype_enum"`
+    );
+    await queryRunner.query(`DROP TYPE "wine_type_winetype_enum_old"`);
+  }
 }

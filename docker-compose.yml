@@ -1,7 +1,6 @@
 version: "3.9"
 
 services:
-
   postgres:
     image: "postgres:13.2-alpine"
     ports:
@@ -17,4 +16,3 @@ services:
       - "6379:6379"
     expose:
       - "6379"
-

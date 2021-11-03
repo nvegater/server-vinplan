@@ -1,6 +1,6 @@
-import {BaseEntity, Column, Entity, ManyToOne, PrimaryColumn} from "typeorm";
-import {User} from "./User";
-import {Post} from "./Post";
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
+import { User } from "./User";
+import { Post } from "./Post";
 
 // m to n -> Many to Many
 // user <---> posts : many users upvote a post & users upvote many posts.
@@ -9,22 +9,20 @@ import {Post} from "./Post";
 
 @Entity()
 export class Upvote extends BaseEntity {
+  @PrimaryColumn()
+  userId: number;
 
-    @PrimaryColumn()
-    userId: number;
+  @PrimaryColumn()
+  postId: number;
 
-    @PrimaryColumn()
-    postId: number;
+  @Column({ type: "int" })
+  value: number;
 
-    @Column({type: "int"})
-    value: number;
+  @ManyToOne(() => User, (user) => user.upvotes)
+  user: User;
 
-
-    @ManyToOne(() => User, (user) => user.upvotes)
-    user: User;
-
-    @ManyToOne(() => Post, (post)=> post.upvotes, {
-        onDelete: "CASCADE"
-    })
-    post: Post; // If a post is deleted, Deleted the Upvote itself.
+  @ManyToOne(() => Post, (post) => post.upvotes, {
+    onDelete: "CASCADE",
+  })
+  post: Post; // If a post is deleted, Deleted the Upvote itself.
 }

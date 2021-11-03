@@ -1,32 +1,55 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class addVerifiedField1620406588918 implements MigrationInterface {
-    name = 'addVerifiedField1620406588918'
+  name = "addVerifiedField1620406588918";
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`ALTER TABLE "winery" ADD "verified" boolean NOT NULL DEFAULT false`);
-        await queryRunner.query(`ALTER TABLE "user" ADD "verified" boolean NOT NULL DEFAULT false`);
-        await queryRunner.query(`COMMENT ON COLUMN "service"."rRules" IS NULL`);
-        await queryRunner.query(`ALTER TABLE "service" ALTER COLUMN "rRules" SET DEFAULT '{}'::text[]`);
-        await queryRunner.query(`COMMENT ON COLUMN "service"."noOfAttendees" IS NULL`);
-        await queryRunner.query(`ALTER TABLE "service" ALTER COLUMN "noOfAttendees" SET DEFAULT 0`);
-        await queryRunner.query(`COMMENT ON COLUMN "service"."createdAt" IS NULL`);
-        await queryRunner.query(`COMMENT ON COLUMN "service"."updatedAt" IS NULL`);
-        await queryRunner.query(`COMMENT ON COLUMN "winery_image_gallery"."coverPage" IS NULL`);
-        await queryRunner.query(`ALTER TABLE "winery_image_gallery" ALTER COLUMN "coverPage" SET DEFAULT 'false'`);
-    }
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TABLE "winery" ADD "verified" boolean NOT NULL DEFAULT false`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "user" ADD "verified" boolean NOT NULL DEFAULT false`
+    );
+    await queryRunner.query(`COMMENT ON COLUMN "service"."rRules" IS NULL`);
+    await queryRunner.query(
+      `ALTER TABLE "service" ALTER COLUMN "rRules" SET DEFAULT '{}'::text[]`
+    );
+    await queryRunner.query(
+      `COMMENT ON COLUMN "service"."noOfAttendees" IS NULL`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "service" ALTER COLUMN "noOfAttendees" SET DEFAULT 0`
+    );
+    await queryRunner.query(`COMMENT ON COLUMN "service"."createdAt" IS NULL`);
+    await queryRunner.query(`COMMENT ON COLUMN "service"."updatedAt" IS NULL`);
+    await queryRunner.query(
+      `COMMENT ON COLUMN "winery_image_gallery"."coverPage" IS NULL`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "winery_image_gallery" ALTER COLUMN "coverPage" SET DEFAULT 'false'`
+    );
+  }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`ALTER TABLE "winery_image_gallery" ALTER COLUMN "coverPage" SET DEFAULT false`);
-        await queryRunner.query(`COMMENT ON COLUMN "winery_image_gallery"."coverPage" IS NULL`);
-        await queryRunner.query(`COMMENT ON COLUMN "service"."updatedAt" IS NULL`);
-        await queryRunner.query(`COMMENT ON COLUMN "service"."createdAt" IS NULL`);
-        await queryRunner.query(`ALTER TABLE "service" ALTER COLUMN "noOfAttendees" SET DEFAULT '0'`);
-        await queryRunner.query(`COMMENT ON COLUMN "service"."noOfAttendees" IS NULL`);
-        await queryRunner.query(`ALTER TABLE "service" ALTER COLUMN "rRules" SET DEFAULT '{}'`);
-        await queryRunner.query(`COMMENT ON COLUMN "service"."rRules" IS NULL`);
-        await queryRunner.query(`ALTER TABLE "user" DROP COLUMN "verified"`);
-        await queryRunner.query(`ALTER TABLE "winery" DROP COLUMN "verified"`);
-    }
-
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TABLE "winery_image_gallery" ALTER COLUMN "coverPage" SET DEFAULT false`
+    );
+    await queryRunner.query(
+      `COMMENT ON COLUMN "winery_image_gallery"."coverPage" IS NULL`
+    );
+    await queryRunner.query(`COMMENT ON COLUMN "service"."updatedAt" IS NULL`);
+    await queryRunner.query(`COMMENT ON COLUMN "service"."createdAt" IS NULL`);
+    await queryRunner.query(
+      `ALTER TABLE "service" ALTER COLUMN "noOfAttendees" SET DEFAULT '0'`
+    );
+    await queryRunner.query(
+      `COMMENT ON COLUMN "service"."noOfAttendees" IS NULL`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "service" ALTER COLUMN "rRules" SET DEFAULT '{}'`
+    );
+    await queryRunner.query(`COMMENT ON COLUMN "service"."rRules" IS NULL`);
+    await queryRunner.query(`ALTER TABLE "user" DROP COLUMN "verified"`);
+    await queryRunner.query(`ALTER TABLE "winery" DROP COLUMN "verified"`);
+  }
 }

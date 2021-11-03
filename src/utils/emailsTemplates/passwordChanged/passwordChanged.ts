@@ -1,5 +1,5 @@
 export default () => {
-    return `<!DOCTYPE html>
+  return `<!DOCTYPE html>
     <html lang="es">
     <head>
         <meta charset="utf-8">
@@ -47,5 +47,5 @@ export default () => {
         </tr>
     </table>
     </body>
-    </html>`
-}
+    </html>`;
+};

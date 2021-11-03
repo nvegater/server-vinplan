@@ -1,17 +1,17 @@
-import {format} from "date-fns";
+import { format } from "date-fns";
 
 export interface BookedServiceData {
-	cost: number;
-	eventType: string;
-	wineryName: string;
-	startDateTime: Date;
-	recommendedEventType?: string;
-	recommendedWineryName?: string;
-	recommendedWineryId?: string;
-	recommendedWineryImage?: string;
+  cost: number;
+  eventType: string;
+  wineryName: string;
+  startDateTime: Date;
+  recommendedEventType?: string;
+  recommendedWineryName?: string;
+  recommendedWineryId?: string;
+  recommendedWineryImage?: string;
 }
-export default (registerData : BookedServiceData) => {
-    return `<!DOCTYPE html>
+export default (registerData: BookedServiceData) => {
+  return `<!DOCTYPE html>
 	<html lang="es">
 	<head>
 		<meta charset="utf-8">
@@ -44,12 +44,19 @@ export default (registerData : BookedServiceData) => {
 						Booked service with $${registerData.cost}:</p>
 						<a style="color: #8CC63F;"></a>
 						<ul style="text-align: justify;">
-							<li>${registerData.eventType} en ${registerData.wineryName} - ${format(registerData.startDateTime, "KK mm aaa cccc d MMMM RRRR")}</li>
+							<li>${registerData.eventType} en ${registerData.wineryName} - ${format(
+    registerData.startDateTime,
+    "KK mm aaa cccc d MMMM RRRR"
+  )}</li>
 						</ul>
 						<br><br><br>
 						<div style="width: 100%; text-align: center">
 							<a style="text-decoration: none; border-radius: 12px; padding: 11px 23px; color: white; background-color: #8CC63F; cursor: pointer;" 
-							href="${process.env.NODE_ENV === 'production' ? process.env.CORS_ORIGIN_WHITELIST_1 : process.env.CORS_ORIGIN_WHITELIST_4}/user-profile">View booking</a>	
+							href="${
+                process.env.NODE_ENV === "production"
+                  ? process.env.CORS_ORIGIN_WHITELIST_1
+                  : process.env.CORS_ORIGIN_WHITELIST_4
+              }/user-profile">View booking</a>	
 						</div>
 						<!--
 						<div>
@@ -58,10 +65,18 @@ export default (registerData : BookedServiceData) => {
 							<br>
 							<h4>You might also be interested</h4>
 							<div id="recomendation" style="display: inline-block; border: solid 2px #9663e4; border-radius: 12px; width: 40%;">
-								<img src="${registerData.recommendedWineryImage}" width="100%" style="border-radius: 11px;"/>
-								<p><b>${registerData.recommendedEventType} en ${registerData.recommendedWineryName}</b></p>
+								<img src="${
+                  registerData.recommendedWineryImage
+                }" width="100%" style="border-radius: 11px;"/>
+								<p><b>${registerData.recommendedEventType} en ${
+    registerData.recommendedWineryName
+  }</b></p>
 								<a style="text-decoration: none; border-radius: 12px; padding: 12px 12px; color: white; background-color: #8CC63F; cursor: pointer;" 
-								href="${process.env.NODE_ENV === 'production' ? process.env.CORS_ORIGIN_WHITELIST_1 : process.env.CORS_ORIGIN_WHITELIST_4}/winery/${registerData.recommendedWineryId}">
+								href="${
+                  process.env.NODE_ENV === "production"
+                    ? process.env.CORS_ORIGIN_WHITELIST_1
+                    : process.env.CORS_ORIGIN_WHITELIST_4
+                }/winery/${registerData.recommendedWineryId}">
 								Check service</a>
 							</div>
 						</div>
@@ -73,5 +88,5 @@ export default (registerData : BookedServiceData) => {
 		</tr>
 	</table>
 	</body>
-	</html>`
-}
+	</html>`;
+};

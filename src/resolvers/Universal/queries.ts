@@ -59,7 +59,6 @@ export const SQL_QUERY_SELECT_PAGINATED_POSTS = `
     limit $1
 `;
 
-
 export const SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR = `
     select p.*,
            json_build_object(
@@ -92,7 +91,6 @@ export const SQL_QUERY_SELECT_PAGINATED_POSTS_USER_LOGGED_IN = `
     order by p."createdAt" DESC
     limit $1
 `;
-
 
 export const SQL_QUERY_SELECT_PAGINATED_POSTS_WITH_CURSOR_USER_LOGGED_IN = `
     select p.*,
@@ -155,5 +153,3 @@ export const SQL_QUERY_GET_RESERVED_SERVICES_IDS = `
                  from service_reservation sr
                  where "userId" = $1) as "reservedServicesIds";
 `;
-
-
