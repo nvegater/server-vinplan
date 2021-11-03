@@ -1,6 +1,6 @@
 import {
   Arg,
-  // Authorized,
+  Authorized,
   Ctx,
   Directive,
   Int,
@@ -9,23 +9,21 @@ import {
   Resolver,
   UseMiddleware,
 } from "type-graphql";
-import { Service, EventType } from "../../entities/Service";
+import { EventType, Service } from "../../entities/Service";
 import { Valley } from "../../entities/Winery";
 import {
-  SalesConcentrate,
   BookServiceResponse,
   CreateServiceResponse,
-  ServiceResponse,
-  PaginatedExperiences,
-  UpdateServiceResponse,
   FindExperienceResponse,
+  PaginatedExperiences,
+  SalesConcentrate,
+  ServiceCoverImageChangeResponse,
+  ServiceImageResponse,
+  ServiceResponse,
+  UpdateServiceResponse,
 } from "./serviceResolversOutputs";
 import { isAuth } from "../Universal/utils";
-import { ApolloKeycloakContext, ApolloRedisContext } from "../../apollo-config";
-import {
-  ServiceImageResponse,
-  ServiceCoverImageChangeResponse,
-} from "./serviceResolversOutputs";
+import { ApolloRedisContext } from "../../apollo-config";
 import createDefaultImageToEvent from "../../useCases/service/createDefaultImageToEvent";
 import updateDefaultImageToEvent from "../../useCases/service/updateDefaultImageToEvent";
 import deleteDefaultImageToEvent from "../../useCases/service/deleteDefaultImageToEvent";
@@ -47,8 +45,7 @@ import getSalesConcentrate from "../../useCases/service/salesConcentrate";
 
 @Resolver(Service)
 export class ServiceResolver {
-  //@Authorized()
-  //@Authorized("weno-service-provider")
+  @Authorized("weno-service-provider")
   @Query(() => PaginatedExperiences)
   async allServices(
     @Arg("limit", () => Int, {
@@ -71,12 +68,9 @@ export class ServiceResolver {
     @Arg("eventType", () => [EventType], { nullable: true })
     eventType: EventType[] | null,
     @Arg("valley", () => [Valley], { nullable: true }) valley: Valley[],
-    @Arg("state", () => String, { nullable: true }) state: string | null,
-    @Ctx() apolloKeycloakContext: ApolloKeycloakContext
+    @Arg("state", () => String, { nullable: true }) state: string | null
   ): Promise<PaginatedExperiences> {
     try {
-      console.log(apolloKeycloakContext.kauth.isAuthenticated());
-      console.log(apolloKeycloakContext.kauth.hasRole("weno-service-provider"));
       return await showServices(
         limit,
         cursor,
@@ -114,13 +108,8 @@ export class ServiceResolver {
   @Mutation(() => BookServiceResponse)
   @Directive("@auth")
   async reserve(
-    @Arg("reserveServiceInputs") reserveServiceInputs: ReserveServiceInputs,
-    @Ctx() apolloKeycloakContext: ApolloKeycloakContext
+    @Arg("reserveServiceInputs") reserveServiceInputs: ReserveServiceInputs
   ): Promise<BookServiceResponse> {
-    const { kauth } = apolloKeycloakContext;
-    // @ts-ignore
-    console.log(kauth.accessToken!.content);
-
     return await reserve({ userId: 1, ...reserveServiceInputs });
   }
 

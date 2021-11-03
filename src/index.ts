@@ -21,6 +21,9 @@ import {
 } from "./apollo-config";
 
 import Keycloak from "keycloak-connect";
+import { readFileSync } from "fs";
+import { resolve } from "path";
+import expSession from "express-session";
 
 const start_server = async () => {
   const app: Express = express();
@@ -50,16 +53,28 @@ const start_server = async () => {
   // npx typeorm migration:create -n FakePosts <----for migrations
 
   // Keycloak
-  const keycloak = new Keycloak({});
+  const keycloakConfig = JSON.parse(
+    // @ts-ignore
+    readFileSync(resolve(__dirname, "keycloak.json"))
+  );
+  const memoryStore = new expSession.MemoryStore();
 
+  app.use(
+    expSession({
+      secret: process.env.KEYCLOAK_SECRET || "",
+      resave: false,
+      saveUninitialized: true,
+      store: memoryStore,
+    })
+  );
+
+  const keycloak = new Keycloak({ store: memoryStore }, keycloakConfig);
+
+  app.use(keycloak.middleware({ admin: "/graphql" }));
   app.use("/graphql", keycloak.middleware());
 
-  // Apollo-redis
-  // const apolloConfig: ApolloServerExpressConfig = await apolloExpressRedisContext(redisClient);
-
-  // Apollo-Keycloak
   const apolloKeycloakConfig: ApolloServerExpressConfig =
-    await apolloKeycloakExpressContext(keycloak);
+    await apolloKeycloakExpressContext();
 
   new ApolloServer(apolloKeycloakConfig).applyMiddleware(
     registerExpressServer(app)

@@ -1,5 +1,5 @@
 declare namespace NodeJS {
-  export interface ProcessEnv {
+  interface ProcessEnv {
     DATABASE_URL: string;
     REDIS_URL: string;
     PORT: string;
@@ -17,5 +17,6 @@ declare namespace NodeJS {
     SEND_EMAIL_PASSWORD: string;
     SEND_EMAIL_HOST: string;
     SEND_EMAIL_PORT: string;
+    KEYCLOAK_SECRET: string;
   }
 }

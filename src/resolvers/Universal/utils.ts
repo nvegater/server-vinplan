@@ -25,5 +25,9 @@ export const keycloakAuthChecker: AuthChecker<ApolloKeycloakContext> = (
   }
 
   // user did not have at least one roll
-  return !(roles && roles.length > 0 && !roles.some(context.kauth.hasRole));
+  return !(
+    roles &&
+    roles.length > 0 &&
+    !roles.some((role) => context.kauth.hasRole(role))
+  );
 };
