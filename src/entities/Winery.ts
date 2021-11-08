@@ -3,13 +3,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Service } from "./Service";
-import { User } from "./User";
+
 import { Field, Int, ObjectType, registerEnumType } from "type-graphql";
 import { ProductionType, WineProductionType } from "./WineProductionType";
 import { TypeWine, WineType } from "./WineType";
@@ -17,6 +15,7 @@ import { Amenity, WineryAmenity } from "./WineryAmenity";
 import { WineryLanguage, SupportedLanguage } from "./WineryLanguage";
 import { Grape, WineGrapesProduction } from "./WineGrapesProduction";
 import { OtherServices, WineryOtherServices } from "./WineryOtherServices";
+import { Experience } from "./Experience";
 
 export enum Valley {
   "GUADALUPE" = "Guadalupe",
@@ -47,6 +46,10 @@ export class Winery extends BaseEntity {
   name!: string;
 
   @Field(() => String)
+  @Column({ unique: true })
+  userId!: string;
+
+  @Field(() => String)
   @Column()
   description!: string;
 
@@ -55,9 +58,9 @@ export class Winery extends BaseEntity {
   foundationYear: number;
 
   // Winery posts multiple wineEvents. Each wineEvent done by user.
-  @Field(() => [Service], { nullable: true })
-  @OneToMany(() => Service, (service) => service.winery)
-  services: Service[];
+  @Field(() => [Experience], { nullable: true })
+  @OneToMany(() => Experience, (exp) => exp.winery)
+  experiences: Experience[];
 
   @Field(() => String, { nullable: true })
   @Column({ nullable: true })
@@ -164,13 +167,6 @@ export class Winery extends BaseEntity {
     nullable: true,
   })
   amenities?: WineryAmenity[];
-
-  //FK
-  @Column()
-  creatorId: number;
-
-  @ManyToOne(() => User, (user) => user.winery)
-  creator: User;
 
   @Field(() => Date)
   @CreateDateColumn()

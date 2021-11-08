@@ -1,12 +1,6 @@
 import { NonEmptyArray } from "type-graphql/dist/interfaces/NonEmptyArray";
-import { PostResolver } from "./resolvers/Post/postResolvers";
-import { UserResolver } from "./resolvers/User/userResolvers";
 import { buildSchema } from "type-graphql";
-import { Express, Request, Response } from "express";
-import { WineryResolver } from "./resolvers/Winery/wineryResolvers";
-import { ServiceResolver } from "./resolvers/Service/serviceResolvers";
-import { PresignedResolver } from "./resolvers/PreSignedUrl/presigned";
-import { ReservationResolver } from "./resolvers/Reservations/reservations";
+import { Express } from "express";
 import {
   GrantedRequest,
   KeycloakContext,
@@ -18,7 +12,11 @@ import {
   PlaygroundConfig,
   ServerRegistration,
 } from "apollo-server-express";
-import { keycloakAuthChecker } from "./resolvers/Universal/utils";
+import { ExperienceResolvers } from "./resolvers/ExperienceResolvers";
+import { PictureResolvers } from "./resolvers/PictureResolvers";
+import { ReservationResolvers } from "./resolvers/ReservationResolvers";
+import { WineryResolvers } from "./resolvers/WineryResolvers";
+import { keycloakAuthChecker } from "./utils/auth/keycloak";
 
 const registerServer = (app: Express) => ({
   app, // Http -express server
@@ -32,12 +30,10 @@ export const registerExpressServer: (app: Express) => ServerRegistration = (
 
 const buildSchemas = async () => {
   const entityResolvers: NonEmptyArray<Function> = [
-    PostResolver,
-    UserResolver,
-    WineryResolver,
-    ServiceResolver,
-    PresignedResolver,
-    ReservationResolver,
+    ExperienceResolvers,
+    PictureResolvers,
+    ReservationResolvers,
+    WineryResolvers,
   ];
 
   return await buildSchema({
@@ -45,12 +41,6 @@ const buildSchemas = async () => {
     validate: false,
     authChecker: keycloakAuthChecker,
   });
-};
-
-export type ApolloRedisContext = {
-  req: Request;
-  res: Response;
-  redis: any;
 };
 
 export type ApolloKeycloakContext = {

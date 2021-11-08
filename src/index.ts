@@ -8,7 +8,7 @@ import { corsConfig } from "./express-config";
 
 import expSession from "express-session";
 
-import { Connection, createConnection } from "typeorm";
+import { createConnection } from "typeorm";
 import typeOrmPostgresConfig from "./typeorm.config";
 
 import { ApolloServer, ApolloServerExpressConfig } from "apollo-server-express";
@@ -31,15 +31,7 @@ const start_server = async () => {
   app.set("trust proxy", 1);
 
   // TypeORM
-  const postgresConnection: Connection = await createConnection(
-    typeOrmPostgresConfig
-  );
-  // when pushing the docker image
-  // this will run everything from the migration folder
-  await postgresConnection.runMigrations();
-
-  //await Post.delete({});
-  // npx typeorm migration:create -n FakePosts <----for migrations
+  await createConnection(typeOrmPostgresConfig);
 
   // Keycloak
   const memoryStore = new expSession.MemoryStore();
