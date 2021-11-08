@@ -33,7 +33,7 @@ export const getImagesNumberGallery = async (experienceId: number) => {
 
 export const deleteDefaultPicture = async (experienceId: number) => {
   const defaultPicture = await Picture.findOne({
-    where: { experienceId, coverPage: true },
+    where: { experienceId, coverPage: true }, // TODO: double check with: https://github.com/typeorm/typeorm/issues/2929
   });
   if (defaultPicture) {
     await Picture.delete(defaultPicture.id);
