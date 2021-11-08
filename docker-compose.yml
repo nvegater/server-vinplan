@@ -9,10 +9,3 @@ services:
       POSTGRES_USER: "root"
       POSTGRES_PASSWORD: "toor"
       POSTGRES_DB: "weno"
-
-  redis:
-    image: "redis:6.0-alpine"
-    ports:
-      - "6379:6379"
-    expose:
-      - "6379"

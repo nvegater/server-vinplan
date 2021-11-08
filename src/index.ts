@@ -18,8 +18,8 @@ import {
 } from "./apollo-config";
 
 import Keycloak from "keycloak-connect";
-import { readFileSync } from "fs";
-import { resolve } from "path";
+
+import keycloakConfig from "./keycloak.json";
 
 const start_server = async () => {
   const app: Express = express();
@@ -42,10 +42,6 @@ const start_server = async () => {
   // npx typeorm migration:create -n FakePosts <----for migrations
 
   // Keycloak
-  const keycloakConfig = JSON.parse(
-    // @ts-ignore
-    readFileSync(resolve(__dirname, "keycloak.json"))
-  );
   const memoryStore = new expSession.MemoryStore();
 
   app.use(
