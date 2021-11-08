@@ -6,10 +6,7 @@ import "dotenv-safe/config";
 import cors from "cors";
 import { corsConfig } from "./express-config";
 
-import session from "express-session";
-import connectRedis, { RedisStore } from "connect-redis";
-import Redis, { Redis as RedisType } from "ioredis";
-import { buildRedisSession } from "./redis-config";
+import expSession from "express-session";
 
 import { Connection, createConnection } from "typeorm";
 import typeOrmPostgresConfig from "./typeorm.config";
@@ -23,7 +20,6 @@ import {
 import Keycloak from "keycloak-connect";
 import { readFileSync } from "fs";
 import { resolve } from "path";
-import expSession from "express-session";
 
 const start_server = async () => {
   const app: Express = express();
@@ -32,14 +28,7 @@ const start_server = async () => {
   const corsRequestHandler: RequestHandler = cors(corsConfig);
   app.use(corsRequestHandler);
 
-  // Redis
-  const redisStore: RedisStore = connectRedis(session);
-  const redisClient: RedisType = new Redis(process.env.REDIS_URL);
   app.set("trust proxy", 1);
-  const redisRequestHandler: RequestHandler = session(
-    buildRedisSession(redisStore, redisClient)
-  );
-  app.use(redisRequestHandler);
 
   // TypeORM
   const postgresConnection: Connection = await createConnection(

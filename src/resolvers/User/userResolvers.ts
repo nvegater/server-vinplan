@@ -25,7 +25,6 @@ import {
   WineryDataInputs,
   UserToEdit,
 } from "./userResolversInputs";
-import { SessionCookieName } from "../../redis-config";
 import { ApolloRedisContext } from "../../apollo-config";
 import { FORGET_PASSWORD_PREFIX, VALIDATE_USER_PREFIX } from "../../constants";
 import userResolversErrors from "./userResolversErrors";
@@ -177,7 +176,7 @@ export class UserResolver {
           resolvePromise(false);
           return;
         }
-        res.clearCookie(SessionCookieName);
+        res.clearCookie("");
         resolvePromise(true);
       });
     });

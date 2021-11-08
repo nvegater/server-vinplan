@@ -2,7 +2,6 @@ import { NonEmptyArray } from "type-graphql/dist/interfaces/NonEmptyArray";
 import { PostResolver } from "./resolvers/Post/postResolvers";
 import { UserResolver } from "./resolvers/User/userResolvers";
 import { buildSchema } from "type-graphql";
-import { Redis } from "ioredis";
 import { Express, Request, Response } from "express";
 import { WineryResolver } from "./resolvers/Winery/wineryResolvers";
 import { ServiceResolver } from "./resolvers/Service/serviceResolvers";
@@ -51,7 +50,7 @@ const buildSchemas = async () => {
 export type ApolloRedisContext = {
   req: Request;
   res: Response;
-  redis: Redis;
+  redis: any;
 };
 
 export type ApolloKeycloakContext = {
