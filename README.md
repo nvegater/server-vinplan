@@ -36,7 +36,12 @@ The Script to run the automatic migrations is in `package.json`:
 }
 ```
 Use it everytime you generate changes in the DB entities, to generate the neccessary migration scripts
-1. Generate production bundle `dist/`
+
+Requirements: Database must be running and there has to be a connection with the database.
+
+0. Stop the server, Remove the old `dist/` Folder
+
+1. Generate new production bundle `dist/`
 ```bash
 npm run build
 ```
@@ -44,4 +49,10 @@ npm run build
 ```bash
 npm run typeorm migration:generate -- -n AnyName
 ```
-3. Restart the server
+3. Remove the  `dist/` again
+
+4. Generate the dist folder again
+```bash
+npm run build
+```
+5. Run the server to apply the migrations (auto apply set on `src/typeorm.config.ts`)

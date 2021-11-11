@@ -15,7 +15,7 @@ import {
 import { ExperienceResolvers } from "./resolvers/ExperienceResolvers";
 import { PictureResolvers } from "./resolvers/PictureResolvers";
 import { ReservationResolvers } from "./resolvers/ReservationResolvers";
-import { WineryResolvers } from "./resolvers/WineryResolvers";
+import { WineryResolvers } from "./resolvers/winery/WineryResolvers";
 import { keycloakAuthChecker } from "./utils/auth/keycloak";
 
 const registerServer = (app: Express) => ({

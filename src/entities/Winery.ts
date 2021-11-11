@@ -47,7 +47,11 @@ export class Winery extends BaseEntity {
 
   @Field(() => String)
   @Column({ unique: true })
-  userId!: string;
+  creatorUsername!: string;
+
+  @Field(() => String)
+  @Column({ unique: true })
+  creatorEmail!: string;
 
   @Field(() => String)
   @Column()

@@ -1,10 +1,10 @@
 import AWS from "aws-sdk";
 import mime from "mime";
-import { PresignedUrlInput } from "../resolvers/PreSignedUrl/presignedInputs";
-import { PresignedResponse } from "../resolvers/PreSignedUrl/presignedOutputs";
+import { PresignedUrlInput } from "../resolvers/pictures/presignedInputs";
+import { PresignedResponse } from "../resolvers/pictures/presignedOutputs";
 import imagesNumberWineryGallery from "../useCases/pictures/countWineryImages";
 import imagesNumberExperiencesGallery from "../useCases/pictures/countExperiencesImages";
-import { GetPreSignedUrlResponse } from "../resolvers/PreSignedUrl/presignedOutputs";
+import { GetPreSignedUrlResponse } from "../resolvers/pictures/presignedOutputs";
 
 const spacesEndpoint = new AWS.Endpoint(
   process.env.NEXT_PUBLIC_DO_SPACES_ENDPOINT as string
