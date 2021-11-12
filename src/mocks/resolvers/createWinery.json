@@ -1,0 +1,14 @@
+{
+  "userInputs": {
+    "username": "mockUsername",
+    "email": "mockEmail"
+  },
+  "createWineryInputs": {
+    "name": "mockWinery",
+    "description": "Mock description should be longer",
+    "valley": "GUADALUPE",
+    "productionType": "ORG_BIO_NAT",
+    "wineType": "BIODINAMICO",
+    "covidLabel": false
+  }
+}
