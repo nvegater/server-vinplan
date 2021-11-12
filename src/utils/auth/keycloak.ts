@@ -13,11 +13,16 @@ export const keycloakAuthChecker: AuthChecker<ApolloKeycloakContext> = (
     roles.length > 0 &&
     !roles.some((role) => context.kauth.hasRole(role))
   );
-  if (context.kauth.accessToken) {
-    console.log(context.kauth.accessToken);
-    return false;
+  let userType = "";
+  try {
+    // @ts-ignore
+    userType = context.kauth.accessToken.content.userType;
+  } catch (e) {
+    throw new Error("Error authenticating");
+  }
+  if (roles.includes(userType)) {
+    return true;
   }
 
-  console.log(context.kauth.accessToken);
   return notEvenOneRole;
 };
