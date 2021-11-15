@@ -47,6 +47,14 @@ export class Winery extends BaseEntity {
 
   @Field(() => String)
   @Column({ unique: true })
+  urlAlias!: string;
+
+  @Field(() => String, { nullable: true })
+  @Column({ nullable: true }) // Take the one from stripe. In theory unique- In stripe we trust
+  stripe_customerId!: string;
+
+  @Field(() => String)
+  @Column({ unique: true })
   creatorUsername!: string;
 
   @Field(() => String)

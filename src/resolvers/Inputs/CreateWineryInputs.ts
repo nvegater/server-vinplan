@@ -11,6 +11,8 @@ class CreateWineryInputs {
   name!: string;
   @Field()
   description!: string;
+  @Field()
+  urlAlias!: string;
   @Field(() => Valley)
   valley!: Valley;
   @Field(() => [ProductionType])

@@ -7,3 +7,11 @@ export class UserInputs {
   @Field()
   email: string;
 }
+
+@InputType()
+export class GetWineryInputs {
+  @Field({ nullable: true })
+  urlAlias?: string;
+  @Field({ nullable: true })
+  creatorUsername?: string;
+}

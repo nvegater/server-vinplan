@@ -10,6 +10,14 @@ export const getWineryByUsername_DS = async (creatorUsername: string) => {
   });
 };
 
+export const getWineryByAlias_DS = async (urlAlias: string) => {
+  return await Winery.findOne({
+    where: {
+      urlAlias: urlAlias,
+    },
+  });
+};
+
 interface CreateWineryProps_DS {
   winery: CreateWineryInputs;
   user: UserInputs;
