@@ -8,7 +8,10 @@ import { createCustomer_DS } from "../../dataServices/payment";
 export const createCustomer = async (
   createCustomerInputs: CreateCustomerInputs
 ): Promise<CustomerResponse> => {
-  const stripe_customer = await createCustomer_DS({ ...createCustomerInputs });
+  const stripe_customer = await createCustomer_DS({
+    email: createCustomerInputs.email,
+    metadata: { username: createCustomerInputs.paymentMetadata.username },
+  });
   const paymentMetadata: PaymentMetadataInputs = {
     username: stripe_customer.metadata.username,
   };
