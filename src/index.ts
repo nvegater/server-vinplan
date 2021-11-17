@@ -18,8 +18,10 @@ import {
 } from "./apollo-config";
 
 import Keycloak from "keycloak-connect";
+import bodyParser from "body-parser";
 
 import keycloakConfig from "./keycloak.json";
+import { webhookListenerFn } from "./dataServices/payment";
 
 const start_server = async () => {
   const app: Express = express();
@@ -55,6 +57,12 @@ const start_server = async () => {
 
   new ApolloServer(apolloKeycloakConfig).applyMiddleware(
     registerExpressServer(app)
+  );
+
+  app.post(
+    "/webhook",
+    bodyParser.raw({ type: "application/json" }),
+    (req, res) => webhookListenerFn(req, res)
   );
 
   // Start server

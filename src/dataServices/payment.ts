@@ -57,3 +57,49 @@ export const confirmPaymentIntent_DS = async (
 ) => {
   return await stripe.paymentIntents.confirm(paymentIntentId, { ...params });
 };
+
+export const getProductIds_DS = async () => {
+  const productList: Stripe.ApiList<Stripe.Product> =
+    await stripe.products.list();
+
+  return productList.data.map((product) => product.id);
+};
+// Match the raw body to content type application/json
+export const webhookListenerFn = (request: any, response: any) => {
+  const sig = request.headers["stripe-signature"];
+
+  getProductIds_DS();
+
+  let event: Stripe.Event;
+
+  try {
+    event = stripe.webhooks.constructEvent(
+      request.body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET || ""
+    );
+  } catch (err) {
+    response.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // Handle the event
+  const eventType = event!.type;
+  const eventDataObject = event!.data.object;
+
+  switch (eventType) {
+    case "payment_intent.succeeded":
+      const paymentIntent = eventDataObject;
+      console.log("PaymentIntent was successful!", paymentIntent);
+      break;
+    case "payment_method.attached":
+      const paymentMethod = eventDataObject;
+      console.log("PaymentMethod was attached to a Customer!", paymentMethod);
+      break;
+    // ... handle other event types
+    default:
+      console.log(`Unhandled event type ${eventType}`);
+  }
+
+  // Return a response to acknowledge receipt of the event
+  response.json({ received: true });
+};

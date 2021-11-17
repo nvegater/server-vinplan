@@ -4,7 +4,7 @@ import { Customer } from "../../entities/Customer";
 import { CustomerResponse } from "../Outputs/CustomerOutputs";
 import { CreateCustomerInputs } from "../Inputs/CreateCustomerInputs";
 
-import { createCustomer } from "../../useCases/payment/createCustomer";
+import { createCustomer } from "../../useCases/payment/customers";
 
 @Resolver(Customer)
 export class CustomerResolvers {
