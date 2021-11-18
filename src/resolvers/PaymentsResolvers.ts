@@ -9,9 +9,9 @@ import { CreateCustomerInputs } from "./Inputs/CreateCustomerInputs";
 
 import {
   createSubscriptionCheckoutSession,
-  getProductIds,
   verifyCheckoutSessionStatus,
   createCustomer,
+  retrieveSubscriptionsWithPrices,
 } from "../useCases/payment/payments";
 
 /**
@@ -34,8 +34,8 @@ export class PaymentsResolvers {
 
   @Authorized()
   @Query(() => ProductsResponse)
-  async getProductIds(): Promise<ProductsResponse> {
-    return await getProductIds();
+  async getSubscriptionProducts(): Promise<ProductsResponse> {
+    return await retrieveSubscriptionsWithPrices();
   }
 
   @Authorized()

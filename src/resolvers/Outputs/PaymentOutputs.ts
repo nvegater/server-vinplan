@@ -1,13 +1,14 @@
 import { Field, ObjectType } from "type-graphql";
 import { FieldError } from "./ErrorOutputs";
 import { Customer } from "../../entities/Customer";
+import { Product } from "../../entities/Product";
 
 @ObjectType()
 export class ProductsResponse {
   @Field(() => [FieldError], { nullable: true })
   errors?: FieldError[];
-  @Field(() => [String], { nullable: true })
-  productIds?: string[];
+  @Field(() => [Product], { nullable: true })
+  products?: Product[];
 }
 
 @ObjectType()

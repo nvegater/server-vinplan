@@ -71,6 +71,13 @@ export const getProductIds_DS = async () => {
   return productList.data.map((product) => product.id);
 };
 
+export const getProducts_DS = async () => {
+  const productList: Stripe.ApiList<Stripe.Product> =
+    await stripe.products.list();
+
+  return productList.data;
+};
+
 export const retrievePriceFromProduct_DS = async (productId: string) => {
   const pricesList = await stripe.prices.list({
     expand: ["data.product"],

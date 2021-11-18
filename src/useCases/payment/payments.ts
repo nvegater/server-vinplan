@@ -2,7 +2,7 @@ import {
   createCheckoutSession_DS,
   createCustomer_DS,
   getCheckoutSession_DS,
-  getProductIds_DS,
+  getProducts_DS,
   retrievePriceFromProduct_DS,
 } from "../../dataServices/payment";
 import {
@@ -14,13 +14,53 @@ import {
   CreateCustomerInputs,
   PaymentMetadataInputs,
 } from "../../resolvers/Inputs/CreateCustomerInputs";
+import { Product } from "../../entities/Product";
+import { Price } from "../../entities/Price";
 
-export const getProductIds = async (): Promise<ProductsResponse> => {
-  const stripe_productsIds = await getProductIds_DS();
-  return {
-    productIds: stripe_productsIds,
+export const retrieveSubscriptionsWithPrices =
+  async (): Promise<ProductsResponse> => {
+    const stripe_products = await getProducts_DS();
+
+    const activeProducts = stripe_products.filter((prod) => prod.active); // only active products
+
+    let productsWithPrice: Product[] = [];
+
+    try {
+      productsWithPrice = await Promise.all(
+        activeProducts.map(async (prod) => {
+          const price = await retrievePriceFromProduct_DS(prod.id);
+          const priceModel: Price = {
+            currency: price.currency,
+            tiersMode: price.tiers_mode,
+            type: price.type,
+            id: price.id,
+          };
+          const product: Product = {
+            id: prod.id,
+            name: prod.name,
+            description: prod.description ? prod.description : "",
+            images: prod.images,
+            unit_label: prod.unit_label ? prod.unit_label : "",
+            price: priceModel,
+          };
+          return product;
+        })
+      );
+    } catch (e) {
+      throw new Error(e);
+    }
+
+    if (productsWithPrice.length === 0)
+      return {
+        errors: [
+          { field: "product", message: "couldnt retrieve product info" },
+        ],
+      };
+
+    return {
+      products: productsWithPrice,
+    };
   };
-};
 
 export const verifyCheckoutSessionStatus = async (
   sessionId: string
