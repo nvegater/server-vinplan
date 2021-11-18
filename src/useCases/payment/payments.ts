@@ -4,6 +4,7 @@ import {
   getCheckoutSession_DS,
   getProducts_DS,
   retrievePriceFromProduct_DS,
+  retrievePriceWithTiers_DS,
 } from "../../dataServices/payment";
 import {
   CheckoutSessionResponse,
@@ -28,12 +29,13 @@ export const retrieveSubscriptionsWithPrices =
     try {
       productsWithPrice = await Promise.all(
         activeProducts.map(async (prod) => {
-          const price = await retrievePriceFromProduct_DS(prod.id);
+          const price = await retrievePriceWithTiers_DS(prod.id);
           const priceModel: Price = {
             currency: price.currency,
             tiersMode: price.tiers_mode,
             type: price.type,
             id: price.id,
+            tiers: price.tiers,
           };
           const product: Product = {
             id: prod.id,

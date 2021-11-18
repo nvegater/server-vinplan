@@ -89,38 +89,21 @@ export const retrievePriceFromProduct_DS = async (productId: string) => {
   // we assume there is only one price per product
   return pricesForProduct[0];
 };
+
+export const retrievePriceWithTiers_DS = async (productId: string) => {
+  const pricesList = await stripe.prices.list({
+    expand: ["data.tiers", "data.product"],
+  });
+  // Safe to expand the product
+  const pricesForProduct = pricesList.data.filter(
+    (price) => (price.product as Stripe.Product).id === productId
+  );
+  // we assume there is only one price per product
+  return pricesForProduct[0];
+};
 // Match the raw body to content type application/json
 export const webhookListenerFn = async (request: any, response: any) => {
   const sig = request.headers["stripe-signature"];
-
-  /*
-  const pricesFromProduct = await retrievePriceFromProduct(
-    "prod_KbhDdNESTpMC7A"
-  );
-
-
-*/
-  const price = await retrievePriceFromProduct_DS("prod_KbhDdNESTpMC7A");
-
-  const stripe_checkoutSessionId = await createCheckoutSession_DS({
-    mode: "subscription",
-    payment_method_types: ["card"],
-    line_items: [
-      {
-        price: price.id,
-        // For metered billing, do not pass quantity
-        // quantity: 1,
-      },
-    ],
-    // {CHECKOUT_SESSION_ID} is a string literal; do not change it!
-    // the actual Session ID is returned in the query parameter when your customer
-    // is redirected to the success page.
-    success_url: `http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: "http://localhost:3000/errorPayment",
-  });
-
-  console.log(stripe_checkoutSessionId);
-
   let event: Stripe.Event;
 
   try {
