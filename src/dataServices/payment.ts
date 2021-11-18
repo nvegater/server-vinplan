@@ -58,6 +58,12 @@ export const confirmPaymentIntent_DS = async (
   return await stripe.paymentIntents.confirm(paymentIntentId, { ...params });
 };
 
+export const getCheckoutSession_DS = async (
+  sessionId: string
+): Promise<Stripe.Checkout.Session> => {
+  return await stripe.checkout.sessions.retrieve(sessionId);
+};
+
 export const getProductIds_DS = async () => {
   const productList: Stripe.ApiList<Stripe.Product> =
     await stripe.products.list();
@@ -65,7 +71,7 @@ export const getProductIds_DS = async () => {
   return productList.data.map((product) => product.id);
 };
 
-export const retrievePriceFromProduct = async (productId: string) => {
+export const retrievePriceFromProduct_DS = async (productId: string) => {
   const pricesList = await stripe.prices.list({
     expand: ["data.product"],
   });
@@ -84,7 +90,29 @@ export const webhookListenerFn = async (request: any, response: any) => {
   const pricesFromProduct = await retrievePriceFromProduct(
     "prod_KbhDdNESTpMC7A"
   );
+
+
 */
+  const price = await retrievePriceFromProduct_DS("prod_KbhDdNESTpMC7A");
+
+  const stripe_checkoutSessionId = await createCheckoutSession_DS({
+    mode: "subscription",
+    payment_method_types: ["card"],
+    line_items: [
+      {
+        price: price.id,
+        // For metered billing, do not pass quantity
+        // quantity: 1,
+      },
+    ],
+    // {CHECKOUT_SESSION_ID} is a string literal; do not change it!
+    // the actual Session ID is returned in the query parameter when your customer
+    // is redirected to the success page.
+    success_url: `http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: "http://localhost:3000/errorPayment",
+  });
+
+  console.log(stripe_checkoutSessionId);
 
   let event: Stripe.Event;
 
@@ -110,6 +138,10 @@ export const webhookListenerFn = async (request: any, response: any) => {
     case "payment_method.attached":
       const paymentMethod = eventDataObject;
       console.log("PaymentMethod was attached to a Customer!", paymentMethod);
+      break;
+    case "setup_intent.succeeded":
+      const setupIntent = eventDataObject;
+      console.log("setup_intent was attached to a Customer!", setupIntent);
       break;
     // ... handle other event types
     default:

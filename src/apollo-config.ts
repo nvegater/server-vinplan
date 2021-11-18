@@ -17,8 +17,7 @@ import { PictureResolvers } from "./resolvers/PictureResolvers";
 import { ReservationResolvers } from "./resolvers/ReservationResolvers";
 import { WineryResolvers } from "./resolvers/winery/WineryResolvers";
 import { keycloakAuthChecker } from "./utils/auth/keycloak";
-import { CustomerResolvers } from "./resolvers/payments/CustomerResolvers";
-import { ProductResolvers } from "./resolvers/payments/ProductResolvers";
+import { PaymentsResolvers } from "./resolvers/PaymentsResolvers";
 
 const registerServer = (app: Express) => ({
   app, // Http -express server
@@ -36,8 +35,7 @@ const buildSchemas = async () => {
     PictureResolvers,
     ReservationResolvers,
     WineryResolvers,
-    CustomerResolvers,
-    ProductResolvers,
+    PaymentsResolvers,
   ];
 
   return await buildSchema({
