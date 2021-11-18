@@ -64,11 +64,27 @@ export const getProductIds_DS = async () => {
 
   return productList.data.map((product) => product.id);
 };
+
+export const retrievePriceFromProduct = async (productId: string) => {
+  const pricesList = await stripe.prices.list({
+    expand: ["data.product"],
+  });
+  // Safe to expand the product
+  const pricesForProduct = pricesList.data.filter(
+    (price) => (price.product as Stripe.Product).id === productId
+  );
+  // we assume there is only one price per product
+  return pricesForProduct[0];
+};
 // Match the raw body to content type application/json
-export const webhookListenerFn = (request: any, response: any) => {
+export const webhookListenerFn = async (request: any, response: any) => {
   const sig = request.headers["stripe-signature"];
 
-  getProductIds_DS();
+  /*
+  const pricesFromProduct = await retrievePriceFromProduct(
+    "prod_KbhDdNESTpMC7A"
+  );
+*/
 
   let event: Stripe.Event;
 
