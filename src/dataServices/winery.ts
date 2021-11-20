@@ -28,6 +28,7 @@ export const createWinery_DS: CreateWineryFn_DS = async ({ winery, user }) => {
     ...winery,
     creatorUsername: user.username,
     creatorEmail: user.email,
+    subscription: winery.subscription,
     wineGrapesProduction: [],
     productionType: [],
     othersServices: [],

@@ -34,6 +34,8 @@ class CreateWineryInputs {
   contactEmail?: string;
   @Field(() => String, { nullable: true })
   contactPhoneNumber?: string;
+  @Field(() => String, { nullable: true })
+  subscription?: string;
   @Field(() => Boolean)
   covidLabel: boolean;
 }
