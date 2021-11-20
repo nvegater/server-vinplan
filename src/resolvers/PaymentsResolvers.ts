@@ -45,7 +45,6 @@ export class PaymentsResolvers {
     return await verifyCheckoutSessionStatus(sessionId);
   }
 
-  @Authorized()
   @Mutation(() => CheckoutSessionResponse)
   async getCheckoutSessionForSubscription(
     @Arg("successUrl") successUrl: string,

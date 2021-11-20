@@ -9,6 +9,9 @@ terraform {
   }
 }
 
+# https://registry.terraform.io/providers/lukasaron/stripe/latest/docs/resources/stripe_price
+# Stripe infrastructure
+
 provider "digitalocean" {
   token = var.do-token
   spaces_access_id = var.spaces-access-id

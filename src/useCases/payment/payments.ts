@@ -3,8 +3,8 @@ import {
   createCustomer_DS,
   getCheckoutSession_DS,
   getProducts_DS,
-  retrievePriceFromProduct_DS,
-  retrievePriceWithTiers_DS,
+  retrievePricesFromProduct_DS,
+  retrievePricesWithTiers_DS,
 } from "../../dataServices/payment";
 import {
   CheckoutSessionResponse,
@@ -29,21 +29,26 @@ export const retrieveSubscriptionsWithPrices =
     try {
       productsWithPrice = await Promise.all(
         activeProducts.map(async (prod) => {
-          const price = await retrievePriceWithTiers_DS(prod.id);
-          const priceModel: Price = {
-            currency: price.currency,
-            tiersMode: price.tiers_mode,
-            type: price.type,
-            id: price.id,
-            tiers: price.tiers,
-          };
+          const prices = await retrievePricesWithTiers_DS(prod.id);
+          const pricesModels: Price[] = prices.map((price) => {
+            const priceModel: Price = {
+              currency: price.currency,
+              tiersMode: price.tiers_mode,
+              type: price.type,
+              id: price.id,
+              tiers: price.tiers,
+              unitAmount: price.unit_amount,
+              unitAmountDecimal: price.unit_amount_decimal,
+            };
+            return priceModel;
+          });
           const product: Product = {
             id: prod.id,
             name: prod.name,
             description: prod.description ? prod.description : "",
             images: prod.images,
             unit_label: prod.unit_label ? prod.unit_label : "",
-            price: priceModel,
+            price: pricesModels,
           };
           return product;
         })
@@ -101,16 +106,17 @@ export const createSubscriptionCheckoutSession = async (
   cancelUrl: string,
   productId: string
 ): Promise<CheckoutSessionResponse> => {
-  const price = await retrievePriceFromProduct_DS(productId);
+  const prices = await retrievePricesFromProduct_DS(productId);
 
   const stripe_checkoutSessionId = await createCheckoutSession_DS({
     mode: "subscription",
     payment_method_types: ["card"],
-    line_items: [
-      {
+    line_items: prices.map((price) => {
+      return {
         price: price.id,
-      },
-    ],
+        quantity: price.recurring?.usage_type === "metered" ? undefined : 1,
+      };
+    }),
     success_url: `${successUrl}?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: cancelUrl,
   });

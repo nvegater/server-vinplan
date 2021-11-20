@@ -18,6 +18,6 @@ export class Product {
   @Field(() => String)
   unit_label: string;
 
-  @Field(() => Price)
-  price: Price;
+  @Field(() => [Price])
+  price: Price[];
 }

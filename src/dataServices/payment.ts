@@ -78,28 +78,28 @@ export const getProducts_DS = async () => {
   return productList.data;
 };
 
-export const retrievePriceFromProduct_DS = async (productId: string) => {
+export const retrievePricesFromProduct_DS = async (productId: string) => {
   const pricesList = await stripe.prices.list({
     expand: ["data.product"],
   });
   // Safe to expand the product
-  const pricesForProduct = pricesList.data.filter(
-    (price) => (price.product as Stripe.Product).id === productId
+  return pricesList.data.filter(
+    (price) =>
+      (price.product as Stripe.Product).active &&
+      (price.product as Stripe.Product).id === productId
   );
-  // we assume there is only one price per product
-  return pricesForProduct[0];
 };
 
-export const retrievePriceWithTiers_DS = async (productId: string) => {
+export const retrievePricesWithTiers_DS = async (productId: string) => {
+  // Safe to expand the product
   const pricesList = await stripe.prices.list({
     expand: ["data.tiers", "data.product"],
   });
-  // Safe to expand the product
-  const pricesForProduct = pricesList.data.filter(
-    (price) => (price.product as Stripe.Product).id === productId
+  return pricesList.data.filter(
+    (price) =>
+      (price.product as Stripe.Product).active &&
+      (price.product as Stripe.Product).id === productId
   );
-  // we assume there is only one price per product
-  return pricesForProduct[0];
 };
 // Match the raw body to content type application/json
 export const webhookListenerFn = async (request: any, response: any) => {

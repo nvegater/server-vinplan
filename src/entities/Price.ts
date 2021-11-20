@@ -12,6 +12,12 @@ export class Price {
   @Field(() => String, { nullable: true })
   tiersMode?: string | null;
 
+  @Field(() => Number, { nullable: true })
+  unitAmount?: number | null;
+
+  @Field(() => String, { nullable: true })
+  unitAmountDecimal?: string | null;
+
   @Field(() => [Tier], { nullable: true })
   tiers?: Tier[];
 }
