@@ -32,7 +32,6 @@ export class PaymentsResolvers {
     return await createCustomer({ ...createCustomerInputs });
   }
 
-  @Authorized()
   @Query(() => ProductsResponse)
   async getSubscriptionProducts(): Promise<ProductsResponse> {
     return await retrieveSubscriptionsWithPrices();
