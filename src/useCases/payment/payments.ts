@@ -1,9 +1,7 @@
 import {
-  createCheckoutSession_DS,
   createCustomer_DS,
   getCheckoutSession_DS,
   getProducts_DS,
-  retrievePricesFromProduct_DS,
   retrievePricesWithTiers_DS,
 } from "../../dataServices/payment";
 import {
@@ -99,33 +97,4 @@ export const createCustomer = async (
       paymentMetadata: paymentMetadata,
     },
   };
-};
-
-export const createSubscriptionCheckoutSession = async (
-  successUrl: string,
-  cancelUrl: string,
-  productId: string
-): Promise<CheckoutSessionResponse> => {
-  const prices = await retrievePricesFromProduct_DS(productId);
-
-  const stripe_checkoutSessionId = await createCheckoutSession_DS({
-    mode: "subscription",
-    payment_method_types: ["card"],
-    line_items: prices.map((price) => {
-      return {
-        price: price.id,
-        quantity: price.recurring?.usage_type === "metered" ? undefined : 1,
-      };
-    }),
-    success_url: `${successUrl}?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: cancelUrl,
-  });
-
-  return stripe_checkoutSessionId.url
-    ? { sessionUrl: stripe_checkoutSessionId.url }
-    : {
-        errors: [
-          { field: "checkout", message: "Url not available for this checkout" },
-        ],
-      };
 };

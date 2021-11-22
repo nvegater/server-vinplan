@@ -24,7 +24,6 @@ export class WineryResolvers {
     return await getWinery({ ...getWineryInputs });
   }
 
-  @Authorized("owner")
   @Mutation(() => WineryResponse)
   async createWinery(
     @Arg("userInputs") userInputs: UserInputs,

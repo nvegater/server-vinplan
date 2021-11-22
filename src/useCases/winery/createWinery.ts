@@ -7,6 +7,12 @@ import {
   getWineryByAlias_DS,
   getWineryByUsername_DS,
 } from "../../dataServices/winery";
+import {
+  createCheckoutSession_DS,
+  createCustomer_DS,
+  getProductByName_DS,
+  retrievePricesFromProduct_DS,
+} from "../../dataServices/payment";
 
 interface CreateWineryHookProps {
   winery: CreateWineryInputs;
@@ -20,8 +26,56 @@ type CreateWineryHook = (
 ) => CreateWineryHookResult;
 
 export const createWinery: CreateWineryHook = async ({ winery, user }) => {
-  const createdWinery = await createWinery_DS({ winery, user });
-  return { winery: createdWinery };
+  const stripe_customer = await createCustomer_DS({
+    email: user.email,
+    metadata: { username: user.username },
+  });
+  const createdWinery = await createWinery_DS({
+    winery,
+    user,
+    stripeCustomerId: stripe_customer.id,
+  });
+
+  const product = await getProductByName_DS(winery.subscription);
+
+  if (product.length > 1) {
+    return {
+      errors: [{ field: "createWinery", message: "Multiple products found" }],
+    };
+  }
+
+  if (!Boolean(product)) {
+    return {
+      errors: [
+        {
+          field: "createWinery",
+          message: "Error retrieving subscription products",
+        },
+      ],
+    };
+  }
+  const prices = await retrievePricesFromProduct_DS(product[0].id);
+
+  const stripe_checkoutSessionId = await createCheckoutSession_DS({
+    mode: "subscription",
+    payment_method_types: ["card"],
+    line_items: prices.map((price) => {
+      return {
+        price: price.id,
+        quantity: price.recurring?.usage_type === "metered" ? undefined : 1,
+      };
+    }),
+    success_url: `${user.successUrl}?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: user.cancelUrl,
+  });
+
+  return stripe_checkoutSessionId.url
+    ? { sessionUrl: stripe_checkoutSessionId.url, winery: createdWinery }
+    : {
+        errors: [
+          { field: "checkout", message: "Url not available for this checkout" },
+        ],
+      };
 };
 
 export const getWinery = async ({

@@ -21,11 +21,17 @@ export const getWineryByAlias_DS = async (urlAlias: string) => {
 interface CreateWineryProps_DS {
   winery: CreateWineryInputs;
   user: UserInputs;
+  stripeCustomerId: string;
 }
 type CreateWineryFn_DS = (props: CreateWineryProps_DS) => Promise<Winery>;
-export const createWinery_DS: CreateWineryFn_DS = async ({ winery, user }) => {
+export const createWinery_DS: CreateWineryFn_DS = async ({
+  winery,
+  user,
+  stripeCustomerId,
+}) => {
   const wineryEntity = Winery.create({
     ...winery,
+    stripe_customerId: stripeCustomerId,
     creatorUsername: user.username,
     creatorEmail: user.email,
     subscription: winery.subscription,

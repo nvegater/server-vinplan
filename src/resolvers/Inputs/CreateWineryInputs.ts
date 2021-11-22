@@ -13,6 +13,8 @@ class CreateWineryInputs {
   description!: string;
   @Field()
   urlAlias!: string;
+  @Field(() => String)
+  subscription!: string;
   @Field(() => Valley)
   valley!: Valley;
   @Field(() => [ProductionType])
@@ -34,8 +36,6 @@ class CreateWineryInputs {
   contactEmail?: string;
   @Field(() => String, { nullable: true })
   contactPhoneNumber?: string;
-  @Field(() => String, { nullable: true })
-  subscription?: string;
   @Field(() => Boolean)
   covidLabel: boolean;
 }

@@ -64,11 +64,11 @@ export const getCheckoutSession_DS = async (
   return await stripe.checkout.sessions.retrieve(sessionId);
 };
 
-export const getProductIds_DS = async () => {
+export const getProductByName_DS = async (name: string) => {
   const productList: Stripe.ApiList<Stripe.Product> =
     await stripe.products.list();
 
-  return productList.data.map((product) => product.id);
+  return productList.data.filter((product) => product.name === name);
 };
 
 export const getProducts_DS = async () => {

@@ -8,4 +8,6 @@ export class WineryResponse {
   errors?: FieldError[];
   @Field(() => Winery, { nullable: true })
   winery?: Winery;
+  @Field(() => String, { nullable: true })
+  sessionUrl?: string;
 }

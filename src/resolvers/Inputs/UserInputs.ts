@@ -6,6 +6,10 @@ export class UserInputs {
   username: string;
   @Field()
   email: string;
+  @Field()
+  successUrl: string;
+  @Field()
+  cancelUrl: string;
 }
 
 @InputType()

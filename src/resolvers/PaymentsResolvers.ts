@@ -8,7 +8,6 @@ import {
 import { CreateCustomerInputs } from "./Inputs/CreateCustomerInputs";
 
 import {
-  createSubscriptionCheckoutSession,
   verifyCheckoutSessionStatus,
   createCustomer,
   retrieveSubscriptionsWithPrices,
@@ -43,18 +42,5 @@ export class PaymentsResolvers {
     @Arg("sessionId") sessionId: string
   ): Promise<CheckoutSessionResponse> {
     return await verifyCheckoutSessionStatus(sessionId);
-  }
-
-  @Mutation(() => CheckoutSessionResponse)
-  async getCheckoutSessionForSubscription(
-    @Arg("successUrl") successUrl: string,
-    @Arg("cancelUrl") cancelUrl: string,
-    @Arg("productId") productId: string
-  ): Promise<CheckoutSessionResponse> {
-    return await createSubscriptionCheckoutSession(
-      successUrl,
-      cancelUrl,
-      productId
-    );
   }
 }
