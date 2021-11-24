@@ -37,7 +37,7 @@ export class PaymentsResolvers {
   }
 
   @Authorized()
-  @Mutation(() => CheckoutSessionResponse)
+  @Query(() => CheckoutSessionResponse)
   async getCheckoutSessionStatus(
     @Arg("sessionId") sessionId: string
   ): Promise<CheckoutSessionResponse> {

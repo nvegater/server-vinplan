@@ -27,5 +27,5 @@ export class CheckoutSessionResponse {
   sessionStatus?: string;
 
   @Field(() => String, { nullable: true })
-  sessionUrl?: string;
+  sessionUrl?: string | null;
 }

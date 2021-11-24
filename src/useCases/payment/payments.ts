@@ -73,7 +73,10 @@ export const verifyCheckoutSessionStatus = async (
   const session = await getCheckoutSession_DS(sessionId);
 
   return session.status
-    ? { sessionStatus: session.status }
+    ? {
+        sessionStatus: session.status,
+        sessionUrl: session.url,
+      }
     : {
         errors: [
           { field: "checkout", message: "Cant retrieve session status" },
