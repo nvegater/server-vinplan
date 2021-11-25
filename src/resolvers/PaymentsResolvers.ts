@@ -11,6 +11,7 @@ import {
   verifyCheckoutSessionStatus,
   createCustomer,
   retrieveSubscriptionsWithPrices,
+  getCustomerSubscription,
 } from "../useCases/payment/payments";
 
 /**
@@ -42,5 +43,13 @@ export class PaymentsResolvers {
     @Arg("sessionId") sessionId: string
   ): Promise<CheckoutSessionResponse> {
     return await verifyCheckoutSessionStatus(sessionId);
+  }
+
+  @Authorized("owner")
+  @Query(() => String)
+  async getSubscriptionStatus(
+    @Arg("customerId") customerId: string
+  ): Promise<string> {
+    return await getCustomerSubscription(customerId);
   }
 }

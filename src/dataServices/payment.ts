@@ -90,6 +90,13 @@ export const retrievePricesFromProduct_DS = async (productId: string) => {
   );
 };
 
+export const getFirstSubscription = async (customerId: string) => {
+  const allSubscriptions = await stripe.subscriptions.list({
+    customer: customerId,
+  });
+  return allSubscriptions.data[0];
+};
+
 export const retrievePricesWithTiers_DS = async (productId: string) => {
   // Safe to expand the product
   const pricesList = await stripe.prices.list({

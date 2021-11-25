@@ -1,6 +1,7 @@
 import {
   createCustomer_DS,
   getCheckoutSession_DS,
+  getFirstSubscription,
   getProducts_DS,
   retrievePricesWithTiers_DS,
 } from "../../dataServices/payment";
@@ -82,6 +83,11 @@ export const verifyCheckoutSessionStatus = async (
           { field: "checkout", message: "Cant retrieve session status" },
         ],
       };
+};
+
+export const getCustomerSubscription = async (customerId: string) => {
+  const firstSubscription = await getFirstSubscription(customerId);
+  return firstSubscription.status;
 };
 
 export const createCustomer = async (
