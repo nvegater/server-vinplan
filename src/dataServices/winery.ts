@@ -1,6 +1,7 @@
 import { Winery } from "../entities/Winery";
 import CreateWineryInputs from "../resolvers/Inputs/CreateWineryInputs";
 import { UserInputs } from "../resolvers/Inputs/UserInputs";
+import { WineType } from "../entities/WineType";
 
 export const getWineryByUsername_DS = async (creatorUsername: string) => {
   return await Winery.findOne({
@@ -35,14 +36,23 @@ export const createWinery_DS: CreateWineryFn_DS = async ({
     creatorUsername: user.username,
     creatorEmail: user.email,
     subscription: winery.subscription,
-    wineGrapesProduction: [],
+    wineType: [], // TODO: Nico make this fields optional
     productionType: [],
-    othersServices: [],
-    wineType: [],
     supportedLanguages: [],
-    amenities: [],
+    amenities: [], // // TODO: Nico make this fields optional
+  });
+  await wineryEntity.save();
+
+  const wineTypes = winery.wineType.map((wineType) => {
+    return WineType.create({
+      wineryId: wineryEntity.id,
+      wineType: wineType,
+    });
   });
 
-  await wineryEntity.save();
+  wineTypes.map(async (wineTypeEntity) => {
+    await wineTypeEntity.save();
+  });
+
   return wineryEntity;
 };
