@@ -29,3 +29,11 @@ export class CheckoutSessionResponse {
   @Field(() => String, { nullable: true })
   sessionUrl?: string | null;
 }
+
+@ObjectType()
+export class OnboardingResponse {
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
+  @Field(() => String, { nullable: true })
+  accountLinkUrl?: string;
+}

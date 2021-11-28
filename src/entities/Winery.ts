@@ -59,7 +59,7 @@ export class Winery extends BaseEntity {
 
   @Field(() => String, { nullable: true })
   @Column({ nullable: true })
-  accountId!: string;
+  accountId?: string;
 
   @Field(() => String)
   @Column({ unique: true })

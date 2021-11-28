@@ -7,3 +7,12 @@ export class FieldError {
   @Field()
   message: string;
 }
+
+export const customError = (field: string, message: string) => ({
+  errors: [
+    {
+      field: field,
+      message: message,
+    },
+  ],
+});

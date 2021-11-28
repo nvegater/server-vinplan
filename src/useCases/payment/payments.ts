@@ -10,6 +10,7 @@ import {
 import {
   CheckoutSessionResponse,
   CustomerResponse,
+  OnboardingResponse,
   ProductsResponse,
 } from "../../resolvers/Outputs/PaymentOutputs";
 import {
@@ -18,7 +19,11 @@ import {
 } from "../../resolvers/Inputs/CreateCustomerInputs";
 import { Product } from "../../entities/Product";
 import { Price } from "../../entities/Price";
-import { getWineryByAlias_DS } from "../../dataServices/winery";
+import {
+  getWineryByAlias_DS,
+  updateWineryAccountID_DS,
+} from "../../dataServices/winery";
+import { customError } from "../../resolvers/Outputs/ErrorOutputs";
 
 export const retrieveSubscriptionsWithPrices =
   async (): Promise<ProductsResponse> => {
@@ -113,17 +118,63 @@ export const createCustomer = async (
 
 export const initiateOnboardingForConnectedAccount = async (
   wineryAlias: string
-) => {
+): Promise<OnboardingResponse> => {
   const winery = await getWineryByAlias_DS(wineryAlias);
-  if (winery?.subscription === null || winery?.subscription === undefined)
-    return {
-      errors: [
-        { field: "subscription", message: "Winery has no active subscription" },
-      ],
-    };
+
+  if (winery == null) {
+    return customError("winery", "winery not found");
+  }
+
+  if (winery.subscription == null)
+    return customError("subscription", "Winery has no active subscription");
+
   const account = await createAccountForExpressOnboarding_DS(
     winery.creatorEmail
   );
 
-  return await accountLinkForOnboarding_DS(account.id, wineryAlias);
+  if (account == null) {
+    return customError("account", "Couldnt create account");
+  }
+
+  const updatedWinery = await updateWineryAccountID_DS(account.id, wineryAlias);
+
+  if (updatedWinery == null) {
+    return customError("winery", "Couldnt update winery");
+  }
+
+  const accountLinkUrl = await accountLinkForOnboarding_DS(
+    account.id,
+    wineryAlias
+  );
+
+  if (accountLinkUrl == null) {
+    return customError("account", "couldnt Generate account Link");
+  }
+
+  return { accountLinkUrl };
+};
+
+export const generateAccountLinkURL = async (
+  wineryAlias: string
+): Promise<OnboardingResponse> => {
+  const winery = await getWineryByAlias_DS(wineryAlias);
+
+  if (winery == null) {
+    return customError("winery", "winery not found");
+  }
+
+  if (winery.accountId == null) {
+    return customError("winery", "No account found for this winery");
+  }
+
+  const accountLinkUrl = await accountLinkForOnboarding_DS(
+    winery.accountId,
+    wineryAlias
+  );
+
+  if (accountLinkUrl == null) {
+    return customError("account", "couldnt Generate account Link");
+  }
+
+  return { accountLinkUrl };
 };

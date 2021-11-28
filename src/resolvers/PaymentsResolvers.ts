@@ -3,6 +3,7 @@ import { Customer } from "../entities/Customer";
 import {
   CheckoutSessionResponse,
   CustomerResponse,
+  OnboardingResponse,
   ProductsResponse,
 } from "./Outputs/PaymentOutputs";
 import { CreateCustomerInputs } from "./Inputs/CreateCustomerInputs";
@@ -12,6 +13,8 @@ import {
   createCustomer,
   retrieveSubscriptionsWithPrices,
   getCustomerSubscription,
+  initiateOnboardingForConnectedAccount,
+  generateAccountLinkURL,
 } from "../useCases/payment/payments";
 
 /**
@@ -51,5 +54,21 @@ export class PaymentsResolvers {
     @Arg("customerId") customerId: string
   ): Promise<string> {
     return await getCustomerSubscription(customerId);
+  }
+
+  @Authorized("owner")
+  @Query(() => OnboardingResponse)
+  async startOnboarding(
+    @Arg("wineryAlias") wineryAlias: string
+  ): Promise<OnboardingResponse> {
+    return await initiateOnboardingForConnectedAccount(wineryAlias);
+  }
+
+  @Authorized("owner")
+  @Query(() => OnboardingResponse)
+  async restartOnboarding(
+    @Arg("wineryAlias") wineryAlias: string
+  ): Promise<OnboardingResponse> {
+    return await generateAccountLinkURL(wineryAlias);
   }
 }
