@@ -22,6 +22,19 @@ yarn run dev-ts
 
 ## Automatic Migrations
 
+### TLDR
+
+0. Stop the server and make sure there is connection to the DB.
+1. Run the migrate command from this folder
+```bash
+./migrate.sh
+# Type the name in a CamelCaseFormat e.g: AddNewFieldToTable
+```
+2. Move the new migration file to the `src/migrations/` folder
+3. Generate a new `dist/` with the command `npm run build`
+4. Starting the server will run the migration. Your changes should appear in the DB now.
+
+
 [Docu](https://orkhan.gitbook.io/typeorm/docs/using-cli)
 Dont use functions for the Default values in the entities.
 [Error with defaults](https://github.com/typeorm/typeorm/issues/6490)
@@ -49,9 +62,11 @@ npm run build
 ```bash
 npm run typeorm migration:generate -- -n AnyName
 ```
-3. Remove the  `dist/` again
+3. Move the new migrations file to the `src/migrations/` folder
 
-4. Generate the dist folder again
+4. Remove the  `dist/` again
+
+5. Generate the dist folder again
 ```bash
 npm run build
 ```

@@ -57,6 +57,10 @@ export class Winery extends BaseEntity {
   @Column({ nullable: true })
   subscription!: string;
 
+  @Field(() => String, { nullable: true })
+  @Column({ nullable: true })
+  accountId!: string;
+
   @Field(() => String)
   @Column({ unique: true })
   creatorUsername!: string;
