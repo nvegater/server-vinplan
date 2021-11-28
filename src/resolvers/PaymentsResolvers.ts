@@ -57,15 +57,14 @@ export class PaymentsResolvers {
   }
 
   @Authorized("owner")
-  @Query(() => OnboardingResponse)
+  @Mutation(() => OnboardingResponse)
   async startOnboarding(
     @Arg("wineryAlias") wineryAlias: string
   ): Promise<OnboardingResponse> {
     return await initiateOnboardingForConnectedAccount(wineryAlias);
   }
-
   @Authorized("owner")
-  @Query(() => OnboardingResponse)
+  @Mutation(() => OnboardingResponse)
   async restartOnboarding(
     @Arg("wineryAlias") wineryAlias: string
   ): Promise<OnboardingResponse> {
