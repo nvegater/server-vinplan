@@ -108,6 +108,30 @@ export const retrievePricesWithTiers_DS = async (productId: string) => {
       (price.product as Stripe.Product).id === productId
   );
 };
+
+export const createAccountForExpressOnboarding_DS = async (email: string) => {
+  return await stripe.accounts.create({
+    type: "express",
+    email: email,
+    capabilities: {
+      card_payments: { requested: true },
+      transfers: { requested: true },
+    },
+  });
+};
+
+export const accountLinkForOnboarding_DS = async (
+  accountId: string,
+  wineryAlias: string
+) => {
+  const accountLink = await stripe.accountLinks.create({
+    account: accountId,
+    refresh_url: `http://localhost:3000/winery/${wineryAlias}`,
+    return_url: `http://localhost:3000/winery/${wineryAlias}`,
+    type: "account_onboarding",
+  });
+  return accountLink.url;
+};
 // Match the raw body to content type application/json
 export const webhookListenerFn = async (request: any, response: any) => {
   const sig = request.headers["stripe-signature"];

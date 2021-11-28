@@ -1,4 +1,6 @@
 import {
+  accountLinkForOnboarding_DS,
+  createAccountForExpressOnboarding_DS,
   createCustomer_DS,
   getCheckoutSession_DS,
   getFirstSubscription,
@@ -16,6 +18,7 @@ import {
 } from "../../resolvers/Inputs/CreateCustomerInputs";
 import { Product } from "../../entities/Product";
 import { Price } from "../../entities/Price";
+import { getWineryByAlias_DS } from "../../dataServices/winery";
 
 export const retrieveSubscriptionsWithPrices =
   async (): Promise<ProductsResponse> => {
@@ -106,4 +109,21 @@ export const createCustomer = async (
       paymentMetadata: paymentMetadata,
     },
   };
+};
+
+export const initiateOnboardingForConnectedAccount = async (
+  wineryAlias: string
+) => {
+  const winery = await getWineryByAlias_DS(wineryAlias);
+  if (winery?.subscription === null || winery?.subscription === undefined)
+    return {
+      errors: [
+        { field: "subscription", message: "Winery has no active subscription" },
+      ],
+    };
+  const account = await createAccountForExpressOnboarding_DS(
+    winery.creatorEmail
+  );
+
+  return await accountLinkForOnboarding_DS(account.id, wineryAlias);
 };
