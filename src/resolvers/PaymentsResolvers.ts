@@ -9,12 +9,11 @@ import {
 import { CreateCustomerInputs } from "./Inputs/CreateCustomerInputs";
 
 import {
-  verifyCheckoutSessionStatus,
   createCustomer,
-  retrieveSubscriptionsWithPrices,
   getCustomerSubscription,
-  initiateOnboardingForConnectedAccount,
-  generateAccountLinkURL,
+  onboardingUrlLink,
+  retrieveSubscriptionsWithPrices,
+  verifyCheckoutSessionStatus,
 } from "../useCases/payment/payments";
 
 /**
@@ -58,16 +57,9 @@ export class PaymentsResolvers {
 
   @Authorized("owner")
   @Mutation(() => OnboardingResponse)
-  async startOnboarding(
+  async wineryOnboarding(
     @Arg("wineryAlias") wineryAlias: string
   ): Promise<OnboardingResponse> {
-    return await initiateOnboardingForConnectedAccount(wineryAlias);
-  }
-  @Authorized("owner")
-  @Mutation(() => OnboardingResponse)
-  async restartOnboarding(
-    @Arg("wineryAlias") wineryAlias: string
-  ): Promise<OnboardingResponse> {
-    return await generateAccountLinkURL(wineryAlias);
+    return await onboardingUrlLink(wineryAlias);
   }
 }
