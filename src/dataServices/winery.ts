@@ -2,6 +2,9 @@ import { Winery } from "../entities/Winery";
 import CreateWineryInputs from "../resolvers/Inputs/CreateWineryInputs";
 import { UserInputs } from "../resolvers/Inputs/UserInputs";
 import { WineType } from "../entities/WineType";
+import { ProductionType } from "../entities/WineProductionType";
+import { SupportedLanguage } from "../entities/WineryLanguage";
+import { Amenity } from "../entities/WineryAmenity";
 import {
   DeleteResult,
   getConnection,
@@ -58,6 +61,39 @@ export const createWinery_DS: CreateWineryFn_DS = async ({
 
   wineTypes.map(async (wineTypeEntity) => {
     await wineTypeEntity.save();
+  });
+
+  const productionTypes = winery.productionType.map((productionType) => {
+    return ProductionType.create({
+      wineryId: wineryEntity.id,
+      wineType: productionType,
+    });
+  });
+
+  productionTypes.map(async (productionTypeEntity) => {
+    await productionTypeEntity.save();
+  });
+
+  const supportedLangs = winery.supportedLanguages.map((supportedLanguages) => {
+    return SupportedLanguage.create({
+      wineryId: wineryEntity.id,
+      wineType: supportedLanguages,
+    });
+  });
+
+  supportedLangs.map(async (supportedLanguagesEntity) => {
+    await supportedLanguagesEntity.save();
+  });
+
+  const Amenities = winery.amenities.map((amenities) => {
+    return Amenity.create({
+      wineryId: wineryEntity.id,
+      wineType: amenities,
+    });
+  });
+
+  Amenities.map(async (amenitiesEntity) => {
+    await amenitiesEntity.save();
   });
 
   return wineryEntity;
