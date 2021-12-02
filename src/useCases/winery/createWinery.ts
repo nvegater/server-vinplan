@@ -58,6 +58,7 @@ export const createWinery: CreateWineryHook = async ({ winery, user }) => {
 
   const stripe_checkoutSessionId = await createCheckoutSession_DS({
     mode: "subscription",
+    customer: stripe_customer.id,
     payment_method_types: ["card"],
     line_items: prices.map((price) => {
       return {
