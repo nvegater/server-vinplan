@@ -2,7 +2,6 @@ import { Winery } from "../entities/Winery";
 import CreateWineryInputs from "../resolvers/Inputs/CreateWineryInputs";
 import { UserInputs } from "../resolvers/Inputs/UserInputs";
 import { WineType } from "../entities/WineType";
-import { ProductionType } from "../entities/WineProductionType";
 import { SupportedLanguage } from "../entities/WineryLanguage";
 import { Amenity } from "../entities/WineryAmenity";
 import {
@@ -11,6 +10,7 @@ import {
   InsertResult,
   UpdateResult,
 } from "typeorm";
+import { WineProductionType } from "../entities/WineProductionType";
 
 export const getWineryByUsername_DS = async (creatorUsername: string) => {
   return await Winery.findOne({
@@ -63,10 +63,11 @@ export const createWinery_DS: CreateWineryFn_DS = async ({
     await wineTypeEntity.save();
   });
 
+  // TODO dont create Enum create Entity
   const productionTypes = winery.productionType.map((productionType) => {
-    return ProductionType.create({
+    return WineProductionType.create({
       wineryId: wineryEntity.id,
-      wineType: productionType,
+      productionType: productionType,
     });
   });
 
@@ -74,6 +75,7 @@ export const createWinery_DS: CreateWineryFn_DS = async ({
     await productionTypeEntity.save();
   });
 
+  // TODO dont use enums
   const supportedLangs = winery.supportedLanguages.map((supportedLanguages) => {
     return SupportedLanguage.create({
       wineryId: wineryEntity.id,
@@ -85,6 +87,7 @@ export const createWinery_DS: CreateWineryFn_DS = async ({
     await supportedLanguagesEntity.save();
   });
 
+  // TODO dont use enums
   const Amenities = winery.amenities.map((amenities) => {
     return Amenity.create({
       wineryId: wineryEntity.id,
