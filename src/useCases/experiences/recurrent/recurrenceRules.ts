@@ -33,6 +33,7 @@ export const generateRecurrence = ({
   durationInMinutes,
   customDates,
   exceptionDays,
+  exceptions,
 }: CreateRecurrentDatesInputs): RecurrenceResponse => {
   const allTheDays: Date[] = eachDayOfInterval({
     start: moment(startDate).toDate(),
@@ -67,24 +68,20 @@ export const generateRecurrence = ({
         })
       : [];
 
+  const exceptionsCustomDatesMoments =
+    exceptions && exceptions.length > 0
+      ? exceptions.map((date) => moment(date))
+      : [];
+
   let schedule = new Schedule<IRuleOptions>({
     rrules: [...oneRulePerDay],
-    rdates: [...customDatesMoments],
     exrules: [...exceptionDaysMoments],
+    // custom Dates are unnafected by reccursions
+    rdates: [...customDatesMoments],
+    // but custom Dates are affected by custom exception Dates
+    exdates: [...exceptionsCustomDatesMoments],
   });
 
-  let testSchedule = new Schedule<IRuleOptions>({
-    rrules: [...exceptionDaysMoments],
-  });
-
-  const formattetTestArray = testSchedule
-    .occurrences()
-    .toArray()
-    .map((date) => moment.utc(date.toISOString()).format());
-
-  console.log(formattetTestArray);
-
-  const array = schedule.occurrences().toArray();
   const formattedArray = schedule
     .occurrences()
     .toArray()
@@ -94,8 +91,6 @@ export const generateRecurrence = ({
     .occurrences()
     .toArray()
     .map((date) => moment.utc(date.toISOString()).format());
-  console.log(array, formattedArray);
-  console.log(formattedUTCArray);
 
   return {
     utcDates: formattedUTCArray,
