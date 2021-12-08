@@ -1,7 +1,6 @@
-import { Schedule } from "./rschedule";
+import { Schedule, IRuleOptions } from "./rschedule";
 import moment from "moment";
 import { eachDayOfInterval } from "date-fns";
-import { IRuleOptions } from "@rschedule/core";
 import {
   CreateRecurrentDatesInputs,
   RecurrenceResponse,
@@ -15,6 +14,7 @@ export const generateRecurrence = ({
   startDate,
   endDate,
   durationInMinutes,
+  customDates,
 }: CreateRecurrentDatesInputs): RecurrenceResponse => {
   const allTheDays: Date[] = eachDayOfInterval({
     start: moment(startDate).toDate(),
@@ -39,8 +39,14 @@ export const generateRecurrence = ({
     };
   });
 
-  const schedule = new Schedule({
+  const customDatesMoments =
+    customDates && customDates.length > 0
+      ? customDates.map((date) => moment(date))
+      : [];
+
+  let schedule = new Schedule<IRuleOptions>({
     rrules: [...oneRulePerDay],
+    rdates: [...customDatesMoments],
   });
 
   const array = schedule.occurrences().toArray();
