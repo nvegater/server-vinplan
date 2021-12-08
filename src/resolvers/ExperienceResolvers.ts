@@ -26,6 +26,7 @@ export class CreateRecurrentDatesInputs {
   customDates?: Date[];
   @Field(() => [Date], { nullable: true })
   exceptions?: Date[];
+  //   export type WeekStart = 'SU' | 'MO' | 'TU' | 'WE' | 'TH' | 'FR' | 'SA';
   @Field(() => [String], { nullable: true })
   exceptionDays?: string[];
 }
