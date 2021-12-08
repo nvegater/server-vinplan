@@ -2,26 +2,20 @@ import { Schedule } from "./rschedule";
 import moment from "moment";
 import { eachDayOfInterval } from "date-fns";
 import { IRuleOptions } from "@rschedule/core";
+import {
+  CreateRecurrentDatesInputs,
+  RecurrenceResponse,
+} from "../../../resolvers/ExperienceResolvers";
 
 //type WeekdayStr = "MO" | "TU" | "WE" | "TH" | "FR" | "SA" | "SU";
 //type TypeOfEvent = "One Time" | "Periodic" | "All day";
 // TODO write wrapper function to always use UTC
 
-interface CreateRecurrentDatesInputs {
-  startDate: Date;
-  endDate: Date;
-  durationInMinutes: number;
-  typeOfEvent: string;
-  customDates: Date[];
-  exceptions: Date[];
-  exceptionDays: string[];
-}
-
 export const generateRecurrence = ({
   startDate,
   endDate,
   durationInMinutes,
-}: CreateRecurrentDatesInputs) => {
+}: CreateRecurrentDatesInputs): RecurrenceResponse => {
   const allTheDays: Date[] = eachDayOfInterval({
     start: moment(startDate).toDate(),
     end: moment(endDate).toDate(),
@@ -62,5 +56,8 @@ export const generateRecurrence = ({
   console.log(array, formattedArray);
   console.log(formattedUTCArray);
 
-  return [];
+  return {
+    utcDates: formattedUTCArray,
+    dates: formattedArray,
+  };
 };
