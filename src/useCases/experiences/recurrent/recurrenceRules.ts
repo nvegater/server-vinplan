@@ -1,12 +1,45 @@
-import { Schedule, IRuleOptions, DateAdapter } from "./rschedule";
+import { DateAdapter, IRuleOptions, Schedule } from "./rschedule";
 import moment from "moment";
 import { eachDayOfInterval } from "date-fns";
 import {
   CreateRecurrentDatesInputs,
+  DateWithTimes,
   RecurrenceResponse,
 } from "../../../resolvers/ExperienceResolvers";
 
 //type TypeOfEvent = "One Time" | "Periodic" | "All day";
+
+const getTimesForDate = (
+  onlyDate: Date,
+  allCompleteDateTimes: Date[]
+): Date[] => {
+  return allCompleteDateTimes.filter((dateTime) => {
+    const sameYear = dateTime.getFullYear() === onlyDate.getFullYear();
+    const sameMonth = onlyDate.getMonth() === dateTime.getMonth();
+    const sameDate = dateTime.getDate() === onlyDate.getDate();
+    return sameYear && sameMonth && sameDate;
+  });
+};
+
+const generateDatesWithSlots = (utcDatesStrings: string[]): DateWithTimes[] => {
+  const onlyDateNoTime = utcDatesStrings.map((date) =>
+    new Date(date).toDateString()
+  );
+
+  // filter out duplicates
+  const noDuplicateDates = new Set([...onlyDateNoTime]);
+
+  return [...noDuplicateDates].map((noDuplicateDate) => {
+    const dateIgnoreTime = new Date(noDuplicateDate);
+    return {
+      date: dateIgnoreTime,
+      times: getTimesForDate(
+        dateIgnoreTime,
+        utcDatesStrings.map((d) => new Date(d))
+      ),
+    };
+  });
+};
 
 function replaceTime(
   date: Date,
@@ -27,14 +60,17 @@ function replaceTime(
   );
 }
 
-export const generateRecurrence = ({
-  startDate,
-  endDate,
-  durationInMinutes,
-  customDates,
-  exceptionDays,
-  exceptions,
-}: CreateRecurrentDatesInputs): RecurrenceResponse => {
+export const generateUTCStrings = (
+  {
+    startDate,
+    endDate,
+    durationInMinutes,
+    customDates,
+    exceptionDays,
+    exceptions,
+  }: CreateRecurrentDatesInputs,
+  utcFormat: boolean
+): string[] => {
   const allTheDays: Date[] = eachDayOfInterval({
     start: moment(startDate).toDate(),
     end: moment(endDate).toDate(),
@@ -57,7 +93,6 @@ export const generateRecurrence = ({
   const exceptionDaysMoments: IRuleOptions[] =
     exceptionDays && exceptionDays.length > 0
       ? exceptionDays.map((dayOfWeek) => {
-          console.log(dayOfWeek);
           return {
             byDayOfWeek: [dayOfWeek as DateAdapter.Weekday],
             frequency: "MINUTELY",
@@ -82,18 +117,31 @@ export const generateRecurrence = ({
     exdates: [...exceptionsCustomDatesMoments],
   });
 
-  const formattedArray = schedule
-    .occurrences()
-    .toArray()
-    .map((date) => moment(date.toISOString()).format());
+  let formattedArray: string[];
 
-  const formattedUTCArray = schedule
-    .occurrences()
-    .toArray()
-    .map((date) => moment.utc(date.toISOString()).format());
+  if (utcFormat) {
+    formattedArray = schedule
+      .occurrences()
+      .toArray()
+      .map((date) => moment.utc(date.toISOString()).format());
+  } else {
+    formattedArray = schedule
+      .occurrences()
+      .toArray()
+      .map((date) => moment(date.toISOString()).format());
+  }
+
+  return formattedArray;
+};
+
+export const generateRecurrence = (
+  createRecurrentDatesInputs: CreateRecurrentDatesInputs
+): RecurrenceResponse => {
+  const utcDatesStrings = generateUTCStrings(createRecurrentDatesInputs, true);
+
+  const dateWithTimes = generateDatesWithSlots(utcDatesStrings);
 
   return {
-    utcDates: formattedUTCArray,
-    dates: formattedArray,
+    dateWithTimes,
   };
 };

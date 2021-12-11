@@ -1,4 +1,4 @@
-import { generateRecurrence } from "../../src/useCases/experiences/recurrent/recurrenceRules";
+import { generateUTCStrings } from "../../src/useCases/experiences/recurrent/recurrenceRules";
 import { CreateRecurrentDatesInputs } from "../../src/resolvers/ExperienceResolvers";
 
 describe("Recurrence tests", () => {
@@ -9,7 +9,7 @@ describe("Recurrence tests", () => {
       durationInMinutes: 30,
     };
 
-    const recurrence = generateRecurrence({ ...createRecurrenceInputs });
+    const dateStrings = generateUTCStrings({ ...createRecurrenceInputs }, true);
 
     const expectedUTCDates = [
       // First of March
@@ -35,32 +35,7 @@ describe("Recurrence tests", () => {
       "2018-03-03T22:30:00Z",
     ];
 
-    const expectedDates = [
-      // First of March
-      "2018-03-01T21:00:00+01:00",
-      "2018-03-01T21:30:00+01:00",
-      "2018-03-01T22:00:00+01:00",
-      "2018-03-01T22:30:00+01:00",
-      "2018-03-01T23:00:00+01:00",
-      "2018-03-01T23:30:00+01:00",
-      // Second
-      "2018-03-02T21:00:00+01:00",
-      "2018-03-02T21:30:00+01:00",
-      "2018-03-02T22:00:00+01:00",
-      "2018-03-02T22:30:00+01:00",
-      "2018-03-02T23:00:00+01:00",
-      "2018-03-02T23:30:00+01:00",
-      // Third
-      "2018-03-03T21:00:00+01:00",
-      "2018-03-03T21:30:00+01:00",
-      "2018-03-03T22:00:00+01:00",
-      "2018-03-03T22:30:00+01:00",
-      "2018-03-03T23:00:00+01:00",
-      "2018-03-03T23:30:00+01:00",
-    ];
-
-    expect(recurrence.utcDates).toEqual(expectedUTCDates);
-    expect(recurrence.dates).toEqual(expectedDates);
+    expect(dateStrings).toEqual(expectedUTCDates);
   });
 
   it("Generates recurrence with Custom Dates", () => {
@@ -74,7 +49,7 @@ describe("Recurrence tests", () => {
       ],
     };
 
-    const recurrence = generateRecurrence({ ...createRecurrenceInputs });
+    const dateStrings = generateUTCStrings({ ...createRecurrenceInputs }, true);
 
     const expectedUTCDates = [
       // First of March
@@ -104,36 +79,7 @@ describe("Recurrence tests", () => {
       "2018-03-06T22:00:00Z",
     ];
 
-    const expectedDates = [
-      // First of March
-      "2018-03-01T21:00:00+01:00",
-      "2018-03-01T21:30:00+01:00",
-      "2018-03-01T22:00:00+01:00",
-      "2018-03-01T22:30:00+01:00",
-      "2018-03-01T23:00:00+01:00",
-      "2018-03-01T23:30:00+01:00",
-      // Second
-      "2018-03-02T21:00:00+01:00",
-      "2018-03-02T21:30:00+01:00",
-      "2018-03-02T22:00:00+01:00",
-      "2018-03-02T22:30:00+01:00",
-      "2018-03-02T23:00:00+01:00",
-      "2018-03-02T23:30:00+01:00",
-      // Third
-      "2018-03-03T21:00:00+01:00",
-      "2018-03-03T21:30:00+01:00",
-      "2018-03-03T22:00:00+01:00",
-      "2018-03-03T22:30:00+01:00",
-      "2018-03-03T23:00:00+01:00",
-      "2018-03-03T23:30:00+01:00",
-
-      // Extra
-      "2018-03-05T23:00:00+01:00",
-      "2018-03-06T23:00:00+01:00",
-    ];
-
-    expect(recurrence.utcDates).toEqual(expectedUTCDates);
-    expect(recurrence.dates).toEqual(expectedDates);
+    expect(dateStrings).toEqual(expectedUTCDates);
   });
 
   it("Excludes one day of the week", () => {
@@ -148,7 +94,7 @@ describe("Recurrence tests", () => {
       exceptionDays: ["TH"],
     };
 
-    const recurrence = generateRecurrence({ ...createRecurrenceInputs });
+    const dateStrings = generateUTCStrings({ ...createRecurrenceInputs }, true);
 
     const expectedUTCDates = [
       // First of March
@@ -173,32 +119,7 @@ describe("Recurrence tests", () => {
       "2018-03-06T22:00:00Z",
     ];
 
-    const expectedDates = [
-      // First of March
-      // REMOVED because its Thursday
-
-      // Second
-      "2018-03-02T21:00:00+01:00",
-      "2018-03-02T21:30:00+01:00",
-      "2018-03-02T22:00:00+01:00",
-      "2018-03-02T22:30:00+01:00",
-      "2018-03-02T23:00:00+01:00",
-      "2018-03-02T23:30:00+01:00",
-      // Third
-      "2018-03-03T21:00:00+01:00",
-      "2018-03-03T21:30:00+01:00",
-      "2018-03-03T22:00:00+01:00",
-      "2018-03-03T22:30:00+01:00",
-      "2018-03-03T23:00:00+01:00",
-      "2018-03-03T23:30:00+01:00",
-
-      // Extra
-      "2018-03-05T23:00:00+01:00",
-      "2018-03-06T23:00:00+01:00",
-    ];
-
-    expect(recurrence.utcDates).toEqual(expectedUTCDates);
-    expect(recurrence.dates).toEqual(expectedDates);
+    expect(dateStrings).toEqual(expectedUTCDates);
   });
 
   it("Excludes TWO days of the week", () => {
@@ -213,7 +134,7 @@ describe("Recurrence tests", () => {
       exceptionDays: ["TH", "FR"],
     };
 
-    const recurrence = generateRecurrence({ ...createRecurrenceInputs });
+    const dateStrings = generateUTCStrings({ ...createRecurrenceInputs }, true);
 
     const expectedUTCDates = [
       // First of March
@@ -233,26 +154,7 @@ describe("Recurrence tests", () => {
       "2018-03-06T22:00:00Z",
     ];
 
-    const expectedDates = [
-      // First of March
-      // REMOVED because its Thursday
-      // Second
-      // REMOVED because its Friday
-      // Third
-      "2018-03-03T21:00:00+01:00",
-      "2018-03-03T21:30:00+01:00",
-      "2018-03-03T22:00:00+01:00",
-      "2018-03-03T22:30:00+01:00",
-      "2018-03-03T23:00:00+01:00",
-      "2018-03-03T23:30:00+01:00",
-
-      // Extra
-      "2018-03-05T23:00:00+01:00",
-      "2018-03-06T23:00:00+01:00",
-    ];
-
-    expect(recurrence.utcDates).toEqual(expectedUTCDates);
-    expect(recurrence.dates).toEqual(expectedDates);
+    expect(dateStrings).toEqual(expectedUTCDates);
   });
 
   it("Excludes Custom Dates - Custom Date same as exception", () => {
@@ -271,7 +173,7 @@ describe("Recurrence tests", () => {
       exceptionDays: ["TH", "FR"],
     };
 
-    const recurrence = generateRecurrence({ ...createRecurrenceInputs });
+    const dateStrings = generateUTCStrings({ ...createRecurrenceInputs }, true);
 
     const expectedUTCDates = [
       // First of March
@@ -291,25 +193,7 @@ describe("Recurrence tests", () => {
       // "2018-03-06T22:00:00Z", // REMOVED because is the custom exclusion on the 6th of Match at 22
     ];
 
-    const expectedDates = [
-      // First of March
-      // REMOVED because its Thursday
-      // Second
-      // REMOVED because its Friday
-      // Third
-      "2018-03-03T21:00:00+01:00",
-      "2018-03-03T21:30:00+01:00",
-      "2018-03-03T22:00:00+01:00",
-      "2018-03-03T22:30:00+01:00",
-      // "2018-03-03T23:00:00+01:00", // REMOVED because is the custom exclusion on the 3th of Match at 22
-      "2018-03-03T23:30:00+01:00",
-      // Extra
-      "2018-03-05T23:00:00+01:00",
-      // "2018-03-06T23:00:00+01:00",  // REMOVED because is the custom exclusion on the 6th of Match at 22
-    ];
-
-    expect(recurrence.utcDates).toEqual(expectedUTCDates);
-    expect(recurrence.dates).toEqual(expectedDates);
+    expect(dateStrings).toEqual(expectedUTCDates);
   });
 
   it("Excludes Custom Dates - Custom Date Different than exception", () => {
@@ -328,7 +212,7 @@ describe("Recurrence tests", () => {
       exceptionDays: ["TH"],
     };
 
-    const recurrence = generateRecurrence({ ...createRecurrenceInputs });
+    const dateStrings = generateUTCStrings({ ...createRecurrenceInputs }, true);
 
     const expectedUTCDates = [
       // First of March
@@ -353,29 +237,6 @@ describe("Recurrence tests", () => {
       "2018-03-06T22:00:00Z",
     ];
 
-    const expectedDates = [
-      // First of March
-      // REMOVED because its Thursday
-      // Second
-      //"2018-03-02T21:00:00+01:00", // removed because of exception
-      "2018-03-02T21:30:00+01:00",
-      "2018-03-02T22:00:00+01:00",
-      "2018-03-02T22:30:00+01:00",
-      "2018-03-02T23:00:00+01:00",
-      "2018-03-02T23:30:00+01:00",
-      // Third
-      "2018-03-03T21:00:00+01:00",
-      "2018-03-03T21:30:00+01:00",
-      "2018-03-03T22:00:00+01:00",
-      "2018-03-03T22:30:00+01:00",
-      // "2018-03-03T23:00:00+01:00", // REMOVED because is the custom exclusion on the 3th of Match at 22
-      "2018-03-03T23:30:00+01:00",
-      // Extra
-      "2018-03-05T23:00:00+01:00",
-      "2018-03-06T23:00:00+01:00",
-    ];
-
-    expect(recurrence.utcDates).toEqual(expectedUTCDates);
-    expect(recurrence.dates).toEqual(expectedDates);
+    expect(dateStrings).toEqual(expectedUTCDates);
   });
 });

@@ -32,13 +32,19 @@ export class CreateRecurrentDatesInputs {
 }
 
 @ObjectType()
+export class DateWithTimes {
+  @Field(() => Date)
+  date: Date;
+  @Field(() => [Date])
+  times: Date[];
+}
+
+@ObjectType()
 export class RecurrenceResponse {
   @Field(() => [FieldError], { nullable: true })
   errors?: FieldError[];
-  @Field(() => [String], { nullable: true })
-  utcDates?: string[];
-  @Field(() => [String], { nullable: true })
-  dates?: string[];
+  @Field(() => [DateWithTimes], { nullable: true })
+  dateWithTimes?: DateWithTimes[];
 }
 @Resolver(Experience)
 export class ExperienceResolvers {
