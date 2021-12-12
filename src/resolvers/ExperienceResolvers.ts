@@ -1,5 +1,6 @@
 import {
   Arg,
+  Authorized,
   Field,
   InputType,
   ObjectType,
@@ -48,7 +49,7 @@ export class RecurrenceResponse {
 }
 @Resolver(Experience)
 export class ExperienceResolvers {
-  //@Authorized("owner")
+  @Authorized("owner")
   @Query(() => RecurrenceResponse)
   recurrentDates(
     @Arg("createRecurrentDatesInputs")
