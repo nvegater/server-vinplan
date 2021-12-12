@@ -13,6 +13,7 @@ import { Length } from "class-validator";
 import { Winery } from "./Winery";
 import { Reservation } from "./Reservation";
 import { ExperienceImage } from "./Images";
+import { ExperienceSlot } from "./ExperienceSlot";
 
 export enum ExperienceType {
   WINE_DINNER_PAIRING,
@@ -44,36 +45,24 @@ export class Experience extends BaseEntity {
 
   @Field(() => ExperienceType)
   @Column("enum", { name: "experienceType", enum: ExperienceType })
-  eventType!: ExperienceType;
-
-  @Field(() => Date)
-  @Column({ type: "timestamp" })
-  startDateTime!: Date;
-
-  @Field(() => Date)
-  @Column({ type: "timestamp" })
-  endDateTime!: Date; // For Recurrent Experience End Date Time Refers to the whole recursion.
-  // If an irregular slot is created, it could potentially replace endDate time
-
-  @Field(() => [String], { nullable: true })
-  @Column("text", { array: true, nullable: true, default: "{}" })
-  rRules: string[]; // this is null for non recurrent events
-
-  @Field(() => [String], { nullable: true })
-  @Column("text", { array: true, nullable: true, default: "{}" })
-  extraDates: string[]; // this is null for non recurrent events
-
-  @Field(() => Int)
-  @Column({ type: "int" })
-  limitOfAttendees!: number;
+  experienceType!: ExperienceType;
 
   @Field(() => Int, { defaultValue: 0 })
   @Column({ type: "int", default: 0 })
-  noOfAttendees: number;
+  allAttendeesAllSlots: number;
 
   @Field(() => Float)
   @Column({ type: "float" })
   pricePerPersonInDollars!: number;
+
+  // -- Reference to others
+
+  @Field(() => [ExperienceSlot])
+  @OneToMany(
+    () => ExperienceSlot,
+    (experienceSlot) => experienceSlot.experience
+  )
+  slots!: ExperienceSlot[];
 
   @Field(() => [ExperienceImage], { nullable: true })
   @OneToMany(
@@ -96,6 +85,8 @@ export class Experience extends BaseEntity {
   @Field(() => [Reservation], { nullable: true })
   @OneToMany(() => Reservation, (reservation) => reservation.experience)
   reservations: Reservation[];
+
+  // --MEta
 
   @Field(() => Date)
   @CreateDateColumn()

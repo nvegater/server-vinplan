@@ -1,5 +1,6 @@
-import { generateUTCStrings } from "../../src/useCases/experiences/recurrent/recurrenceRules";
-import { CreateRecurrentDatesInputs } from "../../src/resolvers/ExperienceResolvers";
+import { generateUTCStringsRecurrentEvent } from "../../src/useCases/experiences/recurrent/recurrenceRules";
+import { CreateRecurrentDatesInputs } from "../../src/resolvers/Inputs/CreateExperienceInputs";
+import { SlotType } from "../../src/entities/ExperienceSlot";
 
 describe("Recurrence tests", () => {
   it("Generates recurrence only with required params", () => {
@@ -7,9 +8,13 @@ describe("Recurrence tests", () => {
       startDate: new Date("2018-03-01T20:00:00.000Z"),
       endDate: new Date("2018-03-03T22:00:00.000Z"),
       durationInMinutes: 30,
+      slotType: SlotType.RECURRENT,
     };
 
-    const dateStrings = generateUTCStrings({ ...createRecurrenceInputs }, true);
+    const dateStrings = generateUTCStringsRecurrentEvent(
+      { ...createRecurrenceInputs },
+      true
+    );
 
     const expectedUTCDates = [
       // First of March
@@ -47,9 +52,13 @@ describe("Recurrence tests", () => {
         new Date("2018-03-05T22:00:00.000Z"),
         new Date("2018-03-06T22:00:00.000Z"),
       ],
+      slotType: SlotType.RECURRENT,
     };
 
-    const dateStrings = generateUTCStrings({ ...createRecurrenceInputs }, true);
+    const dateStrings = generateUTCStringsRecurrentEvent(
+      { ...createRecurrenceInputs },
+      true
+    );
 
     const expectedUTCDates = [
       // First of March
@@ -92,9 +101,13 @@ describe("Recurrence tests", () => {
         new Date("2018-03-06T22:00:00.000Z"),
       ],
       exceptionDays: ["TH"],
+      slotType: SlotType.RECURRENT,
     };
 
-    const dateStrings = generateUTCStrings({ ...createRecurrenceInputs }, true);
+    const dateStrings = generateUTCStringsRecurrentEvent(
+      { ...createRecurrenceInputs },
+      true
+    );
 
     const expectedUTCDates = [
       // First of March
@@ -132,9 +145,13 @@ describe("Recurrence tests", () => {
         new Date("2018-03-06T22:00:00.000Z"),
       ],
       exceptionDays: ["TH", "FR"],
+      slotType: SlotType.RECURRENT,
     };
 
-    const dateStrings = generateUTCStrings({ ...createRecurrenceInputs }, true);
+    const dateStrings = generateUTCStringsRecurrentEvent(
+      { ...createRecurrenceInputs },
+      true
+    );
 
     const expectedUTCDates = [
       // First of March
@@ -171,9 +188,13 @@ describe("Recurrence tests", () => {
         new Date("2018-03-06T22:00:00.000Z"),
       ],
       exceptionDays: ["TH", "FR"],
+      slotType: SlotType.RECURRENT,
     };
 
-    const dateStrings = generateUTCStrings({ ...createRecurrenceInputs }, true);
+    const dateStrings = generateUTCStringsRecurrentEvent(
+      { ...createRecurrenceInputs },
+      true
+    );
 
     const expectedUTCDates = [
       // First of March
@@ -210,9 +231,13 @@ describe("Recurrence tests", () => {
         new Date("2018-03-03T22:00:00.000Z"),
       ],
       exceptionDays: ["TH"],
+      slotType: SlotType.RECURRENT,
     };
 
-    const dateStrings = generateUTCStrings({ ...createRecurrenceInputs }, true);
+    const dateStrings = generateUTCStringsRecurrentEvent(
+      { ...createRecurrenceInputs },
+      true
+    );
 
     const expectedUTCDates = [
       // First of March

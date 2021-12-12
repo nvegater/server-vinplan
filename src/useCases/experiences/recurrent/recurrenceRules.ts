@@ -1,11 +1,11 @@
 import { DateAdapter, IRuleOptions, Schedule } from "./rschedule";
 import moment from "moment";
-import { eachDayOfInterval } from "date-fns";
+import { differenceInMinutes, eachDayOfInterval } from "date-fns";
 import {
-  CreateRecurrentDatesInputs,
   DateWithTimes,
   RecurrenceResponse,
-} from "../../../resolvers/ExperienceResolvers";
+} from "../../../resolvers/Outputs/CreateExperienceOutputs";
+import { CreateRecurrentDatesInputs } from "../../../resolvers/Inputs/CreateExperienceInputs";
 
 //type TypeOfEvent = "One Time" | "Periodic" | "All day";
 
@@ -21,7 +21,24 @@ const getTimesForDate = (
   });
 };
 
-const generateDatesWithSlots = (utcDatesStrings: string[]): DateWithTimes[] => {
+export const generateOneSlot = (
+  startDateTime: Date,
+  endDateTime: Date,
+  allDay: boolean = false
+): DateWithTimes => {
+  return {
+    date: startDateTime,
+    times: [startDateTime],
+    durationInMinutes: allDay
+      ? 24 * 60
+      : differenceInMinutes(endDateTime, startDateTime),
+  };
+};
+
+const generateDatesWithSlots = (
+  utcDatesStrings: string[],
+  durationInMinutes: number
+): DateWithTimes[] => {
   const onlyDateNoTime = utcDatesStrings.map((date) =>
     new Date(date).toDateString()
   );
@@ -37,6 +54,7 @@ const generateDatesWithSlots = (utcDatesStrings: string[]): DateWithTimes[] => {
         dateIgnoreTime,
         utcDatesStrings.map((d) => new Date(d))
       ),
+      durationInMinutes: durationInMinutes,
     };
   });
 };
@@ -60,7 +78,7 @@ function replaceTime(
   );
 }
 
-export const generateUTCStrings = (
+export const generateUTCStringsRecurrentEvent = (
   {
     startDate,
     endDate,
@@ -137,9 +155,15 @@ export const generateUTCStrings = (
 export const generateRecurrence = (
   createRecurrentDatesInputs: CreateRecurrentDatesInputs
 ): RecurrenceResponse => {
-  const utcDatesStrings = generateUTCStrings(createRecurrentDatesInputs, true);
+  const utcDatesStrings = generateUTCStringsRecurrentEvent(
+    createRecurrentDatesInputs,
+    true
+  );
 
-  const dateWithTimes = generateDatesWithSlots(utcDatesStrings);
+  const dateWithTimes = generateDatesWithSlots(
+    utcDatesStrings,
+    createRecurrentDatesInputs.durationInMinutes
+  );
 
   return {
     dateWithTimes,

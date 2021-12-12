@@ -10,6 +10,7 @@ import { WineryOtherServices } from "./entities/WineryOtherServices";
 import { Experience } from "./entities/Experience";
 import { Reservation } from "./entities/Reservation";
 import { ExperienceImage, WineryImage, UserImage } from "./entities/Images";
+import { ExperienceSlot } from "./entities/ExperienceSlot";
 
 export default {
   type: "postgres",
@@ -21,6 +22,7 @@ export default {
   entities: [
     Winery,
     Experience,
+    ExperienceSlot,
     Reservation,
     //
     WineProductionType,
