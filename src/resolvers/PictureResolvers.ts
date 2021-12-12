@@ -1,8 +1,8 @@
 import { Int, Query, Resolver } from "type-graphql";
-import { Picture } from "../entities/Picture";
+import { ExperienceImage } from "../entities/Images";
 
-@Resolver(Picture)
-export class PictureResolvers {
+@Resolver(ExperienceImage)
+export class ExperienceImagesResolvers {
   @Query(() => Int)
   async allPictures() {
     return 0;

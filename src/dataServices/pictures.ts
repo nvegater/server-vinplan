@@ -1,11 +1,10 @@
-import { Picture } from "../entities/Picture";
-
+import { ExperienceImage } from "../entities/Images";
 export const insertExperienceImage = async (
   experienceId: number,
   urlImage: string,
   coverPage: boolean
 ) => {
-  const serviceImage = Picture.create({
+  const serviceImage = ExperienceImage.create({
     experienceId: experienceId,
     imageUrl: urlImage,
     coverPage: coverPage,
@@ -14,29 +13,29 @@ export const insertExperienceImage = async (
 };
 
 export const findImageById = async (imageId: number) => {
-  return await Picture.findOne(imageId);
+  return await ExperienceImage.findOne(imageId);
 };
 
 export const deleteImageById = async (imageId: number) => {
-  return await Picture.delete(imageId);
+  return await ExperienceImage.delete(imageId);
 };
 
 export const getServiceGalleryById = async (experienceId: number) => {
-  return Picture.find({
+  return ExperienceImage.find({
     where: { experienceId },
   });
 };
 
 export const getImagesNumberGallery = async (experienceId: number) => {
-  return await Picture.count({ experienceId });
+  return await ExperienceImage.count({ experienceId });
 };
 
 export const deleteDefaultPicture = async (experienceId: number) => {
-  const defaultPicture = await Picture.findOne({
+  const defaultPicture = await ExperienceImage.findOne({
     where: { experienceId, coverPage: true }, // TODO: double check with: https://github.com/typeorm/typeorm/issues/2929
   });
   if (defaultPicture) {
-    await Picture.delete(defaultPicture.id);
+    await ExperienceImage.delete(defaultPicture.id);
   }
 };
 
@@ -44,18 +43,18 @@ export const updateDefaultPictureToEvent = async (
   experienceId: number,
   urlImage: string
 ) => {
-  return await Picture.update(
+  return await ExperienceImage.update(
     { experienceId, coverPage: true },
     { imageUrl: urlImage }
   );
 };
 
 export const selectCoverPageImage = async (experienceId: number) => {
-  return await Picture.update({ experienceId }, { coverPage: true });
+  return await ExperienceImage.update({ experienceId }, { coverPage: true });
 };
 
 export const unSelectCoverPageImage = async (experienceId: number) => {
-  return await Picture.update(
+  return await ExperienceImage.update(
     { experienceId, coverPage: false },
     { coverPage: true }
   );
@@ -63,7 +62,7 @@ export const unSelectCoverPageImage = async (experienceId: number) => {
 
 // TODO review all of this functionality
 export const getCoverImageGallery = async (serviceId: number) => {
-  return Picture.findOne({
+  return ExperienceImage.findOne({
     where: { serviceId: serviceId, coverPage: true },
   });
 };

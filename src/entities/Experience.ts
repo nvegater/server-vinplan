@@ -12,7 +12,7 @@ import {
 import { Length } from "class-validator";
 import { Winery } from "./Winery";
 import { Reservation } from "./Reservation";
-import { Picture } from "./Picture";
+import { ExperienceImage } from "./Images";
 
 export enum ExperienceType {
   WINE_DINNER_PAIRING,
@@ -75,8 +75,15 @@ export class Experience extends BaseEntity {
   @Column({ type: "float" })
   pricePerPersonInDollars!: number;
 
-  @Field(() => [Picture])
-  pictures?: Picture[];
+  @Field(() => [ExperienceImage], { nullable: true })
+  @OneToMany(
+    () => ExperienceImage,
+    (experienceImage) => experienceImage.experience,
+    {
+      nullable: true,
+    }
+  )
+  images: ExperienceImage[] | null;
 
   @Field(() => Int)
   @Column()

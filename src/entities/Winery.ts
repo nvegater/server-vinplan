@@ -16,6 +16,7 @@ import { WineryLanguage, SupportedLanguage } from "./WineryLanguage";
 import { Grape, WineGrapesProduction } from "./WineGrapesProduction";
 import { OtherServices, WineryOtherServices } from "./WineryOtherServices";
 import { Experience } from "./Experience";
+import { WineryImage } from "./Images";
 
 export enum Valley {
   "GUADALUPE" = "Guadalupe",
@@ -81,6 +82,12 @@ export class Winery extends BaseEntity {
   @Field(() => [Experience], { nullable: true })
   @OneToMany(() => Experience, (exp) => exp.winery)
   experiences: Experience[];
+
+  @Field(() => [WineryImage], { nullable: true })
+  @OneToMany(() => WineryImage, (wineryImage) => wineryImage.winery, {
+    nullable: true,
+  })
+  images: WineryImage[] | null;
 
   @Field(() => String, { nullable: true })
   @Column({ nullable: true })

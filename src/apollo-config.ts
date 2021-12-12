@@ -13,7 +13,7 @@ import {
   ServerRegistration,
 } from "apollo-server-express";
 import { ExperienceResolvers } from "./resolvers/ExperienceResolvers";
-import { PictureResolvers } from "./resolvers/PictureResolvers";
+import { ExperienceImagesResolvers } from "./resolvers/PictureResolvers";
 import { ReservationResolvers } from "./resolvers/ReservationResolvers";
 import { WineryResolvers } from "./resolvers/winery/WineryResolvers";
 import { keycloakAuthChecker } from "./utils/auth/keycloak";
@@ -32,7 +32,7 @@ export const registerExpressServer: (app: Express) => ServerRegistration = (
 const buildSchemas = async () => {
   const entityResolvers: NonEmptyArray<Function> = [
     ExperienceResolvers,
-    PictureResolvers,
+    ExperienceImagesResolvers,
     ReservationResolvers,
     WineryResolvers,
     PaymentsResolvers,

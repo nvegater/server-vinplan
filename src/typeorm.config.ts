@@ -8,8 +8,8 @@ import { WineryLanguage } from "./entities/WineryLanguage";
 import { WineGrapesProduction } from "./entities/WineGrapesProduction";
 import { WineryOtherServices } from "./entities/WineryOtherServices";
 import { Experience } from "./entities/Experience";
-import { Picture } from "./entities/Picture";
 import { Reservation } from "./entities/Reservation";
+import { ExperienceImage, WineryImage, UserImage } from "./entities/Images";
 
 export default {
   type: "postgres",
@@ -21,7 +21,6 @@ export default {
   entities: [
     Winery,
     Experience,
-    Picture,
     Reservation,
     //
     WineProductionType,
@@ -30,5 +29,9 @@ export default {
     WineryLanguage,
     WineGrapesProduction,
     WineryOtherServices,
+    //
+    ExperienceImage,
+    WineryImage,
+    UserImage,
   ],
 } as ConnectionOptions;
