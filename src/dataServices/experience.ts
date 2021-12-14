@@ -1,6 +1,8 @@
 import { add } from "date-fns";
 import { Experience, ExperienceType } from "../entities/Experience";
 import { ExperienceSlot, SlotType } from "../entities/ExperienceSlot";
+import { typeReturn } from "./utils";
+import { getConnection } from "typeorm";
 
 interface CreateExperienceInputs {
   wineryId: number;
@@ -27,6 +29,21 @@ export const createEmptyExperience = async (
   });
   await experience.save();
   return experience;
+};
+
+export const updateExperienceSlots = async (
+  experienceSlots: ExperienceSlot[],
+  experienceId: number
+) => {
+  return await typeReturn<Experience>(
+    getConnection()
+      .createQueryBuilder()
+      .update(Experience)
+      .set({ slots: experienceSlots })
+      .where("id = :experienceId", { experienceId })
+      .returning("*")
+      .execute()
+  );
 };
 
 interface CreateSlotsInputs {

@@ -1,4 +1,4 @@
-import { Arg, Authorized, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Mutation, Query, Resolver } from "type-graphql";
 import { Experience } from "../entities/Experience";
 
 import {
@@ -15,7 +15,6 @@ import { createExperienceWinery } from "../useCases/experiences/createExperience
 
 @Resolver(Experience)
 export class ExperienceResolvers {
-  @Authorized("owner")
   @Query(() => RecurrenceResponse)
   recurrentDates(
     @Arg("createRecurrentDatesInputs")
@@ -24,7 +23,6 @@ export class ExperienceResolvers {
     return generateRecurrence({ ...createRecurrentDatesInputs });
   }
 
-  @Authorized("owner")
   @Mutation(() => ExperienceResponse)
   async createExperience(
     @Arg("createExperienceInputs")

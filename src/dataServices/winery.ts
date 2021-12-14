@@ -2,12 +2,8 @@ import { Winery } from "../entities/Winery";
 import CreateWineryInputs from "../resolvers/Inputs/CreateWineryInputs";
 import { UserInputs } from "../resolvers/Inputs/UserInputs";
 import { WineType } from "../entities/WineType";
-import {
-  DeleteResult,
-  getConnection,
-  InsertResult,
-  UpdateResult,
-} from "typeorm";
+import { getConnection } from "typeorm";
+import { typeReturn } from "./utils";
 
 export const getWineryByUsername_DS = async (creatorUsername: string) => {
   return await Winery.findOne({
@@ -61,12 +57,6 @@ export const createWinery_DS: CreateWineryFn_DS = async ({
   });
 
   return wineryEntity;
-};
-
-const typeReturn = async <T>(
-  mutation: Promise<UpdateResult | DeleteResult | InsertResult>
-): Promise<T> => {
-  return await mutation.then((res) => res.raw[0]);
 };
 
 export const updateWineryAccountID_DS = async (

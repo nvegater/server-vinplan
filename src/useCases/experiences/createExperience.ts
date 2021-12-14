@@ -10,6 +10,7 @@ import {
   createEmptyExperience,
   createSlots,
   getExperienceByTitle,
+  updateExperienceSlots,
 } from "../../dataServices/experience";
 import {
   generateOneSlot,
@@ -111,6 +112,9 @@ export const createExperienceWinery = async ({
       errors: cantGenerateSlotError,
     };
   }
+
+  // No need of returning the slots, we just save them
+  await updateExperienceSlots(createdSlots, createdExperience.id);
 
   return {
     experience: createdExperience,
