@@ -23,7 +23,7 @@ const getElementsInAlbum = async (presignedUrl: PresignedUrlInput) => {
   if (presignedUrl.uploadType == "winerybook") {
     return await imagesNumberWineryGallery(presignedUrl.wineryId);
   } else if (presignedUrl.uploadType == "experiencealbum") {
-    return await imagesNumberExperiencesGallery(presignedUrl.serviceId);
+    return await imagesNumberExperiencesGallery(presignedUrl.experienceId);
   }
   return 0;
 };
@@ -79,7 +79,8 @@ const getMultimediaInfo = async (
   numberOfElements: number
 ) => {
   try {
-    const { uploadType, wineryId, creatorUsername, serviceId } = presignedUrl;
+    const { uploadType, wineryId, creatorUsername, experienceId } =
+      presignedUrl;
     const imagesTypes = [
       "apng",
       "avif",
@@ -123,7 +124,7 @@ const getMultimediaInfo = async (
       if (numberOfElements > 9) {
         return { error: true };
       }
-      prefix = `service/${serviceId}-album`;
+      prefix = `service/${experienceId}-album`;
       contentType = mime.getType(ext) || "";
       key = `${prefix}`;
     }

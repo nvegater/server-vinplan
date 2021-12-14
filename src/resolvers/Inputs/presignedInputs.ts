@@ -22,7 +22,7 @@ export class PresignedUrlInput {
   @Field({ nullable: true, description: "opcional" })
   wineryId: number;
   @Field({ nullable: true, description: "opcional" })
-  serviceId: number;
+  experienceId: number;
   @Field({ nullable: true, description: "opcional" })
   creatorUsername: string;
 }
