@@ -12,6 +12,19 @@ export const insertExperienceImage = async (
   return await serviceImage.save();
 };
 
+export const insertImageInExperienceGallery = async (
+  experienceId: number,
+  urlImage: string,
+  coverPage: boolean
+) => {
+  const experienceImage = ExperienceImage.create({
+    experienceId: experienceId,
+    imageUrl: urlImage,
+    coverPage: coverPage,
+  });
+  return await experienceImage.save();
+};
+
 export const findImageById = async (imageId: number) => {
   return await ExperienceImage.findOne(imageId);
 };
