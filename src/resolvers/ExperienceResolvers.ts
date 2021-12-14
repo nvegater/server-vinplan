@@ -11,10 +11,19 @@ import {
 } from "./Outputs/CreateExperienceOutputs";
 
 import { generateRecurrence } from "../useCases/experiences/recurrent/recurrenceRules";
-import { createExperienceWinery } from "../useCases/experiences/createExperience";
+import {
+  createExperienceWinery,
+  getExperienceWithSlots,
+} from "../useCases/experiences/createExperience";
 
 @Resolver(Experience)
 export class ExperienceResolvers {
+  @Query(() => ExperienceResponse)
+  async experienceWithSlots(
+    @Arg("experienceId") experienceId: number
+  ): Promise<ExperienceResponse> {
+    return await getExperienceWithSlots(experienceId);
+  }
   @Query(() => RecurrenceResponse)
   recurrentDates(
     @Arg("createRecurrentDatesInputs")

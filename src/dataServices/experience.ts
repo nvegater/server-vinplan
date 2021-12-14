@@ -78,3 +78,10 @@ export const createSlots = async (
 
   return slots;
 };
+
+export const getExperienceWithSlots_DS = async (experienceId: number) => {
+  return await Experience.findOne({
+    where: { id: experienceId },
+    relations: ["slots"],
+  });
+};
