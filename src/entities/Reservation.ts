@@ -29,11 +29,11 @@ export class Reservation extends BaseEntity {
   userId!: string;
 
   @Field(() => Date)
-  @Column({ type: "timestamp" })
+  @Column({ type: "timestamptz" })
   startDateTime!: Date;
 
   @Field(() => Date)
-  @Column({ type: "timestamp" })
+  @Column({ type: "timestamptz" })
   endDateTime!: Date;
 
   // Null when is irregular recurrent

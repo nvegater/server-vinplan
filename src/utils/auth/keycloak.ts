@@ -16,6 +16,8 @@ export const keycloakAuthChecker: AuthChecker<ApolloKeycloakContext> = (
   let userType = "";
   try {
     // @ts-ignore
+    console.log("User Type", context.kauth.accessToken.content.userType);
+    // @ts-ignore
     userType = context.kauth.accessToken.content.userType;
   } catch (e) {
     throw new Error("Error authenticating");

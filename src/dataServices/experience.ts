@@ -17,10 +17,14 @@ export const getExperienceByTitle = async (title: string) => {
   });
 };
 
-export const createExperience = async (
+export const createEmptyExperience = async (
   createExperienceInputs: CreateExperienceInputs
 ): Promise<Experience> => {
-  const experience = await Experience.create({ ...createExperienceInputs });
+  const experience = await Experience.create({
+    ...createExperienceInputs,
+    experienceType: createExperienceInputs.typeOfEvent,
+    slots: [],
+  });
   await experience.save();
   return experience;
 };

@@ -29,11 +29,11 @@ export class ExperienceSlot extends BaseEntity {
   id!: number;
 
   @Field(() => Date)
-  @Column({ type: "timestamp" })
+  @Column({ type: "timestamptz" })
   startDateTime!: Date;
 
   @Field(() => Date)
-  @Column({ type: "timestamp" })
+  @Column({ type: "timestamptz" })
   endDateTime!: Date; // For Recurrent Experience End Date Time Refers to the whole recursion.
   // If an irregular slot is created, it could potentially replace endDate time
 

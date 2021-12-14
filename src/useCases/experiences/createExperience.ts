@@ -7,7 +7,7 @@ import {
   RecurrenceResponse,
 } from "../../resolvers/Outputs/CreateExperienceOutputs";
 import {
-  createExperience,
+  createEmptyExperience,
   createSlots,
   getExperienceByTitle,
 } from "../../dataServices/experience";
@@ -84,7 +84,7 @@ export const createExperienceWinery = async ({
     };
   }
 
-  const createdExperience = await createExperience({
+  const createdExperience = await createEmptyExperience({
     ...createExperienceInputs,
   });
 
