@@ -264,4 +264,52 @@ describe("Recurrence tests", () => {
 
     expect(dateStrings).toEqual(expectedUTCDates);
   });
+
+  it("Excludes Custom Dates - Custom Date Different than exception - Potential Time Zone error", () => {
+    const createRecurrenceInputs: CreateRecurrentDatesInputs = {
+      startDate: new Date("2018-03-01T00:00:00.000Z"),
+      endDate: new Date("2018-03-03T02:00:00.000Z"),
+      durationInMinutes: 30,
+      customDates: [
+        new Date("2018-03-05T22:00:00.000Z"),
+        new Date("2018-03-06T22:00:00.000Z"),
+      ],
+      exceptions: [
+        new Date("2018-03-02T00:00:00.000Z"),
+        new Date("2018-03-03T02:00:00.000Z"),
+      ],
+      exceptionDays: ["TH"],
+      slotType: SlotType.RECURRENT,
+    };
+
+    const dateStrings = generateUTCStringsRecurrentEvent(
+      { ...createRecurrenceInputs },
+      true
+    );
+
+    const expectedUTCDates = [
+      // First of March
+      // REMOVED because its Thursday
+      // Second
+      //"2018-03-02T20:00:00Z", // REMOVED because of exception
+      "2018-03-02T00:30:00Z",
+      "2018-03-02T01:00:00Z",
+      "2018-03-02T01:30:00Z",
+      "2018-03-02T02:00:00Z",
+      "2018-03-02T02:30:00Z",
+      // Third
+      "2018-03-03T00:00:00Z",
+      "2018-03-03T00:30:00Z",
+      "2018-03-03T01:00:00Z",
+      "2018-03-03T01:30:00Z",
+      //"2018-03-03T02:00:00Z", // REMOVED because is the custom exclusion on the 3th of Match at 22
+      "2018-03-03T02:30:00Z",
+
+      // Extra
+      "2018-03-05T22:00:00Z",
+      "2018-03-06T22:00:00Z",
+    ];
+
+    expect(dateStrings).toEqual(expectedUTCDates);
+  });
 });

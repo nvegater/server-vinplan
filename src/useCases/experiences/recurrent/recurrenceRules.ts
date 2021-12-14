@@ -47,11 +47,10 @@ const generateDatesWithSlots = (
   const noDuplicateDates = new Set([...onlyDateNoTime]);
 
   return [...noDuplicateDates].map((noDuplicateDate) => {
-    const dateIgnoreTime = new Date(noDuplicateDate);
     return {
-      date: dateIgnoreTime,
+      date: moment.utc(noDuplicateDate).toDate(),
       times: getTimesForDate(
-        dateIgnoreTime,
+        new Date(noDuplicateDate),
         utcDatesStrings.map((d) => new Date(d))
       ),
       durationInMinutes: durationInMinutes,
