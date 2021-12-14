@@ -77,7 +77,7 @@ export const createExperienceWinery = async ({
     return {
       errors: [
         {
-          field: "createExperience",
+          field: "title",
           message: "Experience with that title already exists",
         },
       ],
