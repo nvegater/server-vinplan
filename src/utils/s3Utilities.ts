@@ -1,10 +1,12 @@
 import AWS from "aws-sdk";
 import mime from "mime";
-import { PresignedUrlInput } from "../resolvers/pictures/presignedInputs";
-import { PresignedResponse } from "../resolvers/pictures/presignedOutputs";
 import imagesNumberWineryGallery from "../useCases/pictures/countWineryImages";
 import imagesNumberExperiencesGallery from "../useCases/pictures/countExperiencesImages";
-import { GetPreSignedUrlResponse } from "../resolvers/pictures/presignedOutputs";
+import { PresignedUrlInput } from "../resolvers/Inputs/presignedInputs";
+import {
+  GetPreSignedUrlResponse,
+  PresignedResponse,
+} from "../resolvers/Outputs/presignedOutputs";
 
 const spacesEndpoint = new AWS.Endpoint(
   process.env.NEXT_PUBLIC_DO_SPACES_ENDPOINT as string
@@ -20,7 +22,7 @@ const s3 = new AWS.S3(config);
 const getElementsInAlbum = async (presignedUrl: PresignedUrlInput) => {
   if (presignedUrl.uploadType == "winerybook") {
     return await imagesNumberWineryGallery(presignedUrl.wineryId);
-  } else if (presignedUrl.uploadType == "servicealbum") {
+  } else if (presignedUrl.uploadType == "experiencealbum") {
     return await imagesNumberExperiencesGallery(presignedUrl.serviceId);
   }
   return 0;
@@ -30,27 +32,28 @@ export async function getPresignedUrl(presignedUrl: PresignedUrlInput) {
   try {
     const arrayUrl: PresignedResponse[] = [];
     let preSignedPutUrl, multimediaInfo, key, getUrl;
-    const { fileName } = presignedUrl;
+    const { fileNames } = presignedUrl;
     const expireSeconds = 60 * 5;
     const numElementsInAlbum = await getElementsInAlbum(presignedUrl);
-    for (let i = 0; i < fileName.length; i++) {
+
+    for (let i = 0; i < fileNames.length; i++) {
       multimediaInfo = await getMultimediaInfo(
         presignedUrl,
-        fileName[i],
+        fileNames[i],
         numElementsInAlbum + i
       );
       if (multimediaInfo.error) {
         break;
       }
       key = multimediaInfo.key;
-      preSignedPutUrl = await s3.getSignedUrl("putObject", {
+      preSignedPutUrl = s3.getSignedUrl("putObject", {
         Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}/${key}`,
         ContentType: multimediaInfo.contentType,
         ACL: "public-read",
         Expires: expireSeconds,
-        Key: `${fileName[i]}`,
+        Key: `${fileNames[i]}`,
       });
-      getUrl = `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${key}/${fileName[i]}`;
+      getUrl = `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${key}/${fileNames[i]}`;
       arrayUrl.push({ putUrl: preSignedPutUrl, getUrl: getUrl });
     }
     let response: GetPreSignedUrlResponse = {
@@ -76,7 +79,7 @@ const getMultimediaInfo = async (
   numberOfElements: number
 ) => {
   try {
-    const { uploadType, wineryId, userId, serviceId } = presignedUrl;
+    const { uploadType, wineryId, creatorUsername, serviceId } = presignedUrl;
     const imagesTypes = [
       "apng",
       "avif",
@@ -112,11 +115,11 @@ const getMultimediaInfo = async (
       key = `${prefix}`;
     }
     if (uploadType == "userprofilepicture") {
-      prefix = `user/${userId}-pictureProfile`;
+      prefix = `user/${creatorUsername}-pictureProfile`;
       contentType = mime.getType(ext) || "";
       key = `${prefix}`;
     }
-    if (uploadType == "servicealbum") {
+    if (uploadType == "experiencealbum") {
       if (numberOfElements > 9) {
         return { error: true };
       }

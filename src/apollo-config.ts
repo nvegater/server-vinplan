@@ -18,6 +18,7 @@ import { ReservationResolvers } from "./resolvers/ReservationResolvers";
 import { WineryResolvers } from "./resolvers/winery/WineryResolvers";
 import { keycloakAuthChecker } from "./utils/auth/keycloak";
 import { PaymentsResolvers } from "./resolvers/PaymentsResolvers";
+import { PresignedResolver } from "./resolvers/PreSignedUrl/presigned";
 
 const registerServer = (app: Express) => ({
   app, // Http -express server
@@ -32,6 +33,7 @@ export const registerExpressServer: (app: Express) => ServerRegistration = (
 const buildSchemas = async () => {
   const entityResolvers: NonEmptyArray<Function> = [
     ExperienceResolvers,
+    PresignedResolver,
     ExperienceImagesResolvers,
     ReservationResolvers,
     WineryResolvers,
