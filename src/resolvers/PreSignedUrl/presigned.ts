@@ -42,7 +42,7 @@ export class PresignedResolver {
   }
 
   @Mutation(() => ExperienceImageResponse)
-  async experienceImagesUploaded(
+  async saveExperienceImagesUrls(
     @Arg("experienceId", () => Int) experienceId: number,
     @Arg("preSignedUrls", () => [String]) preSignedUrls: string[]
   ): Promise<ExperienceImageResponse> {
