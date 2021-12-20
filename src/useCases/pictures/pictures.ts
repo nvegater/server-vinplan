@@ -6,40 +6,72 @@ import {
   getImagesNumberGallery,
   insertImageInExperienceGallery,
 } from "../../dataServices/pictures";
-export const insertImages = async (
+import { FieldError } from "../../resolvers/Outputs/ErrorOutputs";
+
+const tooManyImagesError = [
+  {
+    field: "images",
+    message: "only 10 images allowed you cant upload any image anymore",
+  },
+];
+
+const couldntUploadImages = [
+  {
+    field: "images",
+    message: "There was an error saving your images",
+  },
+];
+const nImagesTooMuch = (noOfImages: number): FieldError[] => {
+  return [
+    {
+      field: "images",
+      message: `only 10 images allowed, you can still upload ${noOfImages.toString()}`,
+    },
+  ];
+};
+const ALLOWED_IMAGES = 10;
+
+export const saveExperienceImageReferences = async (
   experienceId: number,
   urlImages: string[]
 ): Promise<ExperienceImageResponse> => {
   const imagesCount = await getImagesNumberGallery(experienceId);
-  const tooManyImagesError = [{ field: "picture", message: "too many images" }];
-  if (imagesCount >= 9) {
-    return { errors: tooManyImagesError };
+  if (imagesCount >= ALLOWED_IMAGES) {
+    const errors = tooManyImagesError;
+    console.log(errors);
+    return { errors };
+  }
+
+  const potentialNoOfImagesAfterUpload = urlImages.length + imagesCount;
+
+  if (potentialNoOfImagesAfterUpload > ALLOWED_IMAGES) {
+    const possibleImagesToUpload = ALLOWED_IMAGES - imagesCount;
+    const errors = nImagesTooMuch(possibleImagesToUpload);
+    console.log(errors);
+    return { errors };
   }
 
   const uploadedImages: ExperienceImageUpload[] = await Promise.all(
     urlImages.map(async (urlImage, index) => {
-      const potentiallyNewImageCount = imagesCount + index;
-      if (potentiallyNewImageCount > 9) {
-        // TODO return error
-      }
-      const makeCoverPage = potentiallyNewImageCount === 0;
+      // if there are no images make the first image the cover
+      const makeCoverPage = index === 0 && imagesCount === 0;
 
-      const images = await insertImageInExperienceGallery(
+      const experienceImage = await insertImageInExperienceGallery(
         experienceId,
         urlImage,
         makeCoverPage
       );
 
       return {
-        imageUrl: images.imageUrl,
-        coverPage: images.coverPage,
+        imageUrl: experienceImage.imageUrl,
+        coverPage: experienceImage.coverPage,
       };
     })
   );
 
   if (uploadedImages.length === 0) {
-    return { errors: tooManyImagesError };
+    return { errors: couldntUploadImages };
   }
 
-  return { errors: tooManyImagesError }; // TODO change
+  return { experienceImages: uploadedImages };
 };

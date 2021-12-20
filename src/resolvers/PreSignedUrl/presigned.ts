@@ -11,7 +11,7 @@ import { getPresignedUrl } from "../../utils/s3Utilities";
 import { GetPreSignedUrlResponse } from "../Outputs/presignedOutputs";
 import { PresignedUrlInput } from "../Inputs/presignedInputs";
 import { FieldError } from "../Outputs/ErrorOutputs";
-import { insertImages } from "../../useCases/pictures/pictures";
+import { saveExperienceImageReferences } from "../../useCases/pictures/pictures";
 
 @ObjectType()
 export class ExperienceImageUpload {
@@ -42,12 +42,12 @@ export class PresignedResolver {
   }
 
   @Mutation(() => ExperienceImageResponse)
-  async insertImageService(
-    @Arg("serviceId", () => Int) serviceId: number,
-    @Arg("urlImage", () => [String]) urlImage: string[]
+  async experienceImagesUploaded(
+    @Arg("experienceId", () => Int) experienceId: number,
+    @Arg("preSignedUrls", () => [String]) preSignedUrls: string[]
   ): Promise<ExperienceImageResponse> {
     try {
-      return await insertImages(serviceId, urlImage);
+      return await saveExperienceImageReferences(experienceId, preSignedUrls);
     } catch (error) {
       throw new Error(error);
     }
