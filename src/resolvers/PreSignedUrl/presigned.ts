@@ -1,5 +1,6 @@
 import {
   Arg,
+  Authorized,
   Field,
   Int,
   Mutation,
@@ -30,6 +31,7 @@ export class ExperienceImageResponse {
 
 @Resolver(GetPreSignedUrlResponse)
 export class PresignedResolver {
+  @Authorized("owner")
   @Query(() => GetPreSignedUrlResponse)
   async preSignedUrl(
     @Arg("presignedUrlInputs") presignedUrlInputs: PresignedUrlInput
@@ -41,6 +43,7 @@ export class PresignedResolver {
     }
   }
 
+  @Authorized("owner")
   @Mutation(() => ExperienceImageResponse)
   async saveExperienceImagesUrls(
     @Arg("experienceId", () => Int) experienceId: number,

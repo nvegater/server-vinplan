@@ -13,7 +13,6 @@ import {
   ServerRegistration,
 } from "apollo-server-express";
 import { ExperienceResolvers } from "./resolvers/ExperienceResolvers";
-import { ExperienceImagesResolvers } from "./resolvers/PictureResolvers";
 import { ReservationResolvers } from "./resolvers/ReservationResolvers";
 import { WineryResolvers } from "./resolvers/winery/WineryResolvers";
 import { keycloakAuthChecker } from "./utils/auth/keycloak";
@@ -34,7 +33,6 @@ const buildSchemas = async () => {
   const entityResolvers: NonEmptyArray<Function> = [
     ExperienceResolvers,
     PresignedResolver,
-    ExperienceImagesResolvers,
     ReservationResolvers,
     WineryResolvers,
     PaymentsResolvers,
