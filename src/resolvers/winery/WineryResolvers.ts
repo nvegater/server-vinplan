@@ -6,7 +6,10 @@ import { GetWineryInputs, UserInputs } from "../Inputs/UserInputs";
 
 import { WineryResponse } from "../Outputs/WineryOutputs";
 
-import { getWinery } from "../../useCases/winery/createWinery";
+import {
+  confirmConnectedAccountCreation,
+  getWinery,
+} from "../../useCases/winery/createWinery";
 import { createWinery } from "../../useCases/winery/createWinery";
 
 @Resolver(Winery)
@@ -30,5 +33,18 @@ export class WineryResolvers {
     @Arg("createWineryInputs") createWineryInputs: CreateWineryInputs
   ): Promise<WineryResponse> {
     return await createWinery({ user: userInputs, winery: createWineryInputs });
+  }
+
+  @Authorized("owner")
+  @Mutation(() => WineryResponse, {
+    description:
+      "Trigger: winery information Page. " +
+      "If called for the first time, updates the winery connected account creation date" +
+      "Otherwise simply return the winery",
+  })
+  async confirmConnectedAccount(
+    @Arg("wineryAlias") wineryAlias: string
+  ): Promise<WineryResponse> {
+    return await confirmConnectedAccountCreation(wineryAlias);
   }
 }

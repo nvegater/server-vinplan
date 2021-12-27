@@ -62,6 +62,14 @@ export class Winery extends BaseEntity {
   @Column({ nullable: true })
   accountId?: string;
 
+  @Field(() => Number, {
+    defaultValue: -1,
+    description:
+      "Time at which the connected account was created. Measured in seconds since the Unix epoch. The default -1 Means that the account is not created Yet",
+  })
+  @Column({ default: -1 })
+  accountCreatedTime?: number;
+
   @Field(() => String)
   @Column({ unique: true })
   creatorUsername!: string;

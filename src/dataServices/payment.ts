@@ -117,7 +117,14 @@ export const createAccountForExpressOnboarding_DS = async (email: string) => {
       card_payments: { requested: true },
       transfers: { requested: true },
     },
+    settings: {
+      payouts: { schedule: { interval: "monthly", monthly_anchor: 31 } },
+    },
   });
+};
+
+export const getConnectedAccountById = async (accountId: string) => {
+  return await stripe.accounts.retrieve(accountId);
 };
 
 export const accountLinkForOnboarding_DS = async (

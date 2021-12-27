@@ -75,3 +75,20 @@ export const updateWineryAccountID_DS = async (
       .execute()
   );
 };
+
+export const updateWineryAccountCreationTime = async (
+  wineryAlias: string,
+  createdTime: number
+): Promise<Winery> => {
+  return await typeReturn<Winery>(
+    getConnection()
+      .createQueryBuilder()
+      .update(Winery)
+      .set({ accountCreatedTime: createdTime })
+      .where("urlAlias = :wineryAlias", {
+        wineryAlias,
+      })
+      .returning("*")
+      .execute()
+  );
+};

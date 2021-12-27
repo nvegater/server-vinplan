@@ -6,13 +6,16 @@ import {
   createWinery_DS,
   getWineryByAlias_DS,
   getWineryByUsername_DS,
+  updateWineryAccountCreationTime,
 } from "../../dataServices/winery";
 import {
   createCheckoutSession_DS,
   createCustomer_DS,
+  getConnectedAccountById,
   getProductByName_DS,
   retrievePricesFromProduct_DS,
 } from "../../dataServices/payment";
+import { customError } from "../../resolvers/Outputs/ErrorOutputs";
 
 interface CreateWineryHookProps {
   winery: CreateWineryInputs;
@@ -101,4 +104,34 @@ export const getWinery = async ({
     return { errors: [{ message: "Not found", field: "winery" }] };
   }
   return { winery: winery };
+};
+
+export const confirmConnectedAccountCreation = async (
+  wineryAlias: string
+): Promise<WineryResponse> => {
+  const winery = await getWineryByAlias_DS(wineryAlias);
+
+  if (winery == null) {
+    return customError("winery", "couldnt find a winery with that alias");
+  }
+
+  if (winery.accountId == null) {
+    return customError("winery", "The account id for this winery is not set");
+  }
+
+  const account = await getConnectedAccountById(winery.accountId);
+
+  if (account == null) {
+    return customError("winery", "couldnt retrieve an account");
+  }
+
+  if (account.created == null) {
+    return customError("winery", "account has not yet been created");
+  }
+
+  const updatedWinery =
+    winery.accountCreatedTime === -1
+      ? await updateWineryAccountCreationTime(wineryAlias, account.created)
+      : winery;
+  return { winery: updatedWinery };
 };
