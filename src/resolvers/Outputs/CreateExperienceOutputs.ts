@@ -29,3 +29,23 @@ export class ExperienceResponse {
   @Field(() => [DateWithTimes], { nullable: true })
   dateWithTimes?: DateWithTimes[];
 }
+
+@ObjectType()
+export class ExperiencesResponse {
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
+  @Field(() => [Experience], { nullable: true })
+  experiences?: Experience[];
+}
+
+@ObjectType()
+export class PaginatedExperiences {
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
+  @Field(() => [Experience], { nullable: true })
+  experiences?: Experience[];
+  @Field()
+  moreExperiencesAvailable: boolean;
+  @Field(() => Number)
+  totalExperiences: number;
+}

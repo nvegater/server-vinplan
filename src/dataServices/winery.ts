@@ -1,8 +1,8 @@
-import { Winery } from "../entities/Winery";
+import { Valley, Winery } from "../entities/Winery";
 import CreateWineryInputs from "../resolvers/Inputs/CreateWineryInputs";
 import { UserInputs } from "../resolvers/Inputs/UserInputs";
 import { WineType } from "../entities/WineType";
-import { getConnection } from "typeorm";
+import { getConnection, getRepository } from "typeorm";
 import { typeReturn } from "./utils";
 
 export const getWineryByUsername_DS = async (creatorUsername: string) => {
@@ -91,4 +91,11 @@ export const updateWineryAccountCreationTime = async (
       .returning("*")
       .execute()
   );
+};
+
+export const findWineriesByValley = async (valley: Valley[]) => {
+  return await getRepository(Winery)
+    .createQueryBuilder("winery")
+    .where('winery."valley" IN (:...valley)', { valley: valley })
+    .getMany();
 };

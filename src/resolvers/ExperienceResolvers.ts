@@ -2,12 +2,15 @@ import { Arg, Authorized, Mutation, Query, Resolver } from "type-graphql";
 import { Experience } from "../entities/Experience";
 
 import {
-  CreateRecurrentDatesInputs,
   CreateExperienceInputs,
+  CreateRecurrentDatesInputs,
+  PaginatedExperiencesInputs,
 } from "./Inputs/CreateExperienceInputs";
 import {
-  RecurrenceResponse,
   ExperienceResponse,
+  ExperiencesResponse,
+  PaginatedExperiences,
+  RecurrenceResponse,
 } from "./Outputs/CreateExperienceOutputs";
 
 import { generateRecurrence } from "../useCases/experiences/recurrent/recurrenceRules";
@@ -15,6 +18,10 @@ import {
   createExperienceWinery,
   getExperienceWithSlots,
 } from "../useCases/experiences/createExperience";
+import {
+  getExperiencesWithEditableSlots,
+  getPaginatedExperiences,
+} from "../useCases/experiences/experiences";
 
 @Resolver(Experience)
 export class ExperienceResolvers {
@@ -47,6 +54,27 @@ export class ExperienceResolvers {
     });
   }
 
-  // TODO add retrieve Editable experiences for winery owner
-  // TODO add retrieve Bookable Experiences for any user
+  @Query(() => PaginatedExperiences)
+  async experiences(
+    @Arg("paginatedExperiencesInputs")
+    paginatedExperiencesInputs: PaginatedExperiencesInputs
+  ): Promise<PaginatedExperiences> {
+    try {
+      return await getPaginatedExperiences(paginatedExperiencesInputs);
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  @Query(() => PaginatedExperiences)
+  async editableExperiences(
+    @Arg("wineryId")
+    wineryId: number
+  ): Promise<ExperiencesResponse> {
+    try {
+      return await getExperiencesWithEditableSlots(wineryId);
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 }
