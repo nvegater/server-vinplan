@@ -63,8 +63,8 @@ export class PaginatedExperiencesInputs {
   valley: Valley[];
   @Field(() => [ExperienceType], { nullable: true })
   experienceType: ExperienceType[] | null;
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   cursor: string | null;
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   experienceName: string | null;
 }
