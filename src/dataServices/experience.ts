@@ -2,9 +2,11 @@ import { add } from "date-fns";
 import { Experience, ExperienceType } from "../entities/Experience";
 import { ExperienceSlot, SlotType } from "../entities/ExperienceSlot";
 import { typeReturn } from "./utils";
-import { getConnection, getRepository } from "typeorm";
+import { getConnection, getRepository, SelectQueryBuilder } from "typeorm";
 import { Valley } from "../entities/Winery";
 import { findWineriesByValley } from "./winery";
+import { buildPaginator } from "typeorm-cursor-pagination";
+import { PaginatedExperiencesInputs } from "../resolvers/Inputs/CreateExperienceInputs";
 
 interface CreateExperienceInputs {
   wineryId: number;
@@ -109,22 +111,12 @@ export const retrieveAllExperiencesFromWinery = async (wineryId: number) => {
   return await Experience.find({ where: { wineryId }, relations: ["slots"] });
 };
 
-export const experiencesWithCursor_DS = async (
-  realLimit: number | null,
-  cursor: string | null,
+const createQueryWithFilters = async (
   experienceName: string | null,
   eventType: ExperienceType[] | null,
   valley: Valley[] | null
-): Promise<Experience[]> => {
-  // se deja el state listo para el proximo query
-
-  const qs = getRepository(Experience)
-    .createQueryBuilder("experience")
-    .orderBy("experience.createdAt", "DESC"); // most recent on he top
-
-  if (cursor) {
-    qs.andWhere('experience."createdAt" < :createdAt ', { createdAt: cursor });
-  }
+): Promise<SelectQueryBuilder<Experience>> => {
+  const qs = getRepository(Experience).createQueryBuilder("experience");
 
   if (experienceName) {
     qs.andWhere("experience.title like :title", {
@@ -148,9 +140,45 @@ export const experiencesWithCursor_DS = async (
       qs.andWhere('experience."wineryId" = -1', { wineriesIds: wineriesIds });
     }
   }
-  if (realLimit) {
-    qs.take(realLimit + 1);
-  }
 
-  return await qs.getMany();
+  return qs;
+};
+type ExperiencesCursorPagination = [
+  Experience[],
+  string | null,
+  string | null,
+  number
+];
+export const experiencesWithCursor_DS = async ({
+  paginationConfig,
+  experienceName,
+  experienceType,
+  valley,
+}: PaginatedExperiencesInputs): Promise<ExperiencesCursorPagination> => {
+  const qs = await createQueryWithFilters(
+    experienceName,
+    experienceType,
+    valley
+  );
+
+  const totalResults = await qs.getCount();
+
+  const paginator = buildPaginator({
+    entity: Experience,
+    paginationKeys: ["createdAt"],
+    query: {
+      limit: paginationConfig.limit + 1,
+      order: "DESC",
+      beforeCursor: paginationConfig.beforeCursor
+        ? paginationConfig.beforeCursor
+        : undefined,
+      afterCursor: paginationConfig.afterCursor
+        ? paginationConfig.afterCursor
+        : undefined,
+    },
+  });
+
+  const { data, cursor: cursorObj } = await paginator.paginate(qs);
+
+  return [data, cursorObj.beforeCursor, cursorObj.afterCursor, totalResults];
 };

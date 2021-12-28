@@ -63,6 +63,7 @@
     "stripe": "^8.188.0",
     "type-graphql": "^1.1.1",
     "typeorm": "^0.2.38",
+    "typeorm-cursor-pagination": "^0.6.1",
     "uuid": "^8.3.2"
   }
 }

@@ -12,27 +12,31 @@ import { PaginatedExperiencesInputs } from "../../resolvers/Inputs/CreateExperie
 import { ExperienceSlot } from "../../entities/ExperienceSlot";
 import { customError } from "../../resolvers/Outputs/ErrorOutputs";
 
-export const getPaginatedExperiences = async ({
-  limit,
-  cursor,
-  experienceName,
-  experienceType,
-  valley,
-}: PaginatedExperiencesInputs): Promise<PaginatedExperiences> => {
-  const realLimit = Math.min(50, limit);
-
-  const paginatedExperiences: Experience[] = await experiencesWithCursor_DS(
-    limit,
-    cursor,
-    experienceName,
-    experienceType,
-    valley
+export const getPaginatedExperiences = async (
+  paginatedExperiencesInputs: PaginatedExperiencesInputs
+): Promise<PaginatedExperiences> => {
+  const realLimit = Math.min(
+    50,
+    paginatedExperiencesInputs.paginationConfig.limit
   );
 
+  const [paginatedExperiences, beforeCursor, afterCursor, totalResults] =
+    await experiencesWithCursor_DS({
+      ...paginatedExperiencesInputs,
+      paginationConfig: {
+        ...paginatedExperiencesInputs.paginationConfig,
+        limit: realLimit,
+      },
+    });
+
   return {
-    experiences: paginatedExperiences.slice(0, realLimit),
-    moreExperiencesAvailable: paginatedExperiences.length === realLimit + 1, // DB has more posts than requested
-    totalExperiences: paginatedExperiences.length,
+    experiences: paginatedExperiences,
+    totalExperiences: totalResults,
+    paginationConfig: {
+      beforeCursor: beforeCursor,
+      afterCursor: afterCursor,
+      limit: realLimit,
+    },
   };
 };
 export const getAllExperiencesFromWinery = async (
@@ -57,12 +61,6 @@ export const getExperiencesWithEditableSlots = async (
   if (allExperiences.length === 0) {
     return customError("experience", "no Created Experiences");
   }
-
-  // at least one element in the slots Is in the future
-  // otherwise the experience will get filtered out
-  /*  const experiencesWithFutureSlots: Experience[] = allExperiences.filter(
-    (exp) => exp.slots.some((slot) => isInTheFuture(slot))
-  );*/
 
   const NOW_DATE_STRING = new Date().toISOString();
 

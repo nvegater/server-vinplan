@@ -1,4 +1,4 @@
-import { Field, Float, InputType } from "type-graphql";
+import { Field, Float, InputType, Int } from "type-graphql";
 import { ExperienceType } from "../../entities/Experience";
 import { SlotType } from "../../entities/ExperienceSlot";
 import { Valley } from "../../entities/Winery";
@@ -42,6 +42,22 @@ export class CreateExperienceInputs {
 
 @InputType({
   description:
+    "BefCur:null & AftCur:null => First Page N Results (N=limit) + AftCur:Y (if more results exist)." +
+    "BefCur:null & AftCur:Y => Page with N Results + BefCurY + AftCur:X (if more exist)" +
+    "BefCur:X & AftCur:null => End of the list." +
+    "BefCur:X & AftCur:Y => Ignores X.",
+})
+export class CursorPaginationInput {
+  @Field(() => String, { nullable: true })
+  afterCursor: string | null;
+  @Field(() => String, { nullable: true })
+  beforeCursor: string | null;
+  @Field(() => Int, { nullable: true })
+  limit: number;
+}
+
+@InputType({
+  description:
     "Default: \n" +
     "Sort from Newest to Oldest all the Table.\n" +
     "It never exceeds the limit\n" +
@@ -57,14 +73,12 @@ export class CreateExperienceInputs {
     "Valleys: if null, All the Valleys. Otherwise ONLY the selected ones.",
 })
 export class PaginatedExperiencesInputs {
-  @Field()
-  limit: number;
+  @Field(() => CursorPaginationInput)
+  paginationConfig: CursorPaginationInput;
   @Field(() => [Valley])
   valley: Valley[];
   @Field(() => [ExperienceType], { nullable: true })
   experienceType: ExperienceType[] | null;
-  @Field(() => String, { nullable: true })
-  cursor: string | null;
   @Field(() => String, { nullable: true })
   experienceName: string | null;
 }
