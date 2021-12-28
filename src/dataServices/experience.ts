@@ -151,14 +151,12 @@ type ExperiencesCursorPagination = [
 ];
 export const experiencesWithCursor_DS = async ({
   paginationConfig,
-  experienceName,
-  experienceType,
-  valley,
+  experiencesFilters,
 }: PaginatedExperiencesInputs): Promise<ExperiencesCursorPagination> => {
   const qs = await createQueryWithFilters(
-    experienceName,
-    experienceType,
-    valley
+    experiencesFilters.experienceName,
+    experiencesFilters.experienceType,
+    experiencesFilters.valley
   );
 
   const totalResults = await qs.getCount();
@@ -180,5 +178,11 @@ export const experiencesWithCursor_DS = async ({
 
   const { data, cursor: cursorObj } = await paginator.paginate(qs);
 
-  return [data, cursorObj.beforeCursor, cursorObj.afterCursor, totalResults];
+  // Initialize empty slots because we dont care about the slots right now.
+  let exps: Experience[] = data;
+  exps.forEach((exp) => {
+    exp.slots = [];
+  });
+
+  return [exps, cursorObj.beforeCursor, cursorObj.afterCursor, totalResults];
 };

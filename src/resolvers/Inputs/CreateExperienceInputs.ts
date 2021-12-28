@@ -56,6 +56,16 @@ export class CursorPaginationInput {
   limit: number;
 }
 
+@InputType()
+export class ExperiencesFilters {
+  @Field(() => [Valley], { nullable: true })
+  valley: Valley[];
+  @Field(() => [ExperienceType], { nullable: true })
+  experienceType: ExperienceType[] | null;
+  @Field(() => String, { nullable: true })
+  experienceName: string | null;
+}
+
 @InputType({
   description:
     "Default: \n" +
@@ -75,10 +85,6 @@ export class CursorPaginationInput {
 export class PaginatedExperiencesInputs {
   @Field(() => CursorPaginationInput)
   paginationConfig: CursorPaginationInput;
-  @Field(() => [Valley])
-  valley: Valley[];
-  @Field(() => [ExperienceType], { nullable: true })
-  experienceType: ExperienceType[] | null;
-  @Field(() => String, { nullable: true })
-  experienceName: string | null;
+  @Field(() => ExperiencesFilters)
+  experiencesFilters: ExperiencesFilters;
 }
