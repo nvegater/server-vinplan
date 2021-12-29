@@ -21,6 +21,10 @@ export const getWineryByAlias_DS = async (urlAlias: string) => {
   });
 };
 
+export const getWineryById_DS = async (id: number) => {
+  return await Winery.findOne(id);
+};
+
 interface CreateWineryProps_DS {
   winery: CreateWineryInputs;
   user: UserInputs;

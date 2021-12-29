@@ -1,6 +1,6 @@
-import { Field, Int, ObjectType } from "type-graphql";
+import { Field, Float, Int, ObjectType } from "type-graphql";
 import { FieldError } from "./ErrorOutputs";
-import { Experience } from "../../entities/Experience";
+import { Experience, ExperienceType } from "../../entities/Experience";
 
 @ObjectType()
 export class DateWithTimes {
@@ -55,11 +55,33 @@ export class CursorPaginationResult {
 }
 
 @ObjectType()
+export class PaginatedExperience {
+  @Field(() => Int)
+  id!: number;
+  @Field(() => String)
+  title!: string;
+  @Field(() => String)
+  description!: string;
+  @Field(() => ExperienceType)
+  experienceType!: ExperienceType;
+  @Field(() => Int, { defaultValue: 0 })
+  allAttendeesAllSlots: number;
+  @Field(() => Float)
+  pricePerPersonInDollars!: number;
+  @Field(() => Int)
+  wineryId!: number;
+  @Field(() => String)
+  wineryName!: string;
+  @Field(() => Date)
+  createdAt: Date;
+}
+
+@ObjectType()
 export class PaginatedExperiences {
   @Field(() => [FieldError], { nullable: true })
   errors?: FieldError[];
-  @Field(() => [Experience], { nullable: true })
-  experiences?: Experience[];
+  @Field(() => [PaginatedExperience], { nullable: true })
+  experiences?: PaginatedExperience[];
   @Field(() => Number)
   totalExperiences: number;
   @Field(() => CursorPaginationResult)
