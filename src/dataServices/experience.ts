@@ -165,7 +165,7 @@ export const experiencesWithCursor_DS = async ({
     entity: Experience,
     paginationKeys: ["createdAt"],
     query: {
-      limit: paginationConfig.limit + 1,
+      limit: paginationConfig.limit,
       order: "DESC",
       beforeCursor: paginationConfig.beforeCursor
         ? paginationConfig.beforeCursor
