@@ -8,8 +8,8 @@ import {
 } from "./Inputs/CreateExperienceInputs";
 import {
   ExperienceResponse,
-  ExperiencesResponse,
   PaginatedExperiences,
+  PaginatedExperiencesWithSlots,
   RecurrenceResponse,
 } from "./Outputs/CreateExperienceOutputs";
 
@@ -66,13 +66,18 @@ export class ExperienceResolvers {
     }
   }
 
-  @Query(() => PaginatedExperiences)
+  @Query(() => PaginatedExperiencesWithSlots)
   async editableExperiences(
     @Arg("wineryId")
-    wineryId: number
-  ): Promise<ExperiencesResponse> {
+    wineryId: number,
+    @Arg("paginatedExperiencesInputs")
+    paginatedExperiencesInputs: PaginatedExperiencesInputs
+  ): Promise<PaginatedExperiencesWithSlots> {
     try {
-      return await getExperiencesWithEditableSlots(wineryId);
+      return await getExperiencesWithEditableSlots(
+        wineryId,
+        paginatedExperiencesInputs
+      );
     } catch (error) {
       throw new Error(error);
     }

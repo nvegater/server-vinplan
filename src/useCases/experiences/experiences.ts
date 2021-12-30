@@ -1,8 +1,9 @@
 import { Experience } from "../../entities/Experience";
 import {
-  ExperiencesResponse,
   PaginatedExperience,
   PaginatedExperiences,
+  PaginatedExperiencesWithSlots,
+  PaginatedExperienceWithSlots,
 } from "../../resolvers/Outputs/CreateExperienceOutputs";
 import {
   experiencesWithCursor_DS,
@@ -13,12 +14,7 @@ import { PaginatedExperiencesInputs } from "../../resolvers/Inputs/CreateExperie
 import { ExperienceSlot } from "../../entities/ExperienceSlot";
 import { customError } from "../../resolvers/Outputs/ErrorOutputs";
 import { getWineryById_DS } from "../../dataServices/winery";
-
-function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
-  if (value === null || value === undefined) return false;
-  const dummy: TValue = value;
-  return Boolean(dummy);
-}
+import { notEmpty } from "../../dataServices/utils";
 
 export const getPaginatedExperiences = async (
   paginatedExperiencesInputs: PaginatedExperiencesInputs
@@ -67,32 +63,28 @@ export const getPaginatedExperiences = async (
     },
   };
 };
-export const getAllExperiencesFromWinery = async (
-  wineryId: number
-): Promise<Experience[]> => {
-  return await retrieveAllExperiencesFromWinery(wineryId);
-};
-
-//const isInTheFuture = (slot: ExperienceSlot) => slot.startDateTime;
 
 export const getExperiencesWithEditableSlots = async (
-  wineryId: number
-): Promise<ExperiencesResponse> => {
-  // Editable is an experience that has slots in the future.
-  //    The future slots, have more than 0 bookings: If someone already booked, notify the user about the change#
-  // if experience is in the past, no editable!
-
+  wineryId: number,
+  paginatedExperiencesInputs: PaginatedExperiencesInputs
+): Promise<PaginatedExperiencesWithSlots> => {
   const allExperiences: Experience[] = await retrieveAllExperiencesFromWinery(
     wineryId
   );
 
   if (allExperiences.length === 0) {
-    return customError("experience", "no Created Experiences");
+    const errorObject = customError("experience", "no Created Experiences");
+
+    return {
+      ...errorObject,
+      totalExperiences: 0,
+      paginationConfig: paginatedExperiencesInputs.paginationConfig,
+    };
   }
 
-  const NOW_DATE_STRING = new Date().toISOString();
+  const NOW_DATE_STRING = new Date();
 
-  const experiences: Experience[] = await Promise.all(
+  const experiencesWithFutureSlots: Experience[] = await Promise.all(
     allExperiences.map(async (exp) => {
       const slotsFromTheFuture: ExperienceSlot[] = await getSlotsFromTheFuture(
         exp.id,
@@ -105,9 +97,39 @@ export const getExperiencesWithEditableSlots = async (
     })
   );
 
+  const noEmptySlotsExps = experiencesWithFutureSlots.filter(
+    (exp) => exp.slots && exp.slots.length > 0
+  );
+
   if (allExperiences.length === 0) {
-    return customError("experienceSlots", "Cant get Editable slots");
+    const errorObject = customError(
+      "experienceSlots",
+      "Cant get Editable slots"
+    );
+    return {
+      ...errorObject,
+      totalExperiences: 0,
+      paginationConfig: paginatedExperiencesInputs.paginationConfig,
+    };
   }
 
-  return { experiences };
+  const winery = await getWineryById_DS(wineryId);
+
+  if (winery == null) {
+    const errorObject = customError("winery", "Error retrieving winery");
+    return {
+      ...errorObject,
+      totalExperiences: 0,
+      paginationConfig: paginatedExperiencesInputs.paginationConfig,
+    };
+  }
+
+  const paginatedExperiencesWithSlots: PaginatedExperienceWithSlots[] =
+    noEmptySlotsExps.map((exp) => ({ ...exp, wineryName: winery.name }));
+
+  return {
+    experiences: paginatedExperiencesWithSlots,
+    totalExperiences: noEmptySlotsExps.length,
+    paginationConfig: paginatedExperiencesInputs.paginationConfig,
+  };
 };

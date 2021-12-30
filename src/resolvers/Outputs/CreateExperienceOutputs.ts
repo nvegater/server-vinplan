@@ -1,6 +1,7 @@
 import { Field, Float, Int, ObjectType } from "type-graphql";
 import { FieldError } from "./ErrorOutputs";
 import { Experience, ExperienceType } from "../../entities/Experience";
+import { ExperienceSlot } from "../../entities/ExperienceSlot";
 
 @ObjectType()
 export class DateWithTimes {
@@ -28,14 +29,6 @@ export class ExperienceResponse {
   experience?: Experience;
   @Field(() => [DateWithTimes], { nullable: true })
   dateWithTimes?: DateWithTimes[];
-}
-
-@ObjectType()
-export class ExperiencesResponse {
-  @Field(() => [FieldError], { nullable: true })
-  errors?: FieldError[];
-  @Field(() => [Experience], { nullable: true })
-  experiences?: Experience[];
 }
 
 @ObjectType({
@@ -77,6 +70,12 @@ export class PaginatedExperience {
 }
 
 @ObjectType()
+export class PaginatedExperienceWithSlots extends PaginatedExperience {
+  @Field(() => [ExperienceSlot])
+  slots!: ExperienceSlot[];
+}
+
+@ObjectType()
 export class PaginatedExperiences {
   @Field(() => [FieldError], { nullable: true })
   errors?: FieldError[];
@@ -86,4 +85,10 @@ export class PaginatedExperiences {
   totalExperiences: number;
   @Field(() => CursorPaginationResult)
   paginationConfig: CursorPaginationResult;
+}
+
+@ObjectType()
+export class PaginatedExperiencesWithSlots extends PaginatedExperiences {
+  @Field(() => [PaginatedExperienceWithSlots], { nullable: true })
+  experiences?: PaginatedExperienceWithSlots[];
 }

@@ -92,23 +92,22 @@ export const getExperienceWithSlots_DS = async (experienceId: number) => {
 
 export const getSlotsFromTheFuture = async (
   experienceId: number,
-  starting: string
+  starting: Date
 ): Promise<ExperienceSlot[]> => {
   const qs = getRepository(ExperienceSlot)
-    .createQueryBuilder("experienceSlot")
-    .orderBy("experienceSlot.startDateTime", "ASC")
-    .andWhere('experienceSlot."startDateTime" < :starting ', {
-      starting: starting,
-    })
-    .andWhere('experienceSlot."experienceId" = :experienceId ', {
+    .createQueryBuilder("slot")
+    .andWhere('slot."experienceId" = :experienceId ', {
       experienceId: experienceId,
+    })
+    .andWhere('slot."startDateTime" > :starting ', {
+      starting: starting,
     });
 
   return await qs.getMany();
 };
 
 export const retrieveAllExperiencesFromWinery = async (wineryId: number) => {
-  return await Experience.find({ where: { wineryId }, relations: ["slots"] });
+  return await Experience.find({ where: { wineryId } });
 };
 
 const createQueryWithFilters = async (
