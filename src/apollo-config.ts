@@ -55,13 +55,7 @@ export const apolloKeycloakExpressContext =
     const graphqlSchemas = await buildSchemas();
     const playGroundConfig: PlaygroundConfig =
       process.env.NODE_ENV === "production"
-        ? {
-            settings: {
-              //default is 'omit'
-              // Always same credentials for multiple-playground requests in Dev mode.
-              "request.credentials": "include",
-            },
-          } // same is an not prod. Change to false
+        ? false
         : {
             settings: {
               //default is 'omit'
