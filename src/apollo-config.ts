@@ -18,6 +18,7 @@ import { WineryResolvers } from "./resolvers/winery/WineryResolvers";
 import { keycloakAuthChecker } from "./utils/auth/keycloak";
 import { PaymentsResolvers } from "./resolvers/PaymentsResolvers";
 import { PresignedResolver } from "./resolvers/PreSignedUrl/presigned";
+import { _prod_ } from "./constants";
 
 const registerServer = (app: Express) => ({
   app, // Http -express server
@@ -78,5 +79,6 @@ export const apolloKeycloakExpressContext =
       playground: playGroundConfig,
       typeDefs: [KeycloakTypeDefs],
       schemaDirectives: KeycloakSchemaDirectives,
+      introspection: !_prod_,
     };
   };
