@@ -114,7 +114,7 @@ export const generateUTCStringsRecurrentEvent = (
             byDayOfWeek: [dayOfWeek as DateAdapter.Weekday],
             frequency: "MINUTELY",
             start: moment(startDate),
-            end: moment(endDate),
+            end: moment(endDate).add(durationInMinutes, "minutes"),
             interval: durationInMinutes,
           };
         })
