@@ -27,9 +27,10 @@ import {
 export class ExperienceResolvers {
   @Query(() => ExperienceResponse)
   async experienceWithSlots(
-    @Arg("experienceId") experienceId: number
+    @Arg("experienceId") experienceId: number,
+    @Arg("onlyBookableSlots") onlyBookableSlots: boolean
   ): Promise<ExperienceResponse> {
-    return await getExperienceWithSlots(experienceId);
+    return await getExperienceWithSlots(experienceId, onlyBookableSlots);
   }
   @Authorized("owner")
   @Query(() => RecurrenceResponse)

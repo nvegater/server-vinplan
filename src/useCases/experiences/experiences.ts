@@ -7,7 +7,7 @@ import {
 } from "../../resolvers/Outputs/CreateExperienceOutputs";
 import {
   experiencesWithCursor_DS,
-  getSlotsFromTheFuture,
+  getSlotsStartingFrom,
   retrieveAllExperiencesFromWinery,
 } from "../../dataServices/experience";
 import { PaginatedExperiencesInputs } from "../../resolvers/Inputs/CreateExperienceInputs";
@@ -86,7 +86,7 @@ export const getExperiencesWithEditableSlots = async (
 
   const experiencesWithFutureSlots: Experience[] = await Promise.all(
     allExperiences.map(async (exp) => {
-      const slotsFromTheFuture: ExperienceSlot[] = await getSlotsFromTheFuture(
+      const slotsFromTheFuture: ExperienceSlot[] = await getSlotsStartingFrom(
         exp.id,
         NOW_DATE_STRING
       );

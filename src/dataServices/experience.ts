@@ -86,13 +86,14 @@ export const createSlots = async (
 export const getExperienceWithSlots_DS = async (experienceId: number) => {
   return await Experience.findOne({
     where: { id: experienceId },
-    relations: ["slots"],
+    relations: ["slots", "winery"],
   });
 };
 
-export const getSlotsFromTheFuture = async (
+export const getSlotsStartingFrom = async (
   experienceId: number,
-  starting: Date
+  starting: Date,
+  withAvailablePlaces: boolean = false
 ): Promise<ExperienceSlot[]> => {
   const qs = getRepository(ExperienceSlot)
     .createQueryBuilder("slot")
@@ -102,6 +103,10 @@ export const getSlotsFromTheFuture = async (
     .andWhere('slot."startDateTime" > :starting ', {
       starting: starting,
     });
+
+  if (withAvailablePlaces) {
+    qs.andWhere('slot."noOfAttendees" < slot."limitOfAttendees"');
+  }
 
   return await qs.getMany();
 };
