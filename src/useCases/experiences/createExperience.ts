@@ -142,6 +142,13 @@ export const getExperienceWithSlots = async (
     onlyBookableSlots
   );
 
+  if (slotsFromTheFuture.length === 0) {
+    return customError(
+      "slots",
+      "There are no slots available for that Experience"
+    );
+  }
+
   const expWBookableSlots: Experience = {
     ...experience,
     slots: slotsFromTheFuture,
