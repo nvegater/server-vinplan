@@ -111,6 +111,27 @@ export const getSlotsStartingFrom = async (
   return await qs.getMany();
 };
 
+export const countSlotsStartingFrom = async (
+  experienceId: number,
+  starting: Date,
+  withAvailablePlaces: boolean = false
+): Promise<number> => {
+  const qs = getRepository(ExperienceSlot)
+    .createQueryBuilder("slot")
+    .andWhere('slot."experienceId" = :experienceId ', {
+      experienceId: experienceId,
+    })
+    .andWhere('slot."startDateTime" > :starting ', {
+      starting: starting,
+    });
+
+  if (withAvailablePlaces) {
+    qs.andWhere('slot."noOfAttendees" < slot."limitOfAttendees"');
+  }
+
+  return await qs.getCount();
+};
+
 export const retrieveAllExperiencesFromWinery = async (wineryId: number) => {
   return await Experience.find({ where: { wineryId } });
 };

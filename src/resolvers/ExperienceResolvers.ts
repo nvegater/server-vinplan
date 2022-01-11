@@ -19,6 +19,7 @@ import {
   getExperienceWithSlots,
 } from "../useCases/experiences/createExperience";
 import {
+  getExperiencesWithBookableSlots,
   getExperiencesWithEditableSlots,
   getPaginatedExperiences,
 } from "../useCases/experiences/experiences";
@@ -67,6 +68,8 @@ export class ExperienceResolvers {
     }
   }
 
+  // Requires Auth because is only for wineries and its an expensive operation
+  @Authorized("owner")
   @Query(() => PaginatedExperiencesWithSlots)
   async editableExperiences(
     @Arg("wineryId")
@@ -79,6 +82,18 @@ export class ExperienceResolvers {
         wineryId,
         paginatedExperiencesInputs
       );
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  @Query(() => PaginatedExperiencesWithSlots)
+  async bookableExperiences(
+    @Arg("paginatedExperiencesInputs")
+    paginatedExperiencesInputs: PaginatedExperiencesInputs
+  ): Promise<PaginatedExperiences> {
+    try {
+      return await getExperiencesWithBookableSlots(paginatedExperiencesInputs);
     } catch (error) {
       throw new Error(error);
     }
