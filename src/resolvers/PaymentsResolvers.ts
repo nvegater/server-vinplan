@@ -48,7 +48,7 @@ export class PaymentsResolvers {
     return await verifyCheckoutSessionStatus(sessionId);
   }
 
-  @Query(() => CheckoutLinkResponse)
+  @Mutation(() => CheckoutLinkResponse)
   async getCheckoutLink(
     @Arg("createCustomerInputs") createCustomerInputs: CreateCustomerInputs,
     @Arg("slotId") slotId: number,

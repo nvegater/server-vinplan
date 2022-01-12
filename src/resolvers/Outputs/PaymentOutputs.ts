@@ -1,6 +1,5 @@
 import { Field, ObjectType } from "type-graphql";
 import { FieldError } from "./ErrorOutputs";
-import { Customer } from "../../entities/Customer";
 import { Product } from "../../entities/Product";
 
 @ObjectType()
@@ -12,11 +11,29 @@ export class ProductsResponse {
 }
 
 @ObjectType()
+export class CustomerDts {
+  @Field()
+  id: string;
+  @Field()
+  stripeCustomerId: string;
+  @Field()
+  email: string;
+  @Field(() => String, {
+    nullable: true,
+  })
+  username: string | null;
+  @Field(() => Date)
+  createdAt: Date;
+  @Field(() => Date)
+  updatedAt: Date;
+}
+
+@ObjectType()
 export class CustomerResponse {
   @Field(() => [FieldError], { nullable: true })
   errors?: FieldError[];
-  @Field(() => Customer, { nullable: true })
-  customer?: Customer;
+  @Field(() => CustomerDts, { nullable: true })
+  customer?: CustomerDts;
 }
 
 @ObjectType()

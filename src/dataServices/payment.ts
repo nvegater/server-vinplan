@@ -5,7 +5,7 @@ const stripe = new Stripe(process.env.STRIPE_PRIVATE_KEY || "", {
   typescript: true,
 });
 
-export const createCustomer_DS = async (
+export const createCustomer_stripe = async (
   params: Stripe.CustomerCreateParams
 ): Promise<Stripe.Customer> => {
   return await stripe.customers.create(params);

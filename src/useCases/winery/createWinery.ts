@@ -10,7 +10,7 @@ import {
 } from "../../dataServices/winery";
 import {
   createCheckoutSession_DS,
-  createCustomer_DS,
+  createCustomer_stripe,
   getConnectedAccountById,
   getProductByName_DS,
   retrievePricesFromProduct_DS,
@@ -29,7 +29,7 @@ type CreateWineryHook = (
 ) => CreateWineryHookResult;
 
 export const createWinery: CreateWineryHook = async ({ winery, user }) => {
-  const stripe_customer = await createCustomer_DS({
+  const stripe_customer = await createCustomer_stripe({
     email: user.email,
     metadata: { username: user.username },
   });

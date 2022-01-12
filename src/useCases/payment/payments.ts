@@ -2,7 +2,7 @@ import {
   accountLinkForOnboarding_DS,
   createAccountForExpressOnboarding_DS,
   createCheckoutSession_DS,
-  createCustomer_DS,
+  createCustomer_stripe,
   getCheckoutSession_DS,
   getFirstSubscription,
   getProducts_DS,
@@ -25,6 +25,10 @@ import {
 import { customError } from "../../resolvers/Outputs/ErrorOutputs";
 import { Winery } from "../../entities/Winery";
 import { getSlotById } from "../../dataServices/experience";
+import {
+  createCustomer_DS,
+  getCustomerByEmail,
+} from "../../dataServices/customer";
 
 export const retrieveSubscriptionsWithPrices =
   async (): Promise<ProductsResponse> => {
@@ -99,40 +103,40 @@ export const getCustomerSubscription = async (customerId: string) => {
   return firstSubscription.status;
 };
 
-export const createCustomer = async (
+async function createStripeCustomerAndPersistInWenoDB(
   createCustomerInputs: CreateCustomerInputs
-): Promise<CustomerResponse> => {
-  const stripe_customer = await createCustomer_DS({
+) {
+  const stripe_customer = await createCustomer_stripe({
     email: createCustomerInputs.email,
     metadata: createCustomerInputs.paymentMetadata
       ? { username: createCustomerInputs.paymentMetadata.username }
       : null,
   });
 
-  if (stripe_customer.email == null) {
-    return customError("email", "This should be impossible");
+  return await createCustomer_DS({
+    stripeCustomerId: stripe_customer.id,
+    email: stripe_customer.email as string,
+    username: createCustomerInputs.paymentMetadata
+      ? createCustomerInputs.paymentMetadata.username
+      : null,
+  });
+}
+
+export const createCustomer = async (
+  createCustomerInputs: CreateCustomerInputs
+): Promise<CustomerResponse> => {
+  const existingCustomer = await getCustomerByEmail(createCustomerInputs.email);
+
+  if (existingCustomer) {
+    return customError("customer", "Already exists");
   }
 
-  if (stripe_customer.metadata == null) {
-    return {
-      customer: {
-        id: stripe_customer.id,
-        email: stripe_customer.email,
-        paymentMetadata: null,
-      },
-    };
-  }
-
-  if (stripe_customer.metadata.username == null) {
-    return customError("username", "Created customer without user");
-  }
+  const weno_customer = await createStripeCustomerAndPersistInWenoDB(
+    createCustomerInputs
+  );
 
   return {
-    customer: {
-      id: stripe_customer.id,
-      email: stripe_customer.email,
-      paymentMetadata: { username: stripe_customer.metadata.username },
-    },
+    customer: { ...weno_customer },
   };
 };
 
@@ -151,17 +155,14 @@ export const generatePaymentLinkForSlot = async ({
   successUrl,
   cancelUrl,
 }: SlotPaymentLinkInputs): Promise<CheckoutLinkResponse> => {
-  // Create Customer
-  const stripe_customer = await createCustomer_DS({
-    email: createCustomerInputs.email,
-    metadata: createCustomerInputs.paymentMetadata
-      ? { username: createCustomerInputs.paymentMetadata.username }
-      : null,
-  });
+  const existingCustomer = await getCustomerByEmail(createCustomerInputs.email);
 
-  if (stripe_customer.email == null) {
-    return customError("email", "This should be impossible");
-  }
+  // Create Customer if needed
+  const weno_customer =
+    existingCustomer == null
+      ? await createStripeCustomerAndPersistInWenoDB(createCustomerInputs)
+      : existingCustomer;
+
   const slot = await getSlotById(slotId);
 
   if (slot == null) {
@@ -170,9 +171,9 @@ export const generatePaymentLinkForSlot = async ({
 
   const stripe_checkoutSessionId = await createCheckoutSession_DS({
     mode: "payment",
-    customer: stripe_customer.id,
-    customer_email: stripe_customer.email,
-    metadata: stripe_customer.metadata,
+    customer: weno_customer.stripeCustomerId,
+    customer_email: weno_customer.email, // on purpose different sources for email and customer ID
+    metadata: { username: weno_customer.username },
     payment_method_types: ["card"],
     line_items: [
       {
