@@ -33,7 +33,7 @@ export class Customer extends BaseEntity {
     nullable: true,
     description: "Can be null when a non-registered user buys something",
   })
-  @Column({ nullable: true })
+  @Column("text", { nullable: true })
   username: string | null;
 
   // --MEta
