@@ -87,7 +87,7 @@ export class ExperienceResolvers {
     }
   }
 
-  @Query(() => PaginatedExperiencesWithSlots)
+  @Query(() => PaginatedExperiences)
   async bookableExperiences(
     @Arg("paginatedExperiencesInputs")
     paginatedExperiencesInputs: PaginatedExperiencesInputs
