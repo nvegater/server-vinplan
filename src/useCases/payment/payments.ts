@@ -13,10 +13,7 @@ import {
   OnboardingResponse,
   ProductsResponse,
 } from "../../resolvers/Outputs/PaymentOutputs";
-import {
-  CreateCustomerInputs,
-  PaymentMetadataInputs,
-} from "../../resolvers/Inputs/CreateCustomerInputs";
+import { CreateCustomerInputs } from "../../resolvers/Inputs/CreateCustomerInputs";
 import { Product } from "../../entities/Product";
 import { Price } from "../../entities/Price";
 import {
@@ -104,15 +101,34 @@ export const createCustomer = async (
 ): Promise<CustomerResponse> => {
   const stripe_customer = await createCustomer_DS({
     email: createCustomerInputs.email,
-    metadata: { username: createCustomerInputs.paymentMetadata.username },
+    metadata: createCustomerInputs.paymentMetadata
+      ? { username: createCustomerInputs.paymentMetadata.username }
+      : null,
   });
-  const paymentMetadata: PaymentMetadataInputs = {
-    username: stripe_customer.metadata.username,
-  };
+
+  if (stripe_customer.email == null) {
+    return customError("email", "This should be impossible");
+  }
+
+  if (stripe_customer.metadata == null) {
+    return {
+      customer: {
+        id: stripe_customer.id,
+        email: stripe_customer.email,
+        paymentMetadata: null,
+      },
+    };
+  }
+
+  if (stripe_customer.metadata.username == null) {
+    return customError("username", "Created customer without user");
+  }
+
   return {
     customer: {
-      email: createCustomerInputs.email,
-      paymentMetadata: paymentMetadata,
+      id: stripe_customer.id,
+      email: stripe_customer.email,
+      paymentMetadata: { username: stripe_customer.metadata.username },
     },
   };
 };
