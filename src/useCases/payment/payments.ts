@@ -172,17 +172,17 @@ export const generatePaymentLinkForSlot = async ({
   const stripe_checkoutSessionId = await createCheckoutSession_DS({
     mode: "payment",
     customer: weno_customer.stripeCustomerId,
-    customer_email: weno_customer.email, // on purpose different sources for email and customer ID
     metadata: { username: weno_customer.username },
     payment_method_types: ["card"],
     line_items: [
       {
         price_data: {
           currency: "MXN",
-          unit_amount: slot.pricePerPersonInDollars,
+          // this is in centavos
+          unit_amount: slot.pricePerPersonInDollars * 100, // convert to pesos
           product_data: {
             name: slot.experience.title,
-            description: "A reservation for the event.",
+            description: "A reservation for the event",
             metadata: {
               startDateTime: slot.startDateTime.toISOString(),
               endDateTime: slot.endDateTime.toISOString(),

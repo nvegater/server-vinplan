@@ -11,6 +11,7 @@ import { Experience } from "./entities/Experience";
 import { Reservation } from "./entities/Reservation";
 import { ExperienceImage, WineryImage, UserImage } from "./entities/Images";
 import { ExperienceSlot } from "./entities/ExperienceSlot";
+import { Customer } from "./entities/Customer";
 
 export default {
   type: "postgres",
@@ -24,6 +25,7 @@ export default {
     Experience,
     ExperienceSlot,
     Reservation,
+    Customer,
     //
     WineProductionType,
     WineType,
