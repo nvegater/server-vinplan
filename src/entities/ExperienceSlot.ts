@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType, registerEnumType } from "type-graphql";
+import { Field, Float, Int, ObjectType, registerEnumType } from "type-graphql";
 import {
   BaseEntity,
   Column,
@@ -52,6 +52,10 @@ export class ExperienceSlot extends BaseEntity {
   @Field(() => Int)
   @Column({ type: "int" })
   limitOfAttendees!: number;
+
+  @Field(() => Float)
+  @Column({ type: "float" })
+  pricePerPersonInDollars: number;
 
   //---References to other entities
 

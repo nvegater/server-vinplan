@@ -1,6 +1,7 @@
 import {
   accountLinkForOnboarding_DS,
   createAccountForExpressOnboarding_DS,
+  createCheckoutSession_DS,
   createCustomer_DS,
   getCheckoutSession_DS,
   getFirstSubscription,
@@ -8,6 +9,7 @@ import {
   retrievePricesWithTiers_DS,
 } from "../../dataServices/payment";
 import {
+  CheckoutLinkResponse,
   CheckoutSessionResponse,
   CustomerResponse,
   OnboardingResponse,
@@ -22,6 +24,7 @@ import {
 } from "../../dataServices/winery";
 import { customError } from "../../resolvers/Outputs/ErrorOutputs";
 import { Winery } from "../../entities/Winery";
+import { getSlotById } from "../../dataServices/experience";
 
 export const retrieveSubscriptionsWithPrices =
   async (): Promise<ProductsResponse> => {
@@ -131,6 +134,69 @@ export const createCustomer = async (
       paymentMetadata: { username: stripe_customer.metadata.username },
     },
   };
+};
+
+interface SlotPaymentLinkInputs {
+  createCustomerInputs: CreateCustomerInputs;
+  slotId: number;
+  noOfVisitors: number;
+  successUrl: string;
+  cancelUrl: string;
+}
+
+export const generatePaymentLinkForSlot = async ({
+  createCustomerInputs,
+  slotId,
+  noOfVisitors,
+  successUrl,
+  cancelUrl,
+}: SlotPaymentLinkInputs): Promise<CheckoutLinkResponse> => {
+  // Create Customer
+  const stripe_customer = await createCustomer_DS({
+    email: createCustomerInputs.email,
+    metadata: createCustomerInputs.paymentMetadata
+      ? { username: createCustomerInputs.paymentMetadata.username }
+      : null,
+  });
+
+  if (stripe_customer.email == null) {
+    return customError("email", "This should be impossible");
+  }
+  const slot = await getSlotById(slotId);
+
+  if (slot == null) {
+    return customError("slot", "couldnt find a slot with that Id");
+  }
+
+  const stripe_checkoutSessionId = await createCheckoutSession_DS({
+    mode: "payment",
+    customer: stripe_customer.id,
+    customer_email: stripe_customer.email,
+    metadata: stripe_customer.metadata,
+    payment_method_types: ["card"],
+    line_items: [
+      {
+        price_data: {
+          currency: "MXN",
+          unit_amount: slot.pricePerPersonInDollars,
+          product_data: {
+            name: slot.experience.title,
+            description: "A reservation for the event.",
+            metadata: {
+              startDateTime: slot.startDateTime.toISOString(),
+              endDateTime: slot.endDateTime.toISOString(),
+            },
+            // add images?
+          },
+        },
+        quantity: noOfVisitors,
+      },
+    ],
+    success_url: `${successUrl}?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: cancelUrl,
+  });
+
+  return { link: stripe_checkoutSessionId.url };
 };
 
 export const onboardingUrlLink = async (

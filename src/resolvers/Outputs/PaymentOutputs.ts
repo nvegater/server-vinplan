@@ -31,6 +31,14 @@ export class CheckoutSessionResponse {
 }
 
 @ObjectType()
+export class CheckoutLinkResponse {
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
+  @Field(() => String, { nullable: true })
+  link?: string | null;
+}
+
+@ObjectType()
 export class OnboardingResponse {
   @Field(() => [FieldError], { nullable: true })
   errors?: FieldError[];

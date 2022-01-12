@@ -1,6 +1,7 @@
 import { Arg, Authorized, Mutation, Query, Resolver } from "type-graphql";
 import { Customer } from "../entities/Customer";
 import {
+  CheckoutLinkResponse,
   CheckoutSessionResponse,
   CustomerResponse,
   OnboardingResponse,
@@ -10,6 +11,7 @@ import { CreateCustomerInputs } from "./Inputs/CreateCustomerInputs";
 
 import {
   createCustomer,
+  generatePaymentLinkForSlot,
   getCustomerSubscription,
   onboardingUrlLink,
   retrieveSubscriptionsWithPrices,
@@ -39,12 +41,28 @@ export class PaymentsResolvers {
     return await retrieveSubscriptionsWithPrices();
   }
 
-  @Authorized()
   @Query(() => CheckoutSessionResponse)
   async getCheckoutSessionStatus(
     @Arg("sessionId") sessionId: string
   ): Promise<CheckoutSessionResponse> {
     return await verifyCheckoutSessionStatus(sessionId);
+  }
+
+  @Query(() => CheckoutLinkResponse)
+  async getCheckoutLink(
+    @Arg("createCustomerInputs") createCustomerInputs: CreateCustomerInputs,
+    @Arg("slotId") slotId: number,
+    @Arg("noOfVisitors") noOfVisitors: number,
+    @Arg("successUrl") successUrl: string,
+    @Arg("cancelUrl") cancelUrl: string
+  ): Promise<CheckoutLinkResponse> {
+    return await generatePaymentLinkForSlot({
+      createCustomerInputs,
+      slotId,
+      noOfVisitors,
+      successUrl,
+      cancelUrl,
+    });
   }
 
   @Authorized("owner")
