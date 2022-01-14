@@ -24,11 +24,13 @@ import {
 } from "../../dataServices/winery";
 import { customError } from "../../resolvers/Outputs/ErrorOutputs";
 import { Winery } from "../../entities/Winery";
-import { getSlotById } from "../../dataServices/experience";
+import { getSlotsByIds } from "../../dataServices/experience";
 import {
   createCustomer_DS,
   getCustomerByEmail,
 } from "../../dataServices/customer";
+import { createReservation } from "../../dataServices/reservation";
+import { Reservation } from "../../entities/Reservation";
 
 export const retrieveSubscriptionsWithPrices =
   async (): Promise<ProductsResponse> => {
@@ -86,10 +88,23 @@ export const verifyCheckoutSessionStatus = async (
 ): Promise<CheckoutSessionResponse> => {
   const session = await getCheckoutSession_DS(sessionId);
 
+  if (session.metadata == null) {
+    return customError("stripeMetadata", "The session contains no metadata");
+  }
+
+  let reservationIds: number[] = [];
+  for (const [, value] of Object.entries(session.metadata)) {
+    reservationIds.push(parseInt(value as string));
+  }
+
+  if (reservationIds.length === 0) {
+    return customError("stripeMetadata", "The session contains no metadata");
+  }
+
   return session.status
     ? {
-        sessionStatus: session.status,
-        sessionUrl: session.url,
+        reservationIds,
+        payment_status: session.payment_status,
       }
     : {
         errors: [
@@ -142,15 +157,45 @@ export const createCustomer = async (
 
 interface SlotPaymentLinkInputs {
   createCustomerInputs: CreateCustomerInputs;
-  slotId: number;
+  slotIds: number[];
   noOfVisitors: number;
   successUrl: string;
   cancelUrl: string;
 }
 
-export const generatePaymentLinkForSlot = async ({
+function createLineItems(reservations: Reservation[], noOfVisitors: number) {
+  return reservations.map((reservation) => ({
+    price_data: {
+      currency: "MXN",
+      unit_amount: reservation.pricePerPersonInDollars * 100, // convert from centavos to pesos
+      product_data: {
+        name: reservation.title,
+        description: "A reservation for the event",
+        // add images?
+      },
+    },
+    quantity: noOfVisitors,
+  }));
+}
+
+function reservationMetadataKey(index: number) {
+  return `resId-${index}`;
+}
+
+function createPaymentMetadata(reservations: Reservation[]): {
+  [key: string]: number;
+} {
+  let metadata: { [key: string]: number } = {};
+  reservations.forEach((res, index) => {
+    const key = reservationMetadataKey(index);
+    metadata[key] = res.id;
+  });
+  return metadata;
+}
+
+export const generatePaymentLinkForReservation = async ({
   createCustomerInputs,
-  slotId,
+  slotIds,
   noOfVisitors,
   successUrl,
   cancelUrl,
@@ -163,36 +208,40 @@ export const generatePaymentLinkForSlot = async ({
       ? await createStripeCustomerAndPersistInWenoDB(createCustomerInputs)
       : existingCustomer;
 
-  const slot = await getSlotById(slotId);
+  const slots = await getSlotsByIds(slotIds);
 
-  if (slot == null) {
+  if (slots == null || slots.length === 0) {
     return customError("slot", "couldnt find a slot with that Id");
   }
+
+  // Create unpaid reservations for each selected slot.
+  const reservations = await Promise.all(
+    slots.map(async (slot) => {
+      return await createReservation({
+        slotId: slot.id,
+        startDateTime: slot.startDateTime,
+        endDateTime: slot.endDateTime,
+        pricePerPersonInDollars: slot.pricePerPersonInDollars,
+        title: slot.experience.title,
+        username: weno_customer.username ?? null,
+        email: weno_customer.email,
+        noOfAttendees: noOfVisitors,
+        paymentStatus: "unpaid",
+      });
+    })
+  );
+
+  // Create a line item for each reservation
+  const lineItems = createLineItems(reservations, noOfVisitors);
+
+  const sessionMetadata = createPaymentMetadata(reservations);
 
   const stripe_checkoutSessionId = await createCheckoutSession_DS({
     mode: "payment",
     customer: weno_customer.stripeCustomerId,
-    metadata: { username: weno_customer.username },
+    metadata: { ...sessionMetadata },
     payment_method_types: ["card"],
-    line_items: [
-      {
-        price_data: {
-          currency: "MXN",
-          // this is in centavos
-          unit_amount: slot.pricePerPersonInDollars * 100, // convert to pesos
-          product_data: {
-            name: slot.experience.title,
-            description: "A reservation for the event",
-            metadata: {
-              startDateTime: slot.startDateTime.toISOString(),
-              endDateTime: slot.endDateTime.toISOString(),
-            },
-            // add images?
-          },
-        },
-        quantity: noOfVisitors,
-      },
-    ],
+    line_items: lineItems,
     success_url: `${successUrl}?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: cancelUrl,
   });

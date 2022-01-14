@@ -21,6 +21,10 @@ export const getSlotById = async (id: number) => {
   return await ExperienceSlot.findOne(id, { relations: ["experience"] });
 };
 
+export const getSlotsByIds = async (ids: number[]) => {
+  return await ExperienceSlot.findByIds(ids, { relations: ["experience"] });
+};
+
 export const getExperienceByTitle = async (title: string) => {
   return await Experience.findOne({
     where: { title: title },

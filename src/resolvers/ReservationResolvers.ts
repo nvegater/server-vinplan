@@ -1,6 +1,6 @@
 import { Int, Mutation, Query, Resolver } from "type-graphql";
 import { Reservation } from "../entities/Reservation";
-import { reservation } from "../useCases/reservations";
+import { reserve } from "../useCases/reservations";
 
 @Resolver(Reservation)
 export class ReservationResolvers {
@@ -10,7 +10,7 @@ export class ReservationResolvers {
   }
 
   @Mutation(() => Boolean)
-  async reserveAsGuest() {
-    return reservation();
+  async createReservation() {
+    return reserve();
   }
 }

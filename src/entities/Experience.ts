@@ -11,7 +11,6 @@ import {
 } from "typeorm";
 import { Length } from "class-validator";
 import { Winery } from "./Winery";
-import { Reservation } from "./Reservation";
 import { ExperienceImage } from "./Images";
 import { ExperienceSlot } from "./ExperienceSlot";
 
@@ -81,10 +80,6 @@ export class Experience extends BaseEntity {
   @Field(() => Winery)
   @ManyToOne(() => Winery, (winery) => winery.experiences)
   winery!: Winery;
-
-  @Field(() => [Reservation], { nullable: true })
-  @OneToMany(() => Reservation, (reservation) => reservation.experience)
-  reservations: Reservation[];
 
   // --MEta
 

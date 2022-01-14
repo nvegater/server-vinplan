@@ -8,8 +8,8 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { Field, Float, Int, ObjectType } from "type-graphql";
-import { Experience } from "./Experience";
 import { Length } from "class-validator";
+import { ExperienceSlot } from "./ExperienceSlot";
 
 // Users can only reserve slots
 @ObjectType()
@@ -25,16 +25,12 @@ export class Reservation extends BaseEntity {
   title!: string;
 
   @Field(() => String)
-  @Column({ unique: true })
-  userId!: string;
+  @Column({ type: "text" })
+  email!: string;
 
-  @Field(() => Date)
-  @Column({ type: "timestamptz" })
-  startDateTime!: Date;
-
-  @Field(() => Date)
-  @Column({ type: "timestamptz" })
-  endDateTime!: Date;
+  @Field(() => String, { nullable: true })
+  @Column({ type: "text", nullable: true })
+  username: string | null;
 
   // Null when is irregular recurrent
   @Field(() => Int)
@@ -47,27 +43,23 @@ export class Reservation extends BaseEntity {
 
   @Field()
   @Column()
-  orderId: string;
-
-  @Field()
-  @Column()
-  paymentCreationDateTime: string;
-
-  @Field()
-  @Column()
-  paymentUpdateDateTime: string;
-
-  @Field()
-  @Column()
-  status: string;
+  paymentStatus: "no_payment_required" | "paid" | "unpaid";
 
   @Field(() => Int)
   @Column()
-  experienceId!: number;
+  slotId: number;
 
-  @Field(() => Experience)
-  @ManyToOne(() => Experience, (exp) => exp.reservations)
-  experience!: Experience;
+  @Field(() => ExperienceSlot)
+  @ManyToOne(() => ExperienceSlot, (slot) => slot.reservations)
+  slot: ExperienceSlot;
+
+  @Field(() => Date)
+  @Column({ type: "timestamptz" })
+  startDateTime!: Date;
+
+  @Field(() => Date)
+  @Column({ type: "timestamptz" })
+  endDateTime!: Date;
 
   @Field(() => Date)
   @CreateDateColumn()

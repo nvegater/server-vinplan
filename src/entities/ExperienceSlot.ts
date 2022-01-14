@@ -5,10 +5,12 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { Experience } from "./Experience";
+import { Reservation } from "./Reservation";
 
 export enum SlotType {
   ONE_TIME,
@@ -66,6 +68,10 @@ export class ExperienceSlot extends BaseEntity {
   @Field(() => Experience)
   @ManyToOne(() => Experience, (exp) => exp.slots)
   experience!: Experience;
+
+  @Field(() => [Reservation], { nullable: true })
+  @OneToMany(() => Reservation, (reservation) => reservation.slot)
+  reservations: Reservation[];
 
   //---Meta
 

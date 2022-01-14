@@ -1,4 +1,4 @@
-import { Field, ObjectType } from "type-graphql";
+import { Field, Int, ObjectType } from "type-graphql";
 import { FieldError } from "./ErrorOutputs";
 import { Product } from "../../entities/Product";
 
@@ -41,10 +41,9 @@ export class CheckoutSessionResponse {
   @Field(() => [FieldError], { nullable: true })
   errors?: FieldError[];
   @Field(() => String, { nullable: true })
-  sessionStatus?: string;
-
-  @Field(() => String, { nullable: true })
-  sessionUrl?: string | null;
+  payment_status?: string | null;
+  @Field(() => [Int], { nullable: true })
+  reservationIds?: number[] | null;
 }
 
 @ObjectType()

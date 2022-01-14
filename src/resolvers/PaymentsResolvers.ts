@@ -1,4 +1,4 @@
-import { Arg, Authorized, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Authorized, Int, Mutation, Query, Resolver } from "type-graphql";
 import { Customer } from "../entities/Customer";
 import {
   CheckoutLinkResponse,
@@ -11,7 +11,7 @@ import { CreateCustomerInputs } from "./Inputs/CreateCustomerInputs";
 
 import {
   createCustomer,
-  generatePaymentLinkForSlot,
+  generatePaymentLinkForReservation,
   getCustomerSubscription,
   onboardingUrlLink,
   retrieveSubscriptionsWithPrices,
@@ -51,14 +51,14 @@ export class PaymentsResolvers {
   @Mutation(() => CheckoutLinkResponse)
   async getCheckoutLink(
     @Arg("createCustomerInputs") createCustomerInputs: CreateCustomerInputs,
-    @Arg("slotId") slotId: number,
+    @Arg("slotIds", () => [Int]) slotIds: number[],
     @Arg("noOfVisitors") noOfVisitors: number,
     @Arg("successUrl") successUrl: string,
     @Arg("cancelUrl") cancelUrl: string
   ): Promise<CheckoutLinkResponse> {
-    return await generatePaymentLinkForSlot({
+    return await generatePaymentLinkForReservation({
       createCustomerInputs,
-      slotId,
+      slotIds,
       noOfVisitors,
       successUrl,
       cancelUrl,
