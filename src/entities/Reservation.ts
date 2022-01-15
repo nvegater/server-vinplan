@@ -28,6 +28,10 @@ export class Reservation extends BaseEntity {
   @Column({ type: "text" })
   email!: string;
 
+  @Field(() => String)
+  @Column({ type: "text" })
+  wineryName: string;
+
   @Field(() => String, { nullable: true })
   @Column({ type: "text", nullable: true })
   username: string | null;

@@ -21,6 +21,7 @@ import { Product } from "../../entities/Product";
 import { Price } from "../../entities/Price";
 import {
   getWineryByAlias_DS,
+  getWineryNameByExperienceId,
   updateWineryAccountID_DS,
 } from "../../dataServices/winery";
 import { customError } from "../../resolvers/Outputs/ErrorOutputs";
@@ -262,6 +263,7 @@ export const generatePaymentLinkForReservation = async ({
   // Create unpaid reservations for each selected slot.
   const reservations = await Promise.all(
     slots.map(async (slot) => {
+      const wineryName = await getWineryNameByExperienceId(slot.experienceId);
       return await createReservation({
         slotId: slot.id,
         startDateTime: slot.startDateTime,
@@ -272,6 +274,7 @@ export const generatePaymentLinkForReservation = async ({
         email: weno_customer.email,
         noOfAttendees: noOfVisitors,
         paymentStatus: "unpaid",
+        wineryName: wineryName!,
       });
     })
   );

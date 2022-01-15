@@ -21,6 +21,17 @@ export const getWineryByAlias_DS = async (urlAlias: string) => {
   });
 };
 
+export const getWineryNameByExperienceId = async (experienceId: number) => {
+  const qs = getRepository(Winery)
+    .createQueryBuilder("winery")
+    .leftJoinAndSelect("winery.experiences", "experience")
+    .where("experience.id = :experienceId", { experienceId });
+
+  const winery = await qs.getOne();
+
+  return winery == null ? null : winery.name;
+};
+
 export const getWineryById_DS = async (id: number) => {
   return await Winery.findOne(id);
 };

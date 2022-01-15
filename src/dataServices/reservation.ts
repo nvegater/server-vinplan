@@ -12,6 +12,7 @@ interface CreateReservationInputs {
   slotId: number;
   startDateTime: Date;
   endDateTime: Date;
+  wineryName: string;
 }
 
 export const createReservation = async (props: CreateReservationInputs) => {
