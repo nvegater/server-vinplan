@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from "type-graphql";
+import { Field, Float, Int, ObjectType } from "type-graphql";
 import { FieldError } from "./ErrorOutputs";
 import { Product } from "../../entities/Product";
 
@@ -37,15 +37,43 @@ export class CustomerResponse {
 }
 
 @ObjectType()
+export class ReservationDts {
+  @Field(() => Int)
+  id: number;
+  @Field(() => String)
+  title: string;
+  @Field(() => String)
+  email: string;
+  @Field(() => String, { nullable: true })
+  username: string | null;
+  @Field(() => Int)
+  noOfAttendees!: number;
+  @Field(() => Float)
+  pricePerPersonInDollars!: number;
+  @Field()
+  paymentStatus: "no_payment_required" | "paid" | "unpaid";
+  @Field(() => Int)
+  slotId: number;
+  @Field(() => Date)
+  startDateTime: Date;
+  @Field(() => Date)
+  endDateTime: Date;
+  @Field(() => Date)
+  createdAt: Date;
+  @Field(() => Date)
+  updatedAt: Date;
+}
+
+@ObjectType()
 export class CheckoutSessionResponse {
   @Field(() => [FieldError], { nullable: true })
   errors?: FieldError[];
   @Field(() => String, { nullable: true })
   sessionUrl?: string | null;
+  @Field(() => [ReservationDts], { nullable: true })
+  reservations?: ReservationDts[];
   @Field(() => String, { nullable: true })
-  payment_status?: string | null;
-  @Field(() => [Int], { nullable: true })
-  reservationIds?: number[] | null;
+  payment_status?: "no_payment_required" | "paid" | "unpaid" | null;
 }
 
 @ObjectType()

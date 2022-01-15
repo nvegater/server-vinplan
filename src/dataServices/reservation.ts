@@ -1,4 +1,6 @@
 import { Reservation } from "../entities/Reservation";
+import { typeReturn } from "./utils";
+import { getConnection } from "typeorm";
 
 interface CreateReservationInputs {
   title: string;
@@ -16,4 +18,20 @@ export const createReservation = async (props: CreateReservationInputs) => {
   const reservation = Reservation.create(props);
   await reservation.save();
   return reservation;
+};
+
+export const confirmReservationPayment = async (ids: number[]) => {
+  return await Promise.all(
+    ids.map(async (id) => {
+      return await typeReturn<Reservation>(
+        getConnection()
+          .createQueryBuilder()
+          .update(Reservation)
+          .set({ paymentStatus: "paid" })
+          .where("id = :id", { id })
+          .returning("*")
+          .execute()
+      );
+    })
+  );
 };

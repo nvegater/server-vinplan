@@ -220,3 +220,17 @@ export const experiencesWithCursor_DS = async ({
 
   return [exps, cursorObj.beforeCursor, cursorObj.afterCursor, totalResults];
 };
+
+export const updateSlotVisitors = async (addedVisitors: number, id: number) => {
+  return await typeReturn<ExperienceSlot>(
+    getConnection()
+      .createQueryBuilder()
+      .update(ExperienceSlot)
+      .set({
+        noOfAttendees: () => `"noOfAttendees" + ${addedVisitors}`,
+      })
+      .where("id = :id", { id })
+      .returning("*")
+      .execute()
+  );
+};

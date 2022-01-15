@@ -14,6 +14,7 @@ import {
   CustomerResponse,
   OnboardingResponse,
   ProductsResponse,
+  ReservationDts,
 } from "../../resolvers/Outputs/PaymentOutputs";
 import { CreateCustomerInputs } from "../../resolvers/Inputs/CreateCustomerInputs";
 import { Product } from "../../entities/Product";
@@ -24,13 +25,20 @@ import {
 } from "../../dataServices/winery";
 import { customError } from "../../resolvers/Outputs/ErrorOutputs";
 import { Winery } from "../../entities/Winery";
-import { getSlotsByIds } from "../../dataServices/experience";
+import {
+  getSlotsByIds,
+  updateSlotVisitors,
+} from "../../dataServices/experience";
 import {
   createCustomer_DS,
   getCustomerByEmail,
 } from "../../dataServices/customer";
-import { createReservation } from "../../dataServices/reservation";
+import {
+  confirmReservationPayment,
+  createReservation,
+} from "../../dataServices/reservation";
 import { Reservation } from "../../entities/Reservation";
+import { ExperienceSlot } from "../../entities/ExperienceSlot";
 
 export const retrieveSubscriptionsWithPrices =
   async (): Promise<ProductsResponse> => {
@@ -92,19 +100,56 @@ export const verifyCheckoutSessionStatus = async (
     return customError("stripeMetadata", "The session contains no metadata");
   }
 
+  if (session.payment_status === "unpaid") {
+    return {
+      payment_status: "unpaid",
+    };
+  }
+
   let reservationIds: number[] = [];
   for (const [, value] of Object.entries(session.metadata)) {
     reservationIds.push(parseInt(value as string));
   }
 
   if (reservationIds.length === 0) {
-    return customError("stripeMetadata", "The session contains no metadata");
+    return customError(
+      "stripeMetadata",
+      "There is something wrong with the metadata"
+    );
+  }
+
+  const confirmedReservations = await confirmReservationPayment(reservationIds);
+
+  let confirmedSlots: ExperienceSlot[] = [];
+  try {
+    confirmedSlots = await Promise.all(
+      confirmedReservations.map(async (confRes) => {
+        return await updateSlotVisitors(confRes.noOfAttendees, confRes.slotId);
+      })
+    );
+  } catch (e) {
+    console.log(e);
+  }
+
+  if (confirmedSlots.length === 0) {
+    return customError(
+      "reservation",
+      "We couldnt confirm the slots of your reservation"
+    );
+  }
+
+  const toDts: ReservationDts[] = confirmedReservations.map((cr) => ({
+    ...cr,
+  }));
+
+  if (toDts.length === 0) {
+    return customError("reservation", "We couldnt confirm your reservation");
   }
 
   return session.status
     ? {
-        reservationIds,
-        payment_status: session.payment_status,
+        reservations: toDts,
+        payment_status: "paid",
       }
     : {
         errors: [
