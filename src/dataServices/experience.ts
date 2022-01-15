@@ -174,6 +174,8 @@ const createQueryWithFilters = async (
     }
   }
 
+  // TODO add another if to include the filters for "bookable" experience
+
   return qs;
 };
 type ExperiencesCursorPagination = [
@@ -186,6 +188,7 @@ export const experiencesWithCursor_DS = async ({
   paginationConfig,
   experiencesFilters,
 }: PaginatedExperiencesInputs): Promise<ExperiencesCursorPagination> => {
+  // TODO add bookable flag
   const qs = await createQueryWithFilters(
     experiencesFilters.experienceName,
     experiencesFilters.experienceType,

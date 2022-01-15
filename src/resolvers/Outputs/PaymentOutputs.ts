@@ -41,6 +41,8 @@ export class CheckoutSessionResponse {
   @Field(() => [FieldError], { nullable: true })
   errors?: FieldError[];
   @Field(() => String, { nullable: true })
+  sessionUrl?: string | null;
+  @Field(() => String, { nullable: true })
   payment_status?: string | null;
   @Field(() => [Int], { nullable: true })
   reservationIds?: number[] | null;

@@ -196,6 +196,7 @@ export const getExperiencesWithBookableSlots = async (
 
   const NOW_DATE_STRING = new Date();
 
+  // TODO move this to the createQueryWithFilters method
   const experiencesWithFutureSlots: {
     exp: PaginatedExperience;
     removeExperience: boolean;
@@ -233,6 +234,7 @@ export const getExperiencesWithBookableSlots = async (
   return {
     experiences: bookableExperiences,
     totalExperiences: totalResults,
+    // TODO pagination config for bookable is not working. It refers to the total pagination
     paginationConfig: { afterCursor, beforeCursor, limit: realLimit },
   };
 };
