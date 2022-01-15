@@ -119,27 +119,6 @@ export const getSlotsStartingFrom = async (
   return await qs.getMany();
 };
 
-export const countSlotsStartingFrom = async (
-  experienceId: number,
-  starting: Date,
-  withAvailablePlaces: boolean = false
-): Promise<number> => {
-  const qs = getRepository(ExperienceSlot)
-    .createQueryBuilder("slot")
-    .andWhere('slot."experienceId" = :experienceId ', {
-      experienceId: experienceId,
-    })
-    .andWhere('slot."startDateTime" > :starting ', {
-      starting: starting,
-    });
-
-  if (withAvailablePlaces) {
-    qs.andWhere('slot."noOfAttendees" < slot."limitOfAttendees"');
-  }
-
-  return await qs.getCount();
-};
-
 export const retrieveAllExperiencesFromWinery = async (wineryId: number) => {
   return await Experience.find({ where: { wineryId } });
 };
@@ -147,7 +126,9 @@ export const retrieveAllExperiencesFromWinery = async (wineryId: number) => {
 const createQueryWithFilters = async (
   experienceName: string | null,
   eventType: ExperienceType[] | null,
-  valley: Valley[] | null
+  valley: Valley[] | null,
+  getUpcomingSlots: boolean | null,
+  onlyWithAvailableSeats: boolean | null
 ): Promise<SelectQueryBuilder<Experience>> => {
   const qs = getRepository(Experience).createQueryBuilder("experience");
 
@@ -174,7 +155,21 @@ const createQueryWithFilters = async (
     }
   }
 
-  // TODO add another if to include the filters for "bookable" experience
+  if (getUpcomingSlots) {
+    const now = new Date();
+    qs.leftJoinAndSelect("experience.slots", "slot").where(
+      'slot."startDateTime" > :starting ',
+      {
+        starting: now,
+      }
+    );
+  }
+
+  if (onlyWithAvailableSeats) {
+    qs.leftJoinAndSelect("experience.slots", "slot").where(
+      'slot."noOfAttendees" < slot."limitOfAttendees"'
+    );
+  }
 
   return qs;
 };
@@ -187,12 +182,15 @@ type ExperiencesCursorPagination = [
 export const experiencesWithCursor_DS = async ({
   paginationConfig,
   experiencesFilters,
+  getUpcomingSlots,
+  onlyWithAvailableSeats,
 }: PaginatedExperiencesInputs): Promise<ExperiencesCursorPagination> => {
-  // TODO add bookable flag
   const qs = await createQueryWithFilters(
     experiencesFilters.experienceName,
     experiencesFilters.experienceType,
-    experiencesFilters.valley
+    experiencesFilters.valley,
+    getUpcomingSlots ?? false,
+    onlyWithAvailableSeats ?? false
   );
 
   const totalResults = await qs.getCount();

@@ -87,4 +87,8 @@ export class PaginatedExperiencesInputs {
   paginationConfig: CursorPaginationInput;
   @Field(() => ExperiencesFilters)
   experiencesFilters: ExperiencesFilters;
+  @Field(() => Boolean, { nullable: true })
+  getUpcomingSlots?: boolean | null;
+  @Field(() => Boolean, { nullable: true })
+  onlyWithAvailableSeats?: boolean | null;
 }

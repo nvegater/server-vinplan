@@ -6,7 +6,6 @@ import {
   PaginatedExperienceWithSlots,
 } from "../../resolvers/Outputs/CreateExperienceOutputs";
 import {
-  countSlotsStartingFrom,
   experiencesWithCursor_DS,
   getSlotsStartingFrom,
   retrieveAllExperiencesFromWinery,
@@ -165,12 +164,13 @@ export const getExperiencesWithBookableSlots = async (
         ...paginatedExperiencesInputs.paginationConfig,
         limit: realLimit,
       },
+      getUpcomingSlots: true,
     });
 
   if (paginatedExperiences.length === 0) {
     const errorObject = customError(
       "experiencesPagination",
-      "Couldnt find any experiences"
+      "Couldnt find any bookable experiences"
     );
 
     return {
@@ -194,47 +194,9 @@ export const getExperiencesWithBookableSlots = async (
     };
   }
 
-  const NOW_DATE_STRING = new Date();
-
-  // TODO move this to the createQueryWithFilters method
-  const experiencesWithFutureSlots: {
-    exp: PaginatedExperience;
-    removeExperience: boolean;
-  }[] = await Promise.all(
-    experiences.map(async (exp) => {
-      const slotsInTheFuture = await countSlotsStartingFrom(
-        exp.id,
-        NOW_DATE_STRING
-      );
-      const removeExperience = slotsInTheFuture === 0;
-      // only include Experiences with slots in the future
-      // the include flag is just an ugly hack because I cant use `.filter` in promise.all
-      // https://stackoverflow.com/questions/33355528/filtering-an-array-with-a-function-that-returns-a-promise
-      return { exp, removeExperience };
-    })
-  );
-
-  // Remove the experiences that have falsy "include" flag.
-  const bookableExperiences: PaginatedExperience[] = experiencesWithFutureSlots
-    .filter((exp) => !exp.removeExperience)
-    .map((exp) => exp.exp);
-
-  if (bookableExperiences.length === 0) {
-    const errorObject = customError(
-      "experiences",
-      `No bookable experiences from ${totalResults.toString()}`
-    );
-    return {
-      ...errorObject,
-      totalExperiences: totalResults,
-      paginationConfig: { afterCursor, beforeCursor, limit: realLimit },
-    };
-  }
-
   return {
-    experiences: bookableExperiences,
+    experiences: experiences,
     totalExperiences: totalResults,
-    // TODO pagination config for bookable is not working. It refers to the total pagination
     paginationConfig: { afterCursor, beforeCursor, limit: realLimit },
   };
 };
