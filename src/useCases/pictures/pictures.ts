@@ -27,6 +27,7 @@ const nImagesTooMuch = (noOfImages: number): FieldError[] => {
 };
 const ALLOWED_IMAGES = 10;
 
+// TODO add resolver
 export const saveExperienceImageReferences = async (
   experienceId: number,
   urlImages: string[]

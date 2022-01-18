@@ -1,11 +1,12 @@
-import { Arg, Int, Query, Resolver } from "type-graphql";
+import { Arg, Authorized, Int, Mutation, Resolver } from "type-graphql";
 import { getPresignedUrl } from "../../utils/s3Utilities";
 import { GetPreSignedUrlResponse } from "../Outputs/presignedOutputs";
 import { UploadType } from "../Inputs/presignedInputs";
 
 @Resolver(GetPreSignedUrlResponse)
 export class PresignedResolver {
-  @Query(() => GetPreSignedUrlResponse)
+  @Authorized("owner")
+  @Mutation(() => GetPreSignedUrlResponse)
   async preSignedUrl(
     @Arg("fileNames", () => [String]) fileNames: string[],
     @Arg("uploadType", () => UploadType) uploadType: UploadType,

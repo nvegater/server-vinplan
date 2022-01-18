@@ -38,7 +38,7 @@ const s3 = new AWS.S3(config);
 
 type MediaDetails = {
   contentType?: string;
-  key?: string;
+  prefix?: string;
   errors?: FieldError[];
 };
 const getMultimediaInfo = (
@@ -56,19 +56,19 @@ const getMultimediaInfo = (
   if (numberOfElements > 9) {
     return customError("maxElements", "Max elements in gallery");
   }
-  let key = "";
+  let prefix = "";
   let contentType = "";
   switch (uploadType) {
     case UploadType.WINERY_PIC:
-      key = `wineries/${wineryAlias}/${fileName}`;
+      prefix = `wineries/${wineryAlias}`;
       contentType = mime.getType(ext) || "";
       break;
     case UploadType.WINERY_LOGO:
-      key = `wineries/${wineryAlias}/logo/${fileName}`;
+      prefix = `wineries/${wineryAlias}/logo`;
       contentType = mime.getType(ext) || "";
       break;
     case UploadType.USER_PIC:
-      key = `users/${creatorUsername}/profile`;
+      prefix = `users/${creatorUsername}/profile`;
       contentType = mime.getType(ext) || "";
       break;
     default:
@@ -76,7 +76,7 @@ const getMultimediaInfo = (
   }
   return {
     contentType: contentType,
-    key: key,
+    prefix: prefix,
   };
 };
 
@@ -99,19 +99,24 @@ export async function getPresignedUrl(
         if (errors) {
           return customError(errors[index].field, errors[index].message);
         }
-        const key: string = mediaDetails?.key as string;
+        const prefix: string = mediaDetails?.prefix as string;
         const contentType: string = mediaDetails?.contentType as string;
-        const preSignedPutUrl = s3.getSignedUrl("putObject", {
+        const signedUrlsParams = {
           // We have 3 Keys:
           // 1. Wineries/alias/name 2. Wineries/alias/logo/name 2. Users/username/profile
-          Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}/${key}`,
+          Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}/${prefix}`,
+          Key: `${fileName}`,
           ContentType: contentType,
           ACL: "public-read",
           Expires: expireSeconds,
+        };
+        const preSignedPutUrl = s3.getSignedUrl("putObject", signedUrlsParams);
+        const preSignedGetUrl = s3.getSignedUrl("getObject", {
+          Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}/${prefix}`,
           Key: `${fileName}`,
         });
-        const getUrl = `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${key}/${fileName}`;
-        return { putUrl: preSignedPutUrl, getUrl: getUrl };
+        //const getUrl = `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${prefix}/${fileName}`;
+        return { putUrl: preSignedPutUrl, getUrl: preSignedGetUrl };
       })
     );
     return { arrayUrl: presignedResponses };
