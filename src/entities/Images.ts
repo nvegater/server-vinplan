@@ -49,6 +49,10 @@ export class WineryImage extends BaseEntity {
   @Column()
   wineryId!: number;
 
+  @Field(() => String)
+  @Column({ type: "text" })
+  wineryAlias: string;
+
   @Field(() => Winery)
   @ManyToOne(() => Winery, (winery) => winery.images)
   winery!: Winery;

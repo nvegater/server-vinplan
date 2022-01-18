@@ -1,8 +1,4 @@
 import {
-  ExperienceImageResponse,
-  ExperienceImageUpload,
-} from "../../resolvers/PreSignedUrl/presigned";
-import {
   getImagesNumberGallery,
   insertImageInExperienceGallery,
 } from "../../dataServices/pictures";
@@ -34,7 +30,7 @@ const ALLOWED_IMAGES = 10;
 export const saveExperienceImageReferences = async (
   experienceId: number,
   urlImages: string[]
-): Promise<ExperienceImageResponse> => {
+) => {
   const imagesCount = await getImagesNumberGallery(experienceId);
   if (imagesCount >= ALLOWED_IMAGES) {
     const errors = tooManyImagesError;
@@ -51,7 +47,7 @@ export const saveExperienceImageReferences = async (
     return { errors };
   }
 
-  const uploadedImages: ExperienceImageUpload[] = await Promise.all(
+  const uploadedImages = await Promise.all(
     urlImages.map(async (urlImage, index) => {
       // if there are no images make the first image the cover
       const makeCoverPage = index === 0 && imagesCount === 0;

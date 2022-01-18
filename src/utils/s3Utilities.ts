@@ -1,12 +1,29 @@
 import AWS from "aws-sdk";
 import mime from "mime";
 import imagesNumberWineryGallery from "../useCases/pictures/countWineryImages";
-import imagesNumberExperiencesGallery from "../useCases/pictures/countExperiencesImages";
-import { PresignedUrlInput } from "../resolvers/Inputs/presignedInputs";
+import {
+  PresignedUrlInput,
+  UploadType,
+} from "../resolvers/Inputs/presignedInputs";
 import {
   GetPreSignedUrlResponse,
   PresignedResponse,
 } from "../resolvers/Outputs/presignedOutputs";
+import { customError, FieldError } from "../resolvers/Outputs/ErrorOutputs";
+
+const imagesTypes = [
+  "apng",
+  "avif",
+  "gif",
+  "jpg",
+  "jpeg",
+  "jfif",
+  "pjpeg",
+  "pjp",
+  "png",
+  "svg",
+  "webp",
+];
 
 const spacesEndpoint = new AWS.Endpoint(
   process.env.NEXT_PUBLIC_DO_SPACES_ENDPOINT as string
@@ -19,124 +36,89 @@ const config: AWS.S3.Types.ClientConfiguration = {
 
 const s3 = new AWS.S3(config);
 
-const getElementsInAlbum = async (presignedUrl: PresignedUrlInput) => {
-  if (presignedUrl.uploadType == "winerybook") {
-    return await imagesNumberWineryGallery(presignedUrl.wineryId);
-  } else if (presignedUrl.uploadType == "experiencealbum") {
-    return await imagesNumberExperiencesGallery(presignedUrl.experienceId);
+type MediaDetails = {
+  contentType?: string;
+  key?: string;
+  errors?: FieldError[];
+};
+const getMultimediaInfo = (
+  presignedUrl: PresignedUrlInput,
+  fileName: string,
+  numberOfElements: number
+): MediaDetails => {
+  const { uploadType, wineryAlias, creatorUsername } = presignedUrl;
+
+  const ext = fileName.split(".").pop() || "badFormat";
+
+  if (!imagesTypes.includes(ext.toLowerCase())) {
+    return customError("badFileType", "The file type is wrong");
   }
-  return 0;
+  if (numberOfElements > 9) {
+    return customError("maxElements", "Max elements in gallery");
+  }
+  let key = "";
+  let contentType = "";
+  switch (uploadType) {
+    case UploadType.WINERY_PIC:
+      key = `wineries/${wineryAlias}/${fileName}`;
+      contentType = mime.getType(ext) || "";
+      break;
+    case UploadType.WINERY_LOGO:
+      key = `wineries/${wineryAlias}/logo/${fileName}`;
+      contentType = mime.getType(ext) || "";
+      break;
+    case UploadType.USER_PIC:
+      key = `users/${creatorUsername}/profile`;
+      contentType = mime.getType(ext) || "";
+      break;
+    default:
+      return customError("uploadType", "Upload type not supported");
+  }
+  return {
+    contentType: contentType,
+    key: key,
+  };
 };
 
-export async function getPresignedUrl(presignedUrl: PresignedUrlInput) {
+const expireSeconds = 60 * 5; // 5 mins to upload the image before links expires
+export async function getPresignedUrl(
+  presignedUrl: PresignedUrlInput
+): Promise<GetPreSignedUrlResponse> {
   try {
-    const arrayUrl: PresignedResponse[] = [];
-    let preSignedPutUrl, multimediaInfo, key, getUrl;
-    const { fileNames } = presignedUrl;
-    const expireSeconds = 60 * 5;
-    const numElementsInAlbum = await getElementsInAlbum(presignedUrl);
+    const { fileNames, wineryId } = presignedUrl;
+    const numElementsInAlbum = await imagesNumberWineryGallery(wineryId);
 
-    for (let i = 0; i < fileNames.length; i++) {
-      multimediaInfo = await getMultimediaInfo(
-        presignedUrl,
-        fileNames[i],
-        numElementsInAlbum + i
-      );
-      if (multimediaInfo.error) {
-        break;
-      }
-      key = multimediaInfo.key;
-      preSignedPutUrl = s3.getSignedUrl("putObject", {
-        Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}/${key}`,
-        ContentType: multimediaInfo.contentType,
-        ACL: "public-read",
-        Expires: expireSeconds,
-        Key: `${fileNames[i]}`,
-      });
-      getUrl = `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${key}/${fileNames[i]}`;
-      arrayUrl.push({ putUrl: preSignedPutUrl, getUrl: getUrl });
-    }
-    let response: GetPreSignedUrlResponse = {
-      arrayUrl: arrayUrl,
-    };
-    if (multimediaInfo?.error) {
-      response.errors = [
-        {
-          field: "maxElements",
-          message: "Max elements in gallery",
-        },
-      ];
-    }
-    return response;
+    const presignedResponses: PresignedResponse[] = await Promise.all(
+      fileNames.map(async (fileName, index) => {
+        const mediaDetails: MediaDetails = getMultimediaInfo(
+          presignedUrl,
+          fileName,
+          numElementsInAlbum + index
+        );
+        const errors = mediaDetails.errors;
+        if (errors) {
+          return customError(errors[index].field, errors[index].message);
+        }
+        const key: string = mediaDetails?.key as string;
+        const contentType: string = mediaDetails?.contentType as string;
+        const preSignedPutUrl = s3.getSignedUrl("putObject", {
+          // We have 3 Keys:
+          // 1. Wineries/alias/name 2. Wineries/alias/logo/name 2. Users/username/profile
+          Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}/${key}`,
+          ContentType: contentType,
+          ACL: "public-read",
+          Expires: expireSeconds,
+          Key: `${fileName}`,
+        });
+        const getUrl = `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${key}/${fileName}`;
+        return { putUrl: preSignedPutUrl, getUrl: getUrl };
+      })
+    );
+    return { arrayUrl: presignedResponses };
   } catch (error) {
     throw new Error(error);
   }
 }
-
-const getMultimediaInfo = async (
-  presignedUrl: PresignedUrlInput,
-  fileName: string,
-  numberOfElements: number
-) => {
-  try {
-    const { uploadType, wineryId, creatorUsername, experienceId } =
-      presignedUrl;
-    const imagesTypes = [
-      "apng",
-      "avif",
-      "gif",
-      "jpg",
-      "jpeg",
-      "jfif",
-      "pjpeg",
-      "pjp",
-      "png",
-      "svg",
-      "webp",
-    ];
-    const ext = fileName.split(".").pop() || "badFormat";
-    let key = null;
-    if (!imagesTypes.includes(ext.toLowerCase())) {
-      throw new Error("Tipo de archivo incorrecto");
-    }
-    let prefix = "";
-    let contentType = "";
-    if (uploadType == "winerybook") {
-      // Numero de elementos para poner la validacion
-      if (numberOfElements > 9) {
-        return { error: true };
-      }
-      prefix = `winery/${wineryId}-album`;
-      contentType = mime.getType(ext) || "";
-      key = `${prefix}`;
-    }
-    if (uploadType == "winerylogo") {
-      prefix = `winery/${wineryId}-logo`;
-      contentType = mime.getType(ext) || "";
-      key = `${prefix}`;
-    }
-    if (uploadType == "userprofilepicture") {
-      prefix = `user/${creatorUsername}-pictureProfile`;
-      contentType = mime.getType(ext) || "";
-      key = `${prefix}`;
-    }
-    if (uploadType == "experiencealbum") {
-      if (numberOfElements > 9) {
-        return { error: true };
-      }
-      prefix = `service/${experienceId}-album`;
-      contentType = mime.getType(ext) || "";
-      key = `${prefix}`;
-    }
-    return {
-      prefix: prefix,
-      contentType: contentType,
-      key: key,
-    };
-  } catch (error) {
-    throw new Error(error);
-  }
-};
 
 export async function deleteImageFromS3(url: string) {
   try {
@@ -152,35 +134,3 @@ export async function deleteImageFromS3(url: string) {
     throw new Error(error);
   }
 }
-
-export async function s3UploadFile(
-  file: any,
-  fileName: string,
-  contentType: string
-) {
-  try {
-    const params = {
-      Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}`,
-      Key: fileName,
-      Body: file,
-      ACL: "public-read",
-      ContentType: contentType,
-    };
-    await s3UploadWrapper(params, params.Key);
-    return `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${fileName}`;
-  } catch (error) {
-    throw new Error(error);
-  }
-}
-
-const s3UploadWrapper = (params: any, keyName: string) => {
-  return new Promise((resolve, reject) => {
-    s3.putObject(params, function (err, data) {
-      if (err) {
-        reject({ err: err, key: keyName });
-      } else {
-        resolve({ data: data, key: keyName });
-      }
-    });
-  });
-};

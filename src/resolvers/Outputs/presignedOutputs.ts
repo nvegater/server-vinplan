@@ -4,9 +4,11 @@ import { FieldError } from "./ErrorOutputs";
 @ObjectType()
 export class PresignedResponse {
   @Field(() => String, { nullable: true })
-  getUrl: String;
+  getUrl?: String;
   @Field(() => String, { nullable: true })
-  putUrl: String;
+  putUrl?: String;
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
 }
 
 @ObjectType()

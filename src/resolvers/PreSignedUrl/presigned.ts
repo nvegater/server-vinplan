@@ -1,58 +1,29 @@
-import {
-  Arg,
-  Authorized,
-  Field,
-  Int,
-  Mutation,
-  ObjectType,
-  Query,
-  Resolver,
-} from "type-graphql";
+import { Arg, Int, Query, Resolver } from "type-graphql";
 import { getPresignedUrl } from "../../utils/s3Utilities";
 import { GetPreSignedUrlResponse } from "../Outputs/presignedOutputs";
-import { PresignedUrlInput } from "../Inputs/presignedInputs";
-import { FieldError } from "../Outputs/ErrorOutputs";
-import { saveExperienceImageReferences } from "../../useCases/pictures/pictures";
-
-@ObjectType()
-export class ExperienceImageUpload {
-  @Field()
-  imageUrl: string;
-  @Field()
-  coverPage: boolean;
-}
-@ObjectType()
-export class ExperienceImageResponse {
-  @Field(() => [FieldError], { nullable: true })
-  errors?: FieldError[];
-  @Field(() => [ExperienceImageUpload])
-  experienceImages?: ExperienceImageUpload[];
-}
+import { UploadType } from "../Inputs/presignedInputs";
 
 @Resolver(GetPreSignedUrlResponse)
 export class PresignedResolver {
-  @Authorized("owner")
   @Query(() => GetPreSignedUrlResponse)
   async preSignedUrl(
-    @Arg("presignedUrlInputs") presignedUrlInputs: PresignedUrlInput
+    @Arg("fileNames", () => [String]) fileNames: string[],
+    @Arg("uploadType", () => UploadType) uploadType: UploadType,
+    @Arg("wineryId", () => Int, { nullable: true }) wineryId: number,
+    @Arg("wineryAlias", () => String, { nullable: true }) wineryAlias: string,
+    @Arg("creatorUsername", () => String, { nullable: true })
+    creatorUsername: string
   ): Promise<GetPreSignedUrlResponse> {
     try {
-      return await getPresignedUrl({ ...presignedUrlInputs });
+      return await getPresignedUrl({
+        fileNames,
+        uploadType,
+        wineryId,
+        wineryAlias,
+        creatorUsername,
+      });
     } catch (error) {
       return error;
-    }
-  }
-
-  @Authorized("owner")
-  @Mutation(() => ExperienceImageResponse)
-  async saveExperienceImagesUrls(
-    @Arg("experienceId", () => Int) experienceId: number,
-    @Arg("preSignedUrls", () => [String]) preSignedUrls: string[]
-  ): Promise<ExperienceImageResponse> {
-    try {
-      return await saveExperienceImageReferences(experienceId, preSignedUrls);
-    } catch (error) {
-      throw new Error(error);
     }
   }
 }
