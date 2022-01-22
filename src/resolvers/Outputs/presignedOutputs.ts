@@ -1,4 +1,4 @@
-import { Field, ObjectType } from "type-graphql";
+import { Field, Int, ObjectType } from "type-graphql";
 import { FieldError } from "./ErrorOutputs";
 
 @ObjectType()
@@ -31,6 +31,8 @@ export class InsertImageResponse {
 
 @ObjectType()
 export class GetImage {
+  @Field(() => Int)
+  id: number;
   @Field(() => String)
   imageName: string;
   @Field(() => String)

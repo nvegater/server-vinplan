@@ -40,6 +40,10 @@ export const insertWineryImage = async (
   return await wineryImage.save();
 };
 
+export const getImageByName = async (imageName: string) => {
+  return await WineryImage.findOne({ where: { imageName } });
+};
+
 export const findImageById = async (imageId: number) => {
   return await ExperienceImage.findOne(imageId);
 };

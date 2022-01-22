@@ -54,10 +54,15 @@ export const getWineryImages = async (
 ): Promise<ImageGalleryResponse> => {
   const allImages = await retrieveImagesWinery(wineryId);
 
+  if (allImages.length === 0) {
+    return { gallery: [] };
+  }
+
   const imagesGetUrls: GetImage[] = await Promise.all(
     allImages.map(async (image) => {
       const imageGetUrl = await getImageUrl(image.imageName, wineryAlias);
       return {
+        id: image.id,
         imageName: image.imageName,
         getUrl: imageGetUrl,
       };
