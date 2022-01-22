@@ -1,12 +1,12 @@
 import { ExperienceImage, WineryImage } from "../entities/Images";
 export const insertExperienceImage = async (
   experienceId: number,
-  imageKey: string,
+  imageName: string,
   coverPage: boolean
 ) => {
   const serviceImage = ExperienceImage.create({
     experienceId: experienceId,
-    imageKey: imageKey,
+    imageName: imageName,
     coverPage: coverPage,
   });
   return await serviceImage.save();
@@ -14,12 +14,12 @@ export const insertExperienceImage = async (
 
 export const insertImageInExperienceGallery = async (
   experienceId: number,
-  imageKey: string,
+  imageName: string,
   coverPage: boolean
 ) => {
   const experienceImage = ExperienceImage.create({
     experienceId: experienceId,
-    imageKey: imageKey,
+    imageName: imageName,
     coverPage: coverPage,
   });
   return await experienceImage.save();
@@ -27,12 +27,14 @@ export const insertImageInExperienceGallery = async (
 
 export const insertWineryImage = async (
   wineryId: number,
-  imageKey: string,
+  wineryAlias: string,
+  imageName: string,
   coverPage: boolean
 ) => {
   const wineryImage = WineryImage.create({
     wineryId: wineryId,
-    imageKey: imageKey,
+    wineryAlias: wineryAlias,
+    imageName: imageName,
     coverPage: coverPage,
   });
   return await wineryImage.save();
@@ -79,7 +81,7 @@ export const updateDefaultPictureToEvent = async (
 ) => {
   return await ExperienceImage.update(
     { experienceId, coverPage: true },
-    { imageKey: urlImage }
+    { imageName: urlImage }
   );
 };
 

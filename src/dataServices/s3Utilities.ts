@@ -82,16 +82,16 @@ const getMultimediaInfo = (
 
 const expireSeconds = 60 * 5; // 5 mins to upload the image before links expires
 export async function getPresignedUrl(
-  presignedUrl: PresignedUrlInput
+  presignedUrlInputs: PresignedUrlInput
 ): Promise<GetPreSignedUrlResponse> {
   try {
-    const { fileNames, wineryId } = presignedUrl;
+    const { fileNames, wineryId } = presignedUrlInputs;
     const numElementsInAlbum = await imagesNumberWineryGallery(wineryId);
 
     const presignedResponses: PresignedResponse[] = await Promise.all(
       fileNames.map(async (fileName, index) => {
         const mediaDetails: MediaDetails = getMultimediaInfo(
-          presignedUrl,
+          presignedUrlInputs,
           fileName,
           numElementsInAlbum + index
         );
@@ -116,7 +116,11 @@ export async function getPresignedUrl(
           Key: `${fileName}`,
         });
         //const getUrl = `${spacesEndpoint.protocol}//${process.env.NEXT_PUBLIC_DO_SPACES_NAME}.${spacesEndpoint.host}/${prefix}/${fileName}`;
-        return { putUrl: preSignedPutUrl, getUrl: preSignedGetUrl };
+        return {
+          putUrl: preSignedPutUrl,
+          getUrl: preSignedGetUrl,
+          imageName: fileName,
+        };
       })
     );
     return { arrayUrl: presignedResponses };
@@ -128,14 +132,13 @@ export async function getPresignedUrl(
 const getExpireSeconds = 60 * 10; // 10 mins to download the image before links expires
 
 export async function getImageUrl(
-  imageKey: string,
+  imageName: string,
   wineryAlias: string
 ): Promise<string> {
   const prefix = `wineries/${wineryAlias}`;
   return s3.getSignedUrl("getObject", {
     Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}/${prefix}`,
-    Key: `${imageKey}`,
-    ACL: "public-read",
+    Key: `${imageName}`,
     Expires: getExpireSeconds,
   });
 }

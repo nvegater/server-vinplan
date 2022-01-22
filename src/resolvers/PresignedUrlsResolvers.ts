@@ -1,7 +1,8 @@
-import { Arg, Authorized, Int, Mutation, Resolver } from "type-graphql";
+import { Arg, Authorized, Int, Mutation, Query, Resolver } from "type-graphql";
 import { getPresignedUrl } from "../dataServices/s3Utilities";
 import {
   GetPreSignedUrlResponse,
+  ImageGalleryResponse,
   InsertImageResponse,
 } from "./Outputs/presignedOutputs";
 import { UploadType } from "./Inputs/presignedInputs";
@@ -39,17 +40,18 @@ export class PresignedResolver {
   @Mutation(() => InsertImageResponse)
   async saveImages(
     @Arg("wineryId", () => Int, { nullable: true }) wineryId: number,
-    @Arg("imageKeys", () => [String]) imageKeys: string[]
+    @Arg("wineryAlias", () => String, { nullable: true }) wineryAlias: string,
+    @Arg("imageNames", () => [String]) imageNames: string[]
   ): Promise<InsertImageResponse> {
-    return await saveWineryImage(wineryId, imageKeys);
+    return await saveWineryImage(wineryId, wineryAlias, imageNames);
   }
 
   @Authorized("owner")
-  @Mutation(() => InsertImageResponse)
+  @Query(() => ImageGalleryResponse)
   async wineryImages(
     @Arg("wineryId", () => Int, { nullable: true }) wineryId: number,
     @Arg("wineryAlias", () => String, { nullable: true }) wineryAlias: string
-  ): Promise<InsertImageResponse> {
+  ): Promise<ImageGalleryResponse> {
     return await getWineryImages(wineryId, wineryAlias);
   }
 }

@@ -20,30 +20,32 @@ const couldntUploadImages = [
 
 export const saveWineryImage = async (
   wineryId: number,
-  imageKeys: string[]
+  wineryAlias: string,
+  imageNames: string[]
 ): Promise<InsertImageResponse> => {
   const imagesCount = await countWineryImages(wineryId);
 
-  const uploadedImageKeys = await Promise.all(
-    imageKeys.map(async (imageKey, index) => {
+  const uploadedImageNames = await Promise.all(
+    imageNames.map(async (imageName, index) => {
       // if there are no images make the first image the cover
       const makeCoverPage = index === 0 && imagesCount === 0;
 
       const wineryImage = await insertWineryImage(
         wineryId,
-        imageKey,
+        wineryAlias,
+        imageName,
         makeCoverPage
       );
 
-      return wineryImage.imageKey;
+      return wineryImage.imageName;
     })
   );
 
-  if (uploadedImageKeys.length === 0) {
+  if (uploadedImageNames.length === 0) {
     return { errors: couldntUploadImages };
   }
 
-  return { imageKeys: uploadedImageKeys };
+  return { imageNames: uploadedImageNames };
 };
 
 export const getWineryImages = async (
@@ -54,15 +56,15 @@ export const getWineryImages = async (
 
   const imagesGetUrls: GetImage[] = await Promise.all(
     allImages.map(async (image) => {
-      const imageKeyGetUrl = await getImageUrl(image.imageKey, wineryAlias);
+      const imageGetUrl = await getImageUrl(image.imageName, wineryAlias);
       return {
-        imageKey: image.imageKey,
-        getUrl: imageKeyGetUrl,
+        imageName: image.imageName,
+        getUrl: imageGetUrl,
       };
     })
   );
 
-  if (imagesGetUrls.length > 0) {
+  if (imagesGetUrls.length === 0) {
     return customError("images", "couldnt generate get Urls for the winery");
   }
 

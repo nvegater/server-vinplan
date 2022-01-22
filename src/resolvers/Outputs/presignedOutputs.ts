@@ -7,6 +7,8 @@ export class PresignedResponse {
   getUrl?: String;
   @Field(() => String, { nullable: true })
   putUrl?: String;
+  @Field(() => String)
+  imageName?: string;
   @Field(() => [FieldError], { nullable: true })
   errors?: FieldError[];
 }
@@ -24,13 +26,13 @@ export class InsertImageResponse {
   @Field(() => [FieldError], { nullable: true })
   errors?: FieldError[];
   @Field(() => [String], { nullable: true })
-  imageKeys?: string[];
+  imageNames?: string[];
 }
 
 @ObjectType()
 export class GetImage {
   @Field(() => String)
-  imageKey: string;
+  imageName: string;
   @Field(() => String)
   getUrl: string;
 }
