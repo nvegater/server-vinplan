@@ -1,4 +1,4 @@
-import { ExperienceImage } from "../entities/Images";
+import { ExperienceImage, WineryImage } from "../entities/Images";
 export const insertExperienceImage = async (
   experienceId: number,
   imageKey: string,
@@ -25,6 +25,19 @@ export const insertImageInExperienceGallery = async (
   return await experienceImage.save();
 };
 
+export const insertWineryImage = async (
+  wineryId: number,
+  imageKey: string,
+  coverPage: boolean
+) => {
+  const wineryImage = WineryImage.create({
+    wineryId: wineryId,
+    imageKey: imageKey,
+    coverPage: coverPage,
+  });
+  return await wineryImage.save();
+};
+
 export const findImageById = async (imageId: number) => {
   return await ExperienceImage.findOne(imageId);
 };
@@ -41,6 +54,14 @@ export const getServiceGalleryById = async (experienceId: number) => {
 
 export const getImagesNumberGallery = async (experienceId: number) => {
   return await ExperienceImage.count({ experienceId });
+};
+
+export const countWineryImages = async (wineryId: number) => {
+  return await WineryImage.count({ where: { wineryId: wineryId } });
+};
+
+export const retrieveImagesWinery = async (wineryId: number) => {
+  return await WineryImage.find({ where: { wineryId } });
 };
 
 export const deleteDefaultPicture = async (experienceId: number) => {

@@ -18,3 +18,27 @@ export class GetPreSignedUrlResponse {
   @Field(() => [PresignedResponse], { nullable: true })
   arrayUrl?: PresignedResponse[];
 }
+
+@ObjectType()
+export class InsertImageResponse {
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
+  @Field(() => [String], { nullable: true })
+  imageKeys?: string[];
+}
+
+@ObjectType()
+export class GetImage {
+  @Field(() => String)
+  imageKey: string;
+  @Field(() => String)
+  getUrl: string;
+}
+
+@ObjectType()
+export class ImageGalleryResponse {
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
+  @Field(() => [GetImage], { nullable: true })
+  gallery?: GetImage[];
+}

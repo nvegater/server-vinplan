@@ -125,6 +125,21 @@ export async function getPresignedUrl(
   }
 }
 
+const getExpireSeconds = 60 * 10; // 10 mins to download the image before links expires
+
+export async function getImageUrl(
+  imageKey: string,
+  wineryAlias: string
+): Promise<string> {
+  const prefix = `wineries/${wineryAlias}`;
+  return s3.getSignedUrl("getObject", {
+    Bucket: `${process.env.NEXT_PUBLIC_DO_SPACES_NAME}/${prefix}`,
+    Key: `${imageKey}`,
+    ACL: "public-read",
+    Expires: getExpireSeconds,
+  });
+}
+
 export async function deleteImageFromS3(url: string) {
   try {
     console.log(url);
