@@ -7,6 +7,7 @@ import {
 } from "./Outputs/presignedOutputs";
 import { UploadType } from "./Inputs/presignedInputs";
 import {
+  addWineryImageToExperience,
   getWineryImages,
   saveWineryImage,
 } from "../useCases/pictures/pictures";
@@ -53,5 +54,14 @@ export class PresignedResolver {
     @Arg("wineryAlias", () => String, { nullable: true }) wineryAlias: string
   ): Promise<ImageGalleryResponse> {
     return await getWineryImages(wineryId, wineryAlias);
+  }
+
+  @Authorized("owner")
+  @Mutation(() => InsertImageResponse)
+  async addImageToExperience(
+    @Arg("wineryImageId", () => Int, { nullable: true }) wineryImageId: number,
+    @Arg("experienceId", () => Int, { nullable: true }) experienceId: number
+  ): Promise<InsertImageResponse> {
+    return await addWineryImageToExperience(wineryImageId, experienceId);
   }
 }

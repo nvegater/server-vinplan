@@ -7,6 +7,7 @@ import {
   PaginatedExperiencesInputs,
 } from "./Inputs/CreateExperienceInputs";
 import {
+  ExperiencesList,
   ExperienceResponse,
   PaginatedExperiences,
   PaginatedExperiencesWithSlots,
@@ -19,6 +20,7 @@ import {
   getExperienceWithSlots,
 } from "../useCases/experiences/createExperience";
 import {
+  getExperiencesListFromFuture,
   getExperiencesWithBookableSlots,
   getExperiencesWithEditableSlots,
   getPaginatedExperiences,
@@ -97,5 +99,10 @@ export class ExperienceResolvers {
     } catch (error) {
       throw new Error(error);
     }
+  }
+
+  @Query(() => ExperiencesList)
+  async experiencesList(): Promise<ExperiencesList> {
+    return await getExperiencesListFromFuture();
   }
 }

@@ -31,6 +31,19 @@ export const getExperienceByTitle = async (title: string) => {
   });
 };
 
+export const getAllExperiencesFromFuture = async () => {
+  const now = new Date();
+
+  return await getRepository(Experience)
+    .createQueryBuilder("exp")
+    .select(["exp.id", "exp.title", "exp.experienceType"])
+    .leftJoin("exp.slots", "slot")
+    .where('slot."startDateTime" > :starting ', {
+      starting: now,
+    })
+    .getMany();
+};
+
 export const createEmptyExperience = async (
   createExperienceInputs: CreateExperienceInputs
 ): Promise<Experience> => {

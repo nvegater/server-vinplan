@@ -1,5 +1,8 @@
 import {
-  countWineryImages,
+  countExperienceImagesByExperienceId,
+  countWineryImagesByWineryId,
+  getWineryImageById,
+  insertImageInExperienceGallery,
   insertWineryImage,
   retrieveImagesWinery,
 } from "../../dataServices/pictures";
@@ -23,7 +26,7 @@ export const saveWineryImage = async (
   wineryAlias: string,
   imageNames: string[]
 ): Promise<InsertImageResponse> => {
-  const imagesCount = await countWineryImages(wineryId);
+  const imagesCount = await countWineryImagesByWineryId(wineryId);
 
   const uploadedImageNames: GetImage[] = await Promise.all(
     imageNames.map(async (imageName, index) => {
@@ -86,4 +89,36 @@ export const getWineryImages = async (
   }
 
   return { gallery: imagesGetUrls };
+};
+
+export const addWineryImageToExperience = async (
+  imageId: number,
+  experienceId: number
+): Promise<InsertImageResponse> => {
+  const imagesCount = await countExperienceImagesByExperienceId(experienceId);
+
+  if (imagesCount > 5) {
+    return customError(
+      "experienceImages",
+      "This experience already has 5 images"
+    );
+  }
+
+  const image = await getWineryImageById(imageId);
+
+  if (image == null) {
+    return customError("image", "That image is not in our database");
+  }
+
+  const insertedImage = await insertImageInExperienceGallery(
+    experienceId,
+    image.imageName,
+    imagesCount === 0
+  );
+
+  return {
+    images: [
+      { id: insertedImage.id, imageName: insertedImage.imageName, getUrl: "" },
+    ],
+  };
 };

@@ -1,6 +1,5 @@
 import AWS from "aws-sdk";
 import mime from "mime";
-import imagesNumberWineryGallery from "../useCases/pictures/countWineryImages";
 import {
   PresignedUrlInput,
   UploadType,
@@ -10,6 +9,7 @@ import {
   PresignedResponse,
 } from "../resolvers/Outputs/presignedOutputs";
 import { customError, FieldError } from "../resolvers/Outputs/ErrorOutputs";
+import { countWineryImagesByWineryId } from "./pictures";
 
 const imagesTypes = [
   "apng",
@@ -86,7 +86,7 @@ export async function getPresignedUrl(
 ): Promise<GetPreSignedUrlResponse> {
   try {
     const { fileNames, wineryId } = presignedUrlInputs;
-    const numElementsInAlbum = await imagesNumberWineryGallery(wineryId);
+    const numElementsInAlbum = await countWineryImagesByWineryId(wineryId);
 
     const presignedResponses: PresignedResponse[] = await Promise.all(
       fileNames.map(async (fileName, index) => {

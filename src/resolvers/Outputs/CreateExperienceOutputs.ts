@@ -4,6 +4,18 @@ import { Experience, ExperienceType } from "../../entities/Experience";
 import { ExperienceSlot } from "../../entities/ExperienceSlot";
 
 @ObjectType()
+export class ExperienceListItem {
+  @Field(() => Int)
+  id: number;
+  @Field(() => String)
+  title: string;
+  @Field(() => ExperienceType)
+  experienceType!: ExperienceType;
+  @Field(() => Int)
+  imageCount: number;
+}
+
+@ObjectType()
 export class DateWithTimes {
   @Field(() => Date)
   date: Date;
@@ -19,6 +31,14 @@ export class RecurrenceResponse {
   errors?: FieldError[];
   @Field(() => [DateWithTimes], { nullable: true })
   dateWithTimes?: DateWithTimes[];
+}
+
+@ObjectType()
+export class ExperiencesList {
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
+  @Field(() => [ExperienceListItem], { nullable: true })
+  experiencesList?: ExperienceListItem[];
 }
 
 @ObjectType()

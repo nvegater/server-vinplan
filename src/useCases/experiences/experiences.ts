@@ -1,5 +1,7 @@
 import { Experience } from "../../entities/Experience";
 import {
+  ExperienceListItem,
+  ExperiencesList,
   PaginatedExperience,
   PaginatedExperiences,
   PaginatedExperiencesWithSlots,
@@ -7,6 +9,7 @@ import {
 } from "../../resolvers/Outputs/CreateExperienceOutputs";
 import {
   experiencesWithCursor_DS,
+  getAllExperiencesFromFuture,
   getSlotsStartingFrom,
   retrieveAllExperiencesFromWinery,
 } from "../../dataServices/experience";
@@ -15,6 +18,7 @@ import { ExperienceSlot } from "../../entities/ExperienceSlot";
 import { customError } from "../../resolvers/Outputs/ErrorOutputs";
 import { getWineryById_DS } from "../../dataServices/winery";
 import { notEmpty } from "../../dataServices/utils";
+import { countExperienceImagesByExperienceId } from "../../dataServices/pictures";
 
 async function includeWineryInformation(paginatedExperiences: Experience[]) {
   const experiences = await Promise.all(
@@ -200,3 +204,28 @@ export const getExperiencesWithBookableSlots = async (
     paginationConfig: { afterCursor, beforeCursor, limit: realLimit },
   };
 };
+
+export const getExperiencesListFromFuture =
+  async (): Promise<ExperiencesList> => {
+    const allExperiences = await getAllExperiencesFromFuture();
+
+    const experienceListItems: ExperienceListItem[] = await Promise.all(
+      allExperiences.map(async (exp) => {
+        const count = await countExperienceImagesByExperienceId(exp.id);
+        return {
+          id: exp.id,
+          title: exp.title,
+          experienceType: exp.experienceType,
+          imageCount: count,
+        };
+      })
+    );
+
+    if (experienceListItems.length === 0) {
+      return customError("", "");
+    }
+
+    return {
+      experiencesList: experienceListItems,
+    };
+  };
