@@ -4,8 +4,6 @@ import {
   ExperiencesList,
   PaginatedExperience,
   PaginatedExperiences,
-  PaginatedExperiencesWithSlots,
-  PaginatedExperienceWithSlots,
 } from "../../resolvers/Outputs/CreateExperienceOutputs";
 import {
   experiencesWithCursor_DS,
@@ -35,6 +33,7 @@ async function includeWineryInformation(paginatedExperiences: Experience[]) {
         pricePerPersonInDollars: dbExp.pricePerPersonInDollars,
         wineryId: dbExp.wineryId,
         createdAt: dbExp.createdAt,
+        slots: dbExp.slots,
       } as PaginatedExperience;
     })
   );
@@ -86,7 +85,7 @@ export const getPaginatedExperiences = async (
 export const getExperiencesWithEditableSlots = async (
   wineryId: number,
   paginatedExperiencesInputs: PaginatedExperiencesInputs
-): Promise<PaginatedExperiencesWithSlots> => {
+): Promise<PaginatedExperiences> => {
   const allExperiences: Experience[] = await retrieveAllExperiencesFromWinery(
     wineryId
   );
@@ -143,7 +142,7 @@ export const getExperiencesWithEditableSlots = async (
     };
   }
 
-  const paginatedExperiencesWithSlots: PaginatedExperienceWithSlots[] =
+  const paginatedExperiencesWithSlots: PaginatedExperience[] =
     noEmptySlotsExps.map((exp) => ({ ...exp, wineryName: winery.name }));
 
   return {

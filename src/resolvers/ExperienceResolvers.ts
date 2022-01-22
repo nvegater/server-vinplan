@@ -10,7 +10,6 @@ import {
   ExperiencesList,
   ExperienceResponse,
   PaginatedExperiences,
-  PaginatedExperiencesWithSlots,
   RecurrenceResponse,
 } from "./Outputs/CreateExperienceOutputs";
 
@@ -72,13 +71,13 @@ export class ExperienceResolvers {
 
   // Requires Auth because is only for wineries and its an expensive operation
   @Authorized("owner")
-  @Query(() => PaginatedExperiencesWithSlots)
+  @Query(() => PaginatedExperiences)
   async editableExperiences(
     @Arg("wineryId")
     wineryId: number,
     @Arg("paginatedExperiencesInputs")
     paginatedExperiencesInputs: PaginatedExperiencesInputs
-  ): Promise<PaginatedExperiencesWithSlots> {
+  ): Promise<PaginatedExperiences> {
     try {
       return await getExperiencesWithEditableSlots(
         wineryId,

@@ -225,13 +225,7 @@ export const experiencesWithCursor_DS = async ({
 
   const { data, cursor: cursorObj } = await paginator.paginate(qs);
 
-  // Initialize empty slots because we dont care about the slots right now.
-  let exps: Experience[] = data;
-  exps.forEach((exp) => {
-    exp.slots = [];
-  });
-
-  return [exps, cursorObj.beforeCursor, cursorObj.afterCursor, totalResults];
+  return [data, cursorObj.beforeCursor, cursorObj.afterCursor, totalResults];
 };
 
 export const updateSlotVisitors = async (addedVisitors: number, id: number) => {

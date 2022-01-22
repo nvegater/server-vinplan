@@ -87,12 +87,8 @@ export class PaginatedExperience {
   wineryName!: string;
   @Field(() => Date)
   createdAt: Date;
-}
-
-@ObjectType()
-export class PaginatedExperienceWithSlots extends PaginatedExperience {
-  @Field(() => [ExperienceSlot])
-  slots!: ExperienceSlot[];
+  @Field(() => [ExperienceSlot], { nullable: true })
+  slots?: ExperienceSlot[];
 }
 
 @ObjectType()
@@ -105,10 +101,4 @@ export class PaginatedExperiences {
   totalExperiences: number;
   @Field(() => CursorPaginationResult)
   paginationConfig: CursorPaginationResult;
-}
-
-@ObjectType()
-export class PaginatedExperiencesWithSlots extends PaginatedExperiences {
-  @Field(() => [PaginatedExperienceWithSlots], { nullable: true })
-  experiences?: PaginatedExperienceWithSlots[];
 }
