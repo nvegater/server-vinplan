@@ -9,12 +9,7 @@ import { WineGrapesProduction } from "./entities/WineGrapesProduction";
 import { WineryOtherServices } from "./entities/WineryOtherServices";
 import { Experience } from "./entities/Experience";
 import { Reservation } from "./entities/Reservation";
-import {
-  ExperienceImage,
-  WineryImage,
-  UserImage,
-  Image,
-} from "./entities/Images";
+import { ExperienceImage, WineryImage, UserImage } from "./entities/Images";
 import { ExperienceSlot } from "./entities/ExperienceSlot";
 import { Customer } from "./entities/Customer";
 
@@ -42,6 +37,5 @@ export default {
     ExperienceImage,
     WineryImage,
     UserImage,
-    Image,
   ],
 } as ConnectionOptions;
