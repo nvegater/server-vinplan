@@ -10,16 +10,13 @@ import {
   createEmptyExperience,
   createSlots,
   getExperienceByTitle,
-  getExperienceWithSlots_DS,
-  getSlotsStartingFrom,
 } from "../../dataServices/experience";
 import {
   generateOneSlot,
   generateRecurrence,
 } from "./recurrent/recurrenceRules";
 import { SlotType } from "../../entities/ExperienceSlot";
-import { customError } from "../../resolvers/Outputs/ErrorOutputs";
-import { Experience } from "../../entities/Experience";
+import { getWineryById_DS } from "../../dataServices/winery";
 
 interface CreateExperienceProps {
   createExperienceInputs: CreateExperienceInputs;
@@ -116,43 +113,10 @@ export const createExperienceWinery = async ({
     };
   }
 
+  const winery = await getWineryById_DS(createExperienceInputs.wineryId);
+
   return {
-    experience: createdExperience,
+    experience: { ...createdExperience, wineryName: winery!.name, images: [] },
     dateWithTimes: slots.dateWithTimes,
   };
-};
-
-export const getExperienceWithSlots = async (
-  experienceId: number,
-  onlyBookableSlots: boolean
-): Promise<ExperienceResponse> => {
-  const experience = await getExperienceWithSlots_DS(experienceId);
-  if (experience == null) {
-    return customError("experienceSlots", "Couldnt find an experience with id");
-  }
-  const NOW_DATE_STRING = new Date();
-
-  if (!onlyBookableSlots) {
-    return { experience: experience };
-  }
-
-  const slotsFromTheFuture = await getSlotsStartingFrom(
-    experience.id,
-    NOW_DATE_STRING,
-    onlyBookableSlots
-  );
-
-  if (slotsFromTheFuture.length === 0) {
-    return customError(
-      "slots",
-      "There are no slots available for that Experience"
-    );
-  }
-
-  const expWBookableSlots: Experience = {
-    ...experience,
-    slots: slotsFromTheFuture,
-  } as Experience;
-
-  return { experience: expWBookableSlots };
 };

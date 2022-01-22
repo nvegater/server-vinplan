@@ -61,3 +61,7 @@ export const retrieveImagesWinery = async (wineryId: number) => {
 export const selectCoverPageImage = async (experienceId: number) => {
   return await ExperienceImage.update({ experienceId }, { coverPage: true });
 };
+
+export const getExperienceImages = async (id: number) => {
+  return await ExperienceImage.find({ id });
+};

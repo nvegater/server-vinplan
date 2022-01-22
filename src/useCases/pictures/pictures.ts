@@ -40,7 +40,7 @@ export const saveWineryImage = async (
         makeCoverPage
       );
 
-      const imageGetUrl = await getWineryImageGetURL(
+      const imageGetUrl = getWineryImageGetURL(
         wineryImage.imageName,
         wineryAlias
       );
@@ -72,10 +72,7 @@ export const getWineryImages = async (
 
   const imagesGetUrls: GetImage[] = await Promise.all(
     allImages.map(async (image) => {
-      const imageGetUrl = await getWineryImageGetURL(
-        image.imageName,
-        wineryAlias
-      );
+      const imageGetUrl = getWineryImageGetURL(image.imageName, wineryAlias);
       return {
         id: image.id,
         imageName: image.imageName,

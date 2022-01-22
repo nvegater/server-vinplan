@@ -1,7 +1,9 @@
 import { Field, Float, Int, ObjectType } from "type-graphql";
 import { FieldError } from "./ErrorOutputs";
-import { Experience, ExperienceType } from "../../entities/Experience";
+import { ExperienceType } from "../../entities/Experience";
 import { ExperienceSlot } from "../../entities/ExperienceSlot";
+import { GetImage } from "./presignedOutputs";
+import { Valley } from "../../entities/Winery";
 
 @ObjectType()
 export class ExperienceListItem {
@@ -41,16 +43,6 @@ export class ExperiencesList {
   experiencesList?: ExperienceListItem[];
 }
 
-@ObjectType()
-export class ExperienceResponse {
-  @Field(() => [FieldError], { nullable: true })
-  errors?: FieldError[];
-  @Field(() => Experience, { nullable: true })
-  experience?: Experience;
-  @Field(() => [DateWithTimes], { nullable: true })
-  dateWithTimes?: DateWithTimes[];
-}
-
 @ObjectType({
   description:
     "BefCur:null & AftCur:null => First Page N Results (N=limit) + AftCur:Y (if more results exist)." +
@@ -87,8 +79,22 @@ export class PaginatedExperience {
   wineryName!: string;
   @Field(() => Date)
   createdAt: Date;
+  @Field(() => Valley, { nullable: true })
+  valley?: Valley;
   @Field(() => [ExperienceSlot], { nullable: true })
   slots?: ExperienceSlot[];
+  @Field(() => [GetImage], { nullable: true })
+  images?: GetImage[];
+}
+
+@ObjectType()
+export class ExperienceResponse {
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
+  @Field(() => PaginatedExperience, { nullable: true })
+  experience?: PaginatedExperience;
+  @Field(() => [DateWithTimes], { nullable: true })
+  dateWithTimes?: DateWithTimes[];
 }
 
 @ObjectType()

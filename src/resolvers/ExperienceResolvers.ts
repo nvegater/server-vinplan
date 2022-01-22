@@ -14,14 +14,12 @@ import {
 } from "./Outputs/CreateExperienceOutputs";
 
 import { generateRecurrence } from "../useCases/experiences/recurrent/recurrenceRules";
-import {
-  createExperienceWinery,
-  getExperienceWithSlots,
-} from "../useCases/experiences/createExperience";
+import { createExperienceWinery } from "../useCases/experiences/createExperience";
 import {
   getExperiencesListFromFuture,
   getExperiencesWithBookableSlots,
   getExperiencesWithEditableSlots,
+  getExperienceWithSlots,
   getPaginatedExperiences,
 } from "../useCases/experiences/experiences";
 

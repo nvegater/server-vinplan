@@ -1,6 +1,7 @@
 import { Experience } from "../../entities/Experience";
 import {
   ExperienceListItem,
+  ExperienceResponse,
   ExperiencesList,
   PaginatedExperience,
   PaginatedExperiences,
@@ -8,6 +9,7 @@ import {
 import {
   experiencesWithCursor_DS,
   getAllExperiencesFromFuture,
+  getExperienceWithSlots_DS,
   getSlotsStartingFrom,
   retrieveAllExperiencesFromWinery,
 } from "../../dataServices/experience";
@@ -16,12 +18,29 @@ import { ExperienceSlot } from "../../entities/ExperienceSlot";
 import { customError } from "../../resolvers/Outputs/ErrorOutputs";
 import { getWineryById_DS } from "../../dataServices/winery";
 import { notEmpty } from "../../dataServices/utils";
-import { countExperienceImagesByExperienceId } from "../../dataServices/pictures";
+import {
+  countExperienceImagesByExperienceId,
+  getExperienceImages,
+} from "../../dataServices/pictures";
+import { GetImage } from "../../resolvers/Outputs/presignedOutputs";
+import { getWineryImageGetURL } from "../../dataServices/s3Utilities";
 
-async function includeWineryInformation(paginatedExperiences: Experience[]) {
+async function includeDeps(paginatedExperiences: Experience[]) {
   const experiences = await Promise.all(
     paginatedExperiences.map(async (dbExp) => {
       const winery = await getWineryById_DS(dbExp.wineryId);
+      const images = await getExperienceImages(dbExp.id);
+
+      const gettableImages: GetImage[] = images.map((image) => {
+        const imageName = image.imageName;
+        const getUrl = getWineryImageGetURL(imageName, winery!.urlAlias);
+        return {
+          id: image.id,
+          imageName,
+          getUrl,
+        };
+      });
+
       if (winery == null) return null;
       return {
         wineryName: winery?.name,
@@ -34,6 +53,7 @@ async function includeWineryInformation(paginatedExperiences: Experience[]) {
         wineryId: dbExp.wineryId,
         createdAt: dbExp.createdAt,
         slots: dbExp.slots,
+        images: gettableImages,
       } as PaginatedExperience;
     })
   );
@@ -57,7 +77,7 @@ export const getPaginatedExperiences = async (
       },
     });
 
-  const experiences: PaginatedExperience[] = await includeWineryInformation(
+  const experiences: PaginatedExperience[] = await includeDeps(
     paginatedExperiences
   );
 
@@ -131,22 +151,12 @@ export const getExperiencesWithEditableSlots = async (
     };
   }
 
-  const winery = await getWineryById_DS(wineryId);
-
-  if (winery == null) {
-    const errorObject = customError("winery", "Error retrieving winery");
-    return {
-      ...errorObject,
-      totalExperiences: 0,
-      paginationConfig: paginatedExperiencesInputs.paginationConfig,
-    };
-  }
-
-  const paginatedExperiencesWithSlots: PaginatedExperience[] =
-    noEmptySlotsExps.map((exp) => ({ ...exp, wineryName: winery.name }));
+  const experiences: PaginatedExperience[] = await includeDeps(
+    experiencesWithFutureSlots
+  );
 
   return {
-    experiences: paginatedExperiencesWithSlots,
+    experiences: experiences,
     totalExperiences: noEmptySlotsExps.length,
     paginationConfig: paginatedExperiencesInputs.paginationConfig,
   };
@@ -182,7 +192,7 @@ export const getExperiencesWithBookableSlots = async (
       paginationConfig: { afterCursor, beforeCursor, limit: realLimit },
     };
   }
-  const experiences: PaginatedExperience[] = await includeWineryInformation(
+  const experiences: PaginatedExperience[] = await includeDeps(
     paginatedExperiences
   );
 
@@ -228,3 +238,56 @@ export const getExperiencesListFromFuture =
       experiencesList: experienceListItems,
     };
   };
+
+export const getExperienceWithSlots = async (
+  experienceId: number,
+  onlyBookableSlots: boolean
+): Promise<ExperienceResponse> => {
+  const experience = await getExperienceWithSlots_DS(experienceId);
+  if (experience == null) {
+    return customError("experienceSlots", "Couldnt find an experience with id");
+  }
+  const NOW_DATE_STRING = new Date();
+
+  const getImages: GetImage[] =
+    experience.images != null
+      ? experience.images.map((i) => ({
+          id: i.id,
+          imageName: i.imageName,
+          getUrl: getWineryImageGetURL(i.imageName, experience.winery.urlAlias),
+        }))
+      : [];
+
+  if (!onlyBookableSlots) {
+    return {
+      experience: {
+        ...experience,
+        wineryName: experience.winery.name,
+        images: getImages,
+      },
+    };
+  }
+
+  const slotsFromTheFuture = await getSlotsStartingFrom(
+    experience.id,
+    NOW_DATE_STRING,
+    onlyBookableSlots
+  );
+
+  if (slotsFromTheFuture.length === 0) {
+    return customError(
+      "slots",
+      "There are no slots available for that Experience"
+    );
+  }
+
+  const expWBookableSlots: PaginatedExperience = {
+    ...experience,
+    wineryName: experience.winery.name,
+    valley: experience.winery.valley,
+    images: getImages,
+    slots: slotsFromTheFuture,
+  };
+
+  return { experience: expWBookableSlots };
+};
