@@ -20,7 +20,7 @@ import { getWineryById_DS } from "../../dataServices/winery";
 import { notEmpty } from "../../dataServices/utils";
 import {
   countExperienceImagesByExperienceId,
-  getExperienceImages,
+  getImagesByExperienceId,
 } from "../../dataServices/pictures";
 import { GetImage } from "../../resolvers/Outputs/presignedOutputs";
 import { getWineryImageGetURL } from "../../dataServices/s3Utilities";
@@ -29,7 +29,7 @@ async function includeDeps(paginatedExperiences: Experience[]) {
   const experiences = await Promise.all(
     paginatedExperiences.map(async (dbExp) => {
       const winery = await getWineryById_DS(dbExp.wineryId);
-      const images = await getExperienceImages(dbExp.id);
+      const images = await getImagesByExperienceId(dbExp.id);
 
       const gettableImages: GetImage[] = images.map((image) => {
         const imageName = image.imageName;
