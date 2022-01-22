@@ -1,7 +1,7 @@
 import { Arg, Authorized, Int, Mutation, Resolver } from "type-graphql";
-import { getPresignedUrl } from "../../utils/s3Utilities";
-import { GetPreSignedUrlResponse } from "../Outputs/presignedOutputs";
-import { UploadType } from "../Inputs/presignedInputs";
+import { getPresignedUrl } from "../utils/s3Utilities";
+import { GetPreSignedUrlResponse } from "./Outputs/presignedOutputs";
+import { UploadType } from "./Inputs/presignedInputs";
 
 @Resolver(GetPreSignedUrlResponse)
 export class PresignedResolver {

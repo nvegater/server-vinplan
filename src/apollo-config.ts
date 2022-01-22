@@ -14,10 +14,10 @@ import {
 } from "apollo-server-express";
 import { ExperienceResolvers } from "./resolvers/ExperienceResolvers";
 import { ReservationResolvers } from "./resolvers/ReservationResolvers";
-import { WineryResolvers } from "./resolvers/winery/WineryResolvers";
+import { WineryResolvers } from "./resolvers/WineryResolvers";
 import { keycloakAuthChecker } from "./utils/auth/keycloak";
 import { PaymentsResolvers } from "./resolvers/PaymentsResolvers";
-import { PresignedResolver } from "./resolvers/PreSignedUrl/presigned";
+import { PresignedResolver } from "./resolvers/PresignedUrlsResolvers";
 import { _prod_ } from "./constants";
 
 const registerServer = (app: Express) => ({

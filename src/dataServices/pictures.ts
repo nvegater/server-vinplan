@@ -1,12 +1,12 @@
 import { ExperienceImage } from "../entities/Images";
 export const insertExperienceImage = async (
   experienceId: number,
-  urlImage: string,
+  imageKey: string,
   coverPage: boolean
 ) => {
   const serviceImage = ExperienceImage.create({
     experienceId: experienceId,
-    imageUrl: urlImage,
+    imageKey: imageKey,
     coverPage: coverPage,
   });
   return await serviceImage.save();
@@ -14,12 +14,12 @@ export const insertExperienceImage = async (
 
 export const insertImageInExperienceGallery = async (
   experienceId: number,
-  urlImage: string,
+  imageKey: string,
   coverPage: boolean
 ) => {
   const experienceImage = ExperienceImage.create({
     experienceId: experienceId,
-    imageUrl: urlImage,
+    imageKey: imageKey,
     coverPage: coverPage,
   });
   return await experienceImage.save();
@@ -58,7 +58,7 @@ export const updateDefaultPictureToEvent = async (
 ) => {
   return await ExperienceImage.update(
     { experienceId, coverPage: true },
-    { imageUrl: urlImage }
+    { imageKey: urlImage }
   );
 };
 

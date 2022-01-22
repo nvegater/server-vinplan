@@ -1,16 +1,16 @@
 import { Arg, Authorized, Int, Mutation, Query, Resolver } from "type-graphql";
-import { Winery } from "../../entities/Winery";
+import { Winery } from "../entities/Winery";
 
-import CreateWineryInputs from "../Inputs/CreateWineryInputs";
-import { GetWineryInputs, UserInputs } from "../Inputs/UserInputs";
+import CreateWineryInputs from "./Inputs/CreateWineryInputs";
+import { GetWineryInputs, UserInputs } from "./Inputs/UserInputs";
 
-import { WineryResponse } from "../Outputs/WineryOutputs";
+import { WineryResponse } from "./Outputs/WineryOutputs";
 
 import {
   confirmConnectedAccountCreation,
   getWinery,
-} from "../../useCases/winery/createWinery";
-import { createWinery } from "../../useCases/winery/createWinery";
+} from "../useCases/winery/createWinery";
+import { createWinery } from "../useCases/winery/createWinery";
 
 @Resolver(Winery)
 export class WineryResolvers {

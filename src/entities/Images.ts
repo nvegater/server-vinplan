@@ -21,9 +21,9 @@ export class UserImage extends BaseEntity {
   @Column()
   creatorUsername!: string;
 
-  @Field()
-  @Column()
-  imageUrl!: string;
+  @Field(() => String)
+  @Column({ type: "text" })
+  imageKey: string;
 
   @Field({ defaultValue: true })
   @Column({ default: true })
@@ -57,9 +57,9 @@ export class WineryImage extends BaseEntity {
   @ManyToOne(() => Winery, (winery) => winery.images)
   winery!: Winery;
 
-  @Field()
+  @Field(() => String)
   @Column()
-  imageUrl!: string;
+  imageKey: string;
 
   @Field({ defaultValue: false })
   @Column({ default: false })
@@ -89,9 +89,9 @@ export class ExperienceImage extends BaseEntity {
   @ManyToOne(() => Experience, (exp) => exp.images)
   experience!: Experience;
 
-  @Field()
-  @Column()
-  imageUrl!: string;
+  @Field(() => String)
+  @Column({ type: "text" })
+  imageKey: string;
 
   @Field({ defaultValue: false })
   @Column({ default: false })
