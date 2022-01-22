@@ -131,7 +131,7 @@ export async function getPresignedUrl(
 
 const getExpireSeconds = 60 * 10; // 10 mins to download the image before links expires
 
-export async function getImageUrl(
+export async function getWineryImageGetURL(
   imageName: string,
   wineryAlias: string
 ): Promise<string> {

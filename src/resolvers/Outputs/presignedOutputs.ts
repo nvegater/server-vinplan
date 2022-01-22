@@ -22,14 +22,6 @@ export class GetPreSignedUrlResponse {
 }
 
 @ObjectType()
-export class InsertImageResponse {
-  @Field(() => [FieldError], { nullable: true })
-  errors?: FieldError[];
-  @Field(() => [String], { nullable: true })
-  imageNames?: string[];
-}
-
-@ObjectType()
 export class GetImage {
   @Field(() => Int)
   id: number;
@@ -37,6 +29,14 @@ export class GetImage {
   imageName: string;
   @Field(() => String)
   getUrl: string;
+}
+
+@ObjectType()
+export class InsertImageResponse {
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
+  @Field(() => [GetImage], { nullable: true })
+  images?: GetImage[];
 }
 
 @ObjectType()

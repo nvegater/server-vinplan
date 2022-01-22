@@ -8,7 +8,7 @@ import {
   ImageGalleryResponse,
   InsertImageResponse,
 } from "../../resolvers/Outputs/presignedOutputs";
-import { getImageUrl } from "../../dataServices/s3Utilities";
+import { getWineryImageGetURL } from "../../dataServices/s3Utilities";
 import { customError } from "../../resolvers/Outputs/ErrorOutputs";
 
 const couldntUploadImages = [
@@ -25,7 +25,7 @@ export const saveWineryImage = async (
 ): Promise<InsertImageResponse> => {
   const imagesCount = await countWineryImages(wineryId);
 
-  const uploadedImageNames = await Promise.all(
+  const uploadedImageNames: GetImage[] = await Promise.all(
     imageNames.map(async (imageName, index) => {
       // if there are no images make the first image the cover
       const makeCoverPage = index === 0 && imagesCount === 0;
@@ -37,7 +37,16 @@ export const saveWineryImage = async (
         makeCoverPage
       );
 
-      return wineryImage.imageName;
+      const imageGetUrl = await getWineryImageGetURL(
+        wineryImage.imageName,
+        wineryAlias
+      );
+
+      return {
+        id: wineryImage.id,
+        imageName: wineryImage.imageName,
+        getUrl: imageGetUrl,
+      };
     })
   );
 
@@ -45,7 +54,7 @@ export const saveWineryImage = async (
     return { errors: couldntUploadImages };
   }
 
-  return { imageNames: uploadedImageNames };
+  return { images: uploadedImageNames };
 };
 
 export const getWineryImages = async (
@@ -60,7 +69,10 @@ export const getWineryImages = async (
 
   const imagesGetUrls: GetImage[] = await Promise.all(
     allImages.map(async (image) => {
-      const imageGetUrl = await getImageUrl(image.imageName, wineryAlias);
+      const imageGetUrl = await getWineryImageGetURL(
+        image.imageName,
+        wineryAlias
+      );
       return {
         id: image.id,
         imageName: image.imageName,
