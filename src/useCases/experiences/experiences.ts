@@ -11,10 +11,8 @@ import {
   getAllExperiencesFromFuture,
   getExperienceWithSlots_DS,
   getSlotsStartingFrom,
-  retrieveAllExperiencesFromWinery,
 } from "../../dataServices/experience";
 import { PaginatedExperiencesInputs } from "../../resolvers/Inputs/CreateExperienceInputs";
-import { ExperienceSlot } from "../../entities/ExperienceSlot";
 import { customError } from "../../resolvers/Outputs/ErrorOutputs";
 import { getWineryById_DS } from "../../dataServices/winery";
 import { notEmpty } from "../../dataServices/utils";
@@ -68,7 +66,7 @@ export const getPaginatedExperiences = async (
     paginatedExperiencesInputs.paginationConfig.limit
   );
 
-  const [paginatedExperiences, beforeCursor, afterCursor, totalResults] =
+  const [paginatedExperiences, beforeCursor, afterCursor, moreResults] =
     await experiencesWithCursor_DS({
       ...paginatedExperiencesInputs,
       paginationConfig: {
@@ -81,84 +79,46 @@ export const getPaginatedExperiences = async (
     paginatedExperiences
   );
 
-  if (experiences.length === 0) {
-    return {
-      ...customError(
-        "experiencesWinery",
-        "Couldnt attach winery information to the experience"
-      ),
-      totalExperiences: 0,
-      paginationConfig: { afterCursor, beforeCursor, limit: realLimit },
-    };
-  }
   return {
     experiences: experiences,
-    totalExperiences: totalResults,
     paginationConfig: {
       beforeCursor: beforeCursor,
       afterCursor: afterCursor,
       limit: realLimit,
+      moreResults: moreResults,
     },
   };
 };
 
 export const getExperiencesWithEditableSlots = async (
-  wineryId: number,
   paginatedExperiencesInputs: PaginatedExperiencesInputs
 ): Promise<PaginatedExperiences> => {
-  const allExperiences: Experience[] = await retrieveAllExperiencesFromWinery(
-    wineryId
+  const realLimit = Math.min(
+    20,
+    paginatedExperiencesInputs.paginationConfig.limit
   );
-
-  if (allExperiences.length === 0) {
-    const errorObject = customError("experience", "no Created Experiences");
-
-    return {
-      ...errorObject,
-      totalExperiences: 0,
-      paginationConfig: paginatedExperiencesInputs.paginationConfig,
-    };
-  }
-
-  const NOW_DATE_STRING = new Date();
-
-  const experiencesWithFutureSlots: Experience[] = await Promise.all(
-    allExperiences.map(async (exp) => {
-      const slotsFromTheFuture: ExperienceSlot[] = await getSlotsStartingFrom(
-        exp.id,
-        NOW_DATE_STRING
-      );
-      return {
-        ...exp,
-        slots: slotsFromTheFuture,
-      } as Experience;
-    })
-  );
-
-  const noEmptySlotsExps = experiencesWithFutureSlots.filter(
-    (exp) => exp.slots && exp.slots.length > 0
-  );
-
-  if (allExperiences.length === 0) {
-    const errorObject = customError(
-      "experienceSlots",
-      "Cant get Editable slots"
-    );
-    return {
-      ...errorObject,
-      totalExperiences: 0,
-      paginationConfig: paginatedExperiencesInputs.paginationConfig,
-    };
-  }
+  const [paginatedExperiences, beforeCursor, afterCursor, moreResults] =
+    await experiencesWithCursor_DS({
+      ...paginatedExperiencesInputs,
+      paginationConfig: {
+        ...paginatedExperiencesInputs.paginationConfig,
+        limit: realLimit,
+      },
+      getUpcomingSlots: true,
+    });
 
   const experiences: PaginatedExperience[] = await includeDeps(
-    experiencesWithFutureSlots
+    paginatedExperiences
   );
 
   return {
     experiences: experiences,
-    totalExperiences: noEmptySlotsExps.length,
-    paginationConfig: paginatedExperiencesInputs.paginationConfig,
+    paginationConfig: {
+      beforeCursor: beforeCursor,
+      afterCursor: afterCursor,
+      limit: realLimit,
+      moreResults: moreResults,
+    },
   };
 };
 
@@ -170,7 +130,7 @@ export const getExperiencesWithBookableSlots = async (
     paginatedExperiencesInputs.paginationConfig.limit
   );
 
-  const [paginatedExperiences, beforeCursor, afterCursor, totalResults] =
+  const [paginatedExperiences, beforeCursor, afterCursor, moreResults] =
     await experiencesWithCursor_DS({
       ...paginatedExperiencesInputs,
       paginationConfig: {
@@ -188,8 +148,12 @@ export const getExperiencesWithBookableSlots = async (
 
     return {
       ...errorObject,
-      totalExperiences: totalResults,
-      paginationConfig: { afterCursor, beforeCursor, limit: realLimit },
+      paginationConfig: {
+        afterCursor,
+        beforeCursor,
+        limit: realLimit,
+        moreResults: false,
+      },
     };
   }
   const experiences: PaginatedExperience[] = await includeDeps(
@@ -202,15 +166,23 @@ export const getExperiencesWithBookableSlots = async (
         "experiencesWinery",
         "Couldnt attach winery information to the experience"
       ),
-      totalExperiences: totalResults,
-      paginationConfig: { afterCursor, beforeCursor, limit: realLimit },
+      paginationConfig: {
+        afterCursor,
+        beforeCursor,
+        limit: realLimit,
+        moreResults: false,
+      },
     };
   }
 
   return {
     experiences: experiences,
-    totalExperiences: totalResults,
-    paginationConfig: { afterCursor, beforeCursor, limit: realLimit },
+    paginationConfig: {
+      afterCursor,
+      beforeCursor,
+      limit: realLimit,
+      moreResults: moreResults,
+    },
   };
 };
 

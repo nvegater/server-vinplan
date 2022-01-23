@@ -140,6 +140,7 @@ const createQueryWithFilters = async (
   experienceName: string | null,
   eventType: ExperienceType[] | null,
   valley: Valley[] | null,
+  wineryIds: number[] | null,
   getUpcomingSlots: boolean | null,
   onlyWithAvailableSeats: boolean | null
 ): Promise<SelectQueryBuilder<Experience>> => {
@@ -153,6 +154,11 @@ const createQueryWithFilters = async (
   if (eventType) {
     qs.andWhere('experience."eventType" IN (:...eventType)', {
       eventType: eventType,
+    });
+  }
+  if (wineryIds) {
+    qs.andWhere('experience."wineryId" IN (:...wineryIds)', {
+      wineryIds: wineryIds,
     });
   }
   if (valley) {
@@ -190,7 +196,7 @@ type ExperiencesCursorPagination = [
   Experience[],
   string | null,
   string | null,
-  number
+  boolean
 ];
 export const experiencesWithCursor_DS = async ({
   paginationConfig,
@@ -202,11 +208,10 @@ export const experiencesWithCursor_DS = async ({
     experiencesFilters.experienceName,
     experiencesFilters.experienceType,
     experiencesFilters.valley,
+    experiencesFilters.wineryIds ?? null,
     getUpcomingSlots ?? false,
     onlyWithAvailableSeats ?? false
   );
-
-  const totalResults = await qs.getCount();
 
   const paginator = buildPaginator({
     entity: Experience,
@@ -225,7 +230,11 @@ export const experiencesWithCursor_DS = async ({
 
   const { data, cursor: cursorObj } = await paginator.paginate(qs);
 
-  return [data, cursorObj.beforeCursor, cursorObj.afterCursor, totalResults];
+  const experiences = data.slice(0, paginationConfig.limit);
+
+  const hasMore = experiences.length === paginationConfig.limit;
+
+  return [experiences, cursorObj.beforeCursor, cursorObj.afterCursor, hasMore];
 };
 
 export const updateSlotVisitors = async (addedVisitors: number, id: number) => {

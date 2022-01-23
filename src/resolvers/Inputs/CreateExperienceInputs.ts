@@ -64,6 +64,8 @@ export class ExperiencesFilters {
   experienceType: ExperienceType[] | null;
   @Field(() => String, { nullable: true })
   experienceName: string | null;
+  @Field(() => [Int], { nullable: true })
+  wineryIds: number[] | null;
 }
 
 @InputType({

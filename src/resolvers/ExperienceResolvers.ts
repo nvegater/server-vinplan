@@ -71,16 +71,11 @@ export class ExperienceResolvers {
   @Authorized("owner")
   @Query(() => PaginatedExperiences)
   async editableExperiences(
-    @Arg("wineryId")
-    wineryId: number,
     @Arg("paginatedExperiencesInputs")
     paginatedExperiencesInputs: PaginatedExperiencesInputs
   ): Promise<PaginatedExperiences> {
     try {
-      return await getExperiencesWithEditableSlots(
-        wineryId,
-        paginatedExperiencesInputs
-      );
+      return await getExperiencesWithEditableSlots(paginatedExperiencesInputs);
     } catch (error) {
       throw new Error(error);
     }

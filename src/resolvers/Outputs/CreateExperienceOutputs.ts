@@ -57,6 +57,8 @@ export class CursorPaginationResult {
   beforeCursor: string | null;
   @Field(() => Int, { nullable: true })
   limit: number;
+  @Field(() => Boolean)
+  moreResults: boolean;
 }
 
 @ObjectType()
@@ -103,8 +105,8 @@ export class PaginatedExperiences {
   errors?: FieldError[];
   @Field(() => [PaginatedExperience], { nullable: true })
   experiences?: PaginatedExperience[];
-  @Field(() => Number)
-  totalExperiences: number;
+  @Field(() => Number, { nullable: true })
+  totalExperiences?: number;
   @Field(() => CursorPaginationResult)
   paginationConfig: CursorPaginationResult;
 }
