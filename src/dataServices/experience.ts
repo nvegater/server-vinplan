@@ -238,7 +238,7 @@ export const experiencesWithCursor_DS = async ({
 };
 
 export const updateSlotVisitors = async (addedVisitors: number, id: number) => {
-  return await typeReturn<ExperienceSlot>(
+  const updatedSlot = await typeReturn<ExperienceSlot>(
     getConnection()
       .createQueryBuilder()
       .update(ExperienceSlot)
@@ -249,4 +249,18 @@ export const updateSlotVisitors = async (addedVisitors: number, id: number) => {
       .returning("*")
       .execute()
   );
+  const experienceId = updatedSlot.experienceId;
+  // also update the total sum of slots for that experience
+  await typeReturn<Experience>(
+    getConnection()
+      .createQueryBuilder()
+      .update(Experience)
+      .set({
+        allAttendeesAllSlots: () => `"allAttendeesAllSlots" + ${addedVisitors}`,
+      })
+      .where("id = :experienceId", { experienceId })
+      .returning("*")
+      .execute()
+  );
+  return updatedSlot;
 };
