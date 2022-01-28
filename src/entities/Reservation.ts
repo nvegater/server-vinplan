@@ -53,6 +53,10 @@ export class Reservation extends BaseEntity {
   @Column()
   slotId: number;
 
+  @Field(() => Int)
+  @Column()
+  experienceId: number;
+
   @Field(() => ExperienceSlot)
   @ManyToOne(() => ExperienceSlot, (slot) => slot.reservations)
   slot: ExperienceSlot;

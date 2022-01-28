@@ -40,6 +40,8 @@ import {
 } from "../../dataServices/reservation";
 import { Reservation } from "../../entities/Reservation";
 import { ExperienceSlot } from "../../entities/ExperienceSlot";
+import { getWineryImageGetURL } from "../../dataServices/s3Utilities";
+import { getExperienceCoverImageDB } from "../../dataServices/pictures";
 
 export const retrieveSubscriptionsWithPrices =
   async (): Promise<ProductsResponse> => {
@@ -139,9 +141,19 @@ export const verifyCheckoutSessionStatus = async (
     );
   }
 
-  const toDts: ReservationDts[] = confirmedReservations.map((cr) => ({
-    ...cr,
-  }));
+  const toDts: ReservationDts[] = await Promise.all(
+    confirmedReservations.map(async (cr) => {
+      const coverImage = await getExperienceCoverImageDB(cr.experienceId);
+      const wineryAlias = coverImage?.experience.winery.urlAlias;
+      return {
+        ...cr,
+        getUrl:
+          coverImage && wineryAlias
+            ? getWineryImageGetURL(coverImage.imageName, wineryAlias)
+            : undefined,
+      };
+    })
+  );
 
   if (toDts.length === 0) {
     return customError("reservation", "We couldnt confirm your reservation");
@@ -275,6 +287,7 @@ export const generatePaymentLinkForReservation = async ({
         noOfAttendees: noOfVisitors,
         paymentStatus: "unpaid",
         wineryName: wineryName!,
+        experienceId: slot.experienceId,
       });
     })
   );

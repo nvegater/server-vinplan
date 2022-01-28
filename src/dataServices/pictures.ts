@@ -65,3 +65,10 @@ export const selectCoverPageImage = async (experienceId: number) => {
 export const getImagesByExperienceId = async (experienceId: number) => {
   return await ExperienceImage.find({ where: { experienceId } });
 };
+
+export const getExperienceCoverImageDB = async (experienceId: number) => {
+  return await ExperienceImage.findOne({
+    where: { experienceId, coverPage: true },
+    relations: ["experience", "experience.winery"],
+  });
+};

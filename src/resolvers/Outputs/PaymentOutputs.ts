@@ -64,6 +64,8 @@ export class ReservationDts {
   updatedAt: Date;
   @Field(() => String)
   wineryName: string;
+  @Field(() => String, { nullable: true })
+  getUrl?: string;
 }
 
 @ObjectType()
