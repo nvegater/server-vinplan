@@ -104,7 +104,8 @@ export const createExperienceWinery = async ({
     slotDates,
     createRecurrentDatesInputs.durationInMinutes,
     createRecurrentDatesInputs.slotType,
-    createExperienceInputs.limitOfAttendees
+    createExperienceInputs.limitOfAttendees,
+    createExperienceInputs.pricePerPersonInDollars
   );
 
   if (createdSlots.length === 0) {

@@ -31,17 +31,18 @@ export const getExperienceByTitle = async (title: string) => {
   });
 };
 
-export const getAllExperiencesFromFuture = async () => {
+export const getUpcomingWineryExperiences = async (wineryId: number) => {
   const now = new Date();
 
-  return await getRepository(Experience)
+  const qb = getRepository(Experience)
     .createQueryBuilder("exp")
     .select(["exp.id", "exp.title", "exp.experienceType"])
+    .andWhere("exp.wineryId = :wineryId", { wineryId })
     .leftJoin("exp.slots", "slot")
-    .where('slot."startDateTime" > :starting ', {
+    .andWhere('slot."startDateTime" > :starting ', {
       starting: now,
-    })
-    .getMany();
+    });
+  return await qb.getMany();
 };
 
 export const createEmptyExperience = async (
@@ -78,6 +79,7 @@ interface CreateSlotsInputs {
   slotType: SlotType;
   durationInMinutes: number;
   limitOfAttendees: number;
+  pricePerPersonInDollars: number;
 }
 
 export const createSlots = async (
@@ -85,7 +87,8 @@ export const createSlots = async (
   slotDates: Date[],
   slotDuration: number,
   slotType: SlotType,
-  limitOfAttendees: number
+  limitOfAttendees: number,
+  pricePerPersonInDollars: number
 ): Promise<ExperienceSlot[]> => {
   const slots = slotDates.map((slot) => {
     const createSlotInputs: CreateSlotsInputs = {
@@ -95,6 +98,7 @@ export const createSlots = async (
       slotType: slotType,
       durationInMinutes: slotDuration,
       limitOfAttendees,
+      pricePerPersonInDollars: pricePerPersonInDollars,
     };
     return ExperienceSlot.create({ ...createSlotInputs });
   });
@@ -146,6 +150,22 @@ const createQueryWithFilters = async (
 ): Promise<SelectQueryBuilder<Experience>> => {
   const qs = getRepository(Experience).createQueryBuilder("experience");
 
+  if (getUpcomingSlots) {
+    const now = new Date();
+    qs.leftJoinAndSelect("experience.slots", "slot").where(
+      'slot."startDateTime" > :starting ',
+      {
+        starting: now,
+      }
+    );
+  }
+
+  if (onlyWithAvailableSeats) {
+    qs.leftJoinAndSelect("experience.slots", "slot").where(
+      'slot."noOfAttendees" < slot."limitOfAttendees"'
+    );
+  }
+
   if (experienceName) {
     qs.andWhere("experience.title like :title", {
       title: `%${experienceName}%`,
@@ -172,22 +192,6 @@ const createQueryWithFilters = async (
       // se fuerza el error porque no hay
       qs.andWhere('experience."wineryId" = -1', { wineriesIds: wineriesIds });
     }
-  }
-
-  if (getUpcomingSlots) {
-    const now = new Date();
-    qs.leftJoinAndSelect("experience.slots", "slot").where(
-      'slot."startDateTime" > :starting ',
-      {
-        starting: now,
-      }
-    );
-  }
-
-  if (onlyWithAvailableSeats) {
-    qs.leftJoinAndSelect("experience.slots", "slot").where(
-      'slot."noOfAttendees" < slot."limitOfAttendees"'
-    );
   }
 
   return qs;

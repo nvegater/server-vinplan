@@ -1,4 +1,4 @@
-import { Arg, Authorized, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Authorized, Int, Mutation, Query, Resolver } from "type-graphql";
 import { Experience } from "../entities/Experience";
 
 import {
@@ -93,8 +93,11 @@ export class ExperienceResolvers {
     }
   }
 
+  @Authorized("owner")
   @Query(() => ExperiencesList)
-  async experiencesList(): Promise<ExperiencesList> {
-    return await getExperiencesListFromFuture();
+  async experiencesList(
+    @Arg("wineryId", () => Int) wineryId: number
+  ): Promise<ExperiencesList> {
+    return await getExperiencesListFromFuture(wineryId);
   }
 }

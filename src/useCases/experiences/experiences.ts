@@ -8,7 +8,7 @@ import {
 } from "../../resolvers/Outputs/CreateExperienceOutputs";
 import {
   experiencesWithCursor_DS,
-  getAllExperiencesFromFuture,
+  getUpcomingWineryExperiences,
   getExperienceWithSlots_DS,
   getSlotsStartingFrom,
 } from "../../dataServices/experience";
@@ -186,30 +186,31 @@ export const getExperiencesWithBookableSlots = async (
   };
 };
 
-export const getExperiencesListFromFuture =
-  async (): Promise<ExperiencesList> => {
-    const allExperiences = await getAllExperiencesFromFuture();
+export const getExperiencesListFromFuture = async (
+  wineryId: number
+): Promise<ExperiencesList> => {
+  const allExperiences = await getUpcomingWineryExperiences(wineryId);
 
-    const experienceListItems: ExperienceListItem[] = await Promise.all(
-      allExperiences.map(async (exp) => {
-        const count = await countExperienceImagesByExperienceId(exp.id);
-        return {
-          id: exp.id,
-          title: exp.title,
-          experienceType: exp.experienceType,
-          imageCount: count,
-        };
-      })
-    );
+  const experienceListItems: ExperienceListItem[] = await Promise.all(
+    allExperiences.map(async (exp) => {
+      const count = await countExperienceImagesByExperienceId(exp.id);
+      return {
+        id: exp.id,
+        title: exp.title,
+        experienceType: exp.experienceType,
+        imageCount: count,
+      };
+    })
+  );
 
-    if (experienceListItems.length === 0) {
-      return customError("", "");
-    }
+  if (experienceListItems.length === 0) {
+    return customError("noExperiences", "You have no experiences");
+  }
 
-    return {
-      experiencesList: experienceListItems,
-    };
+  return {
+    experiencesList: experienceListItems,
   };
+};
 
 export const getExperienceWithSlots = async (
   experienceId: number,
