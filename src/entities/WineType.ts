@@ -9,21 +9,23 @@ import { Winery } from "./Winery";
 import { registerEnumType } from "type-graphql";
 
 export enum TypeWine {
-  "BLANCO_JOVEN" = "Blanco joven",
+  "BLANCO" = "Blanco",
   "BLANCO_CON_BARRICA" = "Blanco con barrica",
   "ROSADO" = "Rosado",
-  "TINTO_JOVEN" = "Tinto joven",
-  "TINTO_CRIANZA_BARRICA" = "Tinto con barrica",
-  "GENEROSO_FORTIFICADO" = "Generoso / fortificado",
+  "TINTO_CRIANZA" = "Tinto crianza",
+  "TINTO_RESERVA" = "Tinto reserva",
+  "TINTO_GRAN_RESERVA" = "Tinto gran Reserva",
+  "GENEROSO_FORTIFICADO" = "Generoso / Fortificado",
   "ESPUMOSO" = "Espumoso",
+  "COSECHA" = "Cosecha Tardía",
   "NARANJA" = "Naranja",
   "DULCE" = "Dulce",
-  "COSECHA" = "Cosecha Tardía",
-  "CONMEMORATIVO_EDI_LIMITADA" = "Conmemorativos o edición limitada",
+  "NATURAL" = "Natural",
+  "CONMEMORATIVO" = "Conmemorativos / Edición limitada",
   "EXCLUSIVO_VENTA_LOCAL" = "Exclusivos de venta en el lugar",
   "ORGANICO" = "Orgánico",
   "BIODINAMICO" = "Biodinámico",
-  "NATURAL" = "Natural",
+  "OTRO" = "Otro",
 }
 
 registerEnumType(TypeWine, {
