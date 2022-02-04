@@ -12,7 +12,10 @@ import {
   getExperienceWithSlots_DS,
   getSlotsStartingFrom,
 } from "../../dataServices/experience";
-import { PaginatedExperiencesInputs } from "../../resolvers/Inputs/CreateExperienceInputs";
+import {
+  ExperienceWithSlotsInputs,
+  PaginatedExperiencesInputs,
+} from "../../resolvers/Inputs/CreateExperienceInputs";
 import { customError } from "../../resolvers/Outputs/ErrorOutputs";
 import { getWineryById_DS } from "../../dataServices/winery";
 import { notEmpty } from "../../dataServices/utils";
@@ -212,15 +215,16 @@ export const getExperiencesListFromFuture = async (
   };
 };
 
-export const getExperienceWithSlots = async (
-  experienceId: number,
-  onlyBookableSlots: boolean
-): Promise<ExperienceResponse> => {
+export const getExperienceWithSlots = async ({
+  experienceId,
+  onlyBookableSlots,
+  fromDateTime,
+  untilDateTime,
+}: ExperienceWithSlotsInputs): Promise<ExperienceResponse> => {
   const experience = await getExperienceWithSlots_DS(experienceId);
   if (experience == null) {
     return customError("experienceSlots", "Couldnt find an experience with id");
   }
-  const NOW_DATE_STRING = new Date();
 
   const getImages: GetImage[] =
     experience.images != null
@@ -241,9 +245,11 @@ export const getExperienceWithSlots = async (
     };
   }
 
+  const from = fromDateTime ? fromDateTime : new Date();
   const slotsFromTheFuture = await getSlotsStartingFrom(
     experience.id,
-    NOW_DATE_STRING,
+    from,
+    untilDateTime,
     onlyBookableSlots
   );
 

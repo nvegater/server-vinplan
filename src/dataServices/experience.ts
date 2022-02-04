@@ -118,6 +118,7 @@ export const getExperienceWithSlots_DS = async (experienceId: number) => {
 export const getSlotsStartingFrom = async (
   experienceId: number,
   starting: Date,
+  untilDateTime?: Date | null,
   withAvailablePlaces: boolean = false
 ): Promise<ExperienceSlot[]> => {
   const qs = getRepository(ExperienceSlot)
@@ -128,6 +129,12 @@ export const getSlotsStartingFrom = async (
     .andWhere('slot."startDateTime" > :starting ', {
       starting: starting,
     });
+
+  if (untilDateTime) {
+    qs.andWhere('slot."startDateTime" < :ending ', {
+      ending: untilDateTime,
+    });
+  }
 
   if (withAvailablePlaces) {
     qs.andWhere('slot."noOfAttendees" < slot."limitOfAttendees"');
@@ -146,7 +153,9 @@ const createQueryWithFilters = async (
   valley: Valley[] | null,
   wineryIds: number[] | null,
   getUpcomingSlots: boolean | null,
-  onlyWithAvailableSeats: boolean | null
+  onlyWithAvailableSeats: boolean | null,
+  fromDateTime?: Date | null,
+  untilDateTime?: Date | null
 ): Promise<SelectQueryBuilder<Experience>> => {
   const qs = getRepository(Experience).createQueryBuilder("experience");
 
@@ -158,6 +167,16 @@ const createQueryWithFilters = async (
         starting: now,
       }
     );
+  }
+  if (fromDateTime) {
+    qs.andWhere('slot."startDateTime" > :starting ', {
+      starting: fromDateTime,
+    });
+    if (untilDateTime) {
+      qs.andWhere('slot."startDateTime" < :ending ', {
+        ending: untilDateTime,
+      });
+    }
   }
 
   if (onlyWithAvailableSeats) {
@@ -214,7 +233,9 @@ export const experiencesWithCursor_DS = async ({
     experiencesFilters.valley,
     experiencesFilters.wineryIds ?? null,
     getUpcomingSlots ?? false,
-    onlyWithAvailableSeats ?? false
+    onlyWithAvailableSeats ?? false,
+    experiencesFilters.fromDateTime ?? null,
+    experiencesFilters.untilDateTime ?? null
   );
 
   const paginator = buildPaginator({

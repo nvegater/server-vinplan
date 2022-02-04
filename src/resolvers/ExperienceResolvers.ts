@@ -4,6 +4,7 @@ import { Experience } from "../entities/Experience";
 import {
   CreateExperienceInputs,
   CreateRecurrentDatesInputs,
+  ExperienceWithSlotsInputs,
   PaginatedExperiencesInputs,
 } from "./Inputs/CreateExperienceInputs";
 import {
@@ -27,10 +28,10 @@ import {
 export class ExperienceResolvers {
   @Query(() => ExperienceResponse)
   async experienceWithSlots(
-    @Arg("experienceId") experienceId: number,
-    @Arg("onlyBookableSlots") onlyBookableSlots: boolean
+    @Arg("experienceWithSlotsInputs")
+    experienceWithSlotsInputs: ExperienceWithSlotsInputs
   ): Promise<ExperienceResponse> {
-    return await getExperienceWithSlots(experienceId, onlyBookableSlots);
+    return await getExperienceWithSlots(experienceWithSlotsInputs);
   }
   @Authorized("owner")
   @Query(() => RecurrenceResponse)

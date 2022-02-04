@@ -47,4 +47,7 @@ export class WineryResolvers {
   ): Promise<WineryResponse> {
     return await confirmConnectedAccountCreation(wineryAlias);
   }
+
+  // TODO get all wineries Names with ID for the filters
+  // TODO edit winery Information
 }

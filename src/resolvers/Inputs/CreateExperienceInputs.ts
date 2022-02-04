@@ -25,6 +25,18 @@ export class CreateRecurrentDatesInputs {
 }
 
 @InputType()
+export class ExperienceWithSlotsInputs {
+  @Field()
+  experienceId: number;
+  @Field()
+  onlyBookableSlots: boolean;
+  @Field(() => Date, { nullable: true })
+  fromDateTime: Date | null;
+  @Field(() => Date, { nullable: true })
+  untilDateTime: Date | null;
+}
+
+@InputType()
 export class CreateExperienceInputs {
   @Field()
   wineryId!: number;
@@ -66,6 +78,10 @@ export class ExperiencesFilters {
   experienceName: string | null;
   @Field(() => [Int], { nullable: true })
   wineryIds: number[] | null;
+  @Field(() => Date, { nullable: true })
+  fromDateTime: Date | null;
+  @Field(() => Date, { nullable: true })
+  untilDateTime: Date | null;
 }
 
 @InputType({
