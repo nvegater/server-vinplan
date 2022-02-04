@@ -142,7 +142,7 @@ export const retrieveAllExperiencesFromWinery = async (wineryId: number) => {
 
 const createQueryWithFilters = async (
   experienceName: string | null,
-  eventType: ExperienceType[] | null,
+  experienceType: ExperienceType[] | null,
   valley: Valley[] | null,
   wineryIds: number[] | null,
   getUpcomingSlots: boolean | null,
@@ -171,9 +171,9 @@ const createQueryWithFilters = async (
       title: `%${experienceName}%`,
     });
   }
-  if (eventType) {
-    qs.andWhere('experience."eventType" IN (:...eventType)', {
-      eventType: eventType,
+  if (experienceType) {
+    qs.andWhere('experience."experienceType" IN (:...experienceType)', {
+      experienceType: experienceType,
     });
   }
   if (wineryIds) {
