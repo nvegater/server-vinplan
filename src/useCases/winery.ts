@@ -1,34 +1,52 @@
-import { GetWineryInputs, UserInputs } from "../../resolvers/Inputs/UserInputs";
-import CreateWineryInputs from "../../resolvers/Inputs/CreateWineryInputs";
-import { WineryResponse } from "../../resolvers/Outputs/WineryOutputs";
-import { Winery } from "../../entities/Winery";
+import { GetWineryInputs, UserInputs } from "../resolvers/Inputs/UserInputs";
+import {
+  CreateWineryInputs,
+  EditWineryInputs,
+} from "../resolvers/Inputs/CreateWineryInputs";
+import { WineryResponse } from "../resolvers/Outputs/WineryOutputs";
+import { Winery } from "../entities/Winery";
 import {
   createWinery_DS,
+  editWineryDb,
+  getAllWineriesNames,
   getWineryByAlias_DS,
   getWineryByUsername_DS,
   updateWineryAccountCreationTime,
-} from "../../dataServices/winery";
+} from "../dataServices/winery";
 import {
   createCheckoutSession_DS,
   createCustomer_stripe,
   getConnectedAccountById,
   getProductByName_DS,
   retrievePricesFromProduct_DS,
-} from "../../dataServices/payment";
-import { customError } from "../../resolvers/Outputs/ErrorOutputs";
+} from "../dataServices/payment";
+import { customError } from "../resolvers/Outputs/ErrorOutputs";
+
+export const editWinery = async (
+  inputs: EditWineryInputs
+): Promise<WineryResponse> => {
+  const updatedWinery = await editWineryDb(inputs);
+
+  if (updatedWinery == null) {
+    return customError("editWinery", "Error Editing winery");
+  }
+
+  return { winery: updatedWinery };
+};
+
+export const getWineriesNames = async () => {
+  return await getAllWineriesNames();
+};
 
 interface CreateWineryHookProps {
   winery: CreateWineryInputs;
   user: UserInputs;
 }
 
-type CreateWineryHookResult = Promise<WineryResponse>;
-
-type CreateWineryHook = (
-  props: CreateWineryHookProps
-) => CreateWineryHookResult;
-
-export const createWinery: CreateWineryHook = async ({ winery, user }) => {
+export const createWinery = async ({
+  winery,
+  user,
+}: CreateWineryHookProps): Promise<WineryResponse> => {
   const stripe_customer = await createCustomer_stripe({
     email: user.email,
     metadata: { username: user.username },
@@ -43,7 +61,7 @@ export const createWinery: CreateWineryHook = async ({ winery, user }) => {
 
   if (product.length > 1) {
     return {
-      errors: [{ field: "createWinery", message: "Multiple products found" }],
+      errors: [{ field: "winery", message: "Multiple products found" }],
     };
   }
 
@@ -51,7 +69,7 @@ export const createWinery: CreateWineryHook = async ({ winery, user }) => {
     return {
       errors: [
         {
-          field: "createWinery",
+          field: "winery",
           message: "Error retrieving subscription products",
         },
       ],

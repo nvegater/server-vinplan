@@ -6,7 +6,7 @@ import { SupportedLanguage } from "../../entities/WineryLanguage";
 import { Amenity } from "../../entities/WineryAmenity";
 
 @InputType()
-class CreateWineryInputs {
+export class CreateWineryInputs {
   @Field()
   name!: string;
   @Field()
@@ -40,4 +40,30 @@ class CreateWineryInputs {
   covidLabel: boolean;
 }
 
-export default CreateWineryInputs;
+@InputType()
+export class EditWineryInputs {
+  @Field()
+  wineryId!: number;
+  @Field(() => String, { nullable: true })
+  description?: string | null;
+  @Field(() => [ProductionType], { nullable: true })
+  productionType?: ProductionType[] | null;
+  @Field(() => [TypeWine], { nullable: true })
+  wineType?: TypeWine[] | null;
+  @Field(() => [SupportedLanguage], { nullable: true })
+  supportedLanguages?: SupportedLanguage[] | null;
+  @Field(() => [Amenity], { nullable: true })
+  amenities?: Amenity[] | null;
+  @Field(() => Int, { nullable: true })
+  yearlyWineProduction?: number | null;
+  @Field(() => Int, { nullable: true })
+  foundationYear?: number | null;
+  @Field(() => String, { nullable: true })
+  googleMapsUrl?: string | null;
+  @Field(() => String, { nullable: true })
+  contactEmail?: string | null;
+  @Field(() => String, { nullable: true })
+  contactPhoneNumber?: string | null;
+  @Field(() => Boolean, { nullable: true })
+  covidLabel?: boolean | null;
+}

@@ -1,22 +1,27 @@
-import { Arg, Authorized, Int, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Authorized, Mutation, Query, Resolver } from "type-graphql";
 import { Winery } from "../entities/Winery";
 
-import CreateWineryInputs from "./Inputs/CreateWineryInputs";
+import {
+  CreateWineryInputs,
+  EditWineryInputs,
+} from "./Inputs/CreateWineryInputs";
 import { GetWineryInputs, UserInputs } from "./Inputs/UserInputs";
 
 import { WineryResponse } from "./Outputs/WineryOutputs";
 
 import {
   confirmConnectedAccountCreation,
+  editWinery,
   getWinery,
-} from "../useCases/winery/createWinery";
-import { createWinery } from "../useCases/winery/createWinery";
+  getWineriesNames,
+  createWinery,
+} from "../useCases/winery";
 
 @Resolver(Winery)
 export class WineryResolvers {
-  @Query(() => Int)
-  async allWineries() {
-    return 0;
+  @Query(() => [String])
+  async allWineryNames(): Promise<string[]> {
+    return await getWineriesNames();
   }
 
   @Authorized("owner", "visitor")
@@ -36,6 +41,14 @@ export class WineryResolvers {
   }
 
   @Authorized("owner")
+  @Mutation(() => WineryResponse)
+  async editWinery(
+    @Arg("editWineryInputs") editWineryInputs: EditWineryInputs
+  ): Promise<WineryResponse> {
+    return await editWinery(editWineryInputs);
+  }
+
+  @Authorized("owner")
   @Mutation(() => WineryResponse, {
     description:
       "Trigger: winery information Page. " +
@@ -47,7 +60,4 @@ export class WineryResolvers {
   ): Promise<WineryResponse> {
     return await confirmConnectedAccountCreation(wineryAlias);
   }
-
-  // TODO get all wineries Names with ID for the filters
-  // TODO edit winery Information
 }
