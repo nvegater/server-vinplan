@@ -197,31 +197,66 @@ export const editWineryDb = async ({
   const qs = getConnection().createQueryBuilder().update(Winery);
 
   if (description) {
-    qs.set({ description });
+    await qs
+      .set({ description: description })
+      .where("id = :wineryId", {
+        wineryId,
+      })
+      .execute();
   }
 
   if (yearlyWineProduction) {
-    qs.set({ yearlyWineProduction: yearlyWineProduction });
+    await qs
+      .set({ yearlyWineProduction: yearlyWineProduction })
+      .where("id = :wineryId", {
+        wineryId,
+      })
+      .execute();
   }
 
   if (foundationYear) {
-    qs.set({ foundationYear: foundationYear });
+    await qs
+      .set({ foundationYear: foundationYear })
+      .where("id = :wineryId", {
+        wineryId,
+      })
+      .execute();
   }
 
   if (googleMapsUrl) {
-    qs.set({ googleMapsUrl: googleMapsUrl });
+    await qs
+      .set({ googleMapsUrl: googleMapsUrl })
+      .where("id = :wineryId", {
+        wineryId,
+      })
+      .execute();
   }
 
   if (contactEmail) {
-    qs.set({ contactEmail: contactEmail });
+    await qs
+      .set({ contactEmail: contactEmail })
+      .where("id = :wineryId", {
+        wineryId,
+      })
+      .execute();
   }
 
   if (contactPhoneNumber) {
-    qs.set({ contactPhoneNumber: contactPhoneNumber });
+    await qs
+      .set({ contactPhoneNumber: contactPhoneNumber })
+      .where("id = :wineryId", {
+        wineryId,
+      })
+      .execute();
   }
 
   if (covidLabel) {
-    qs.set({ covidLabel: covidLabel });
+    await qs
+      .set({ covidLabel: covidLabel })
+      .where("id = :wineryId", {
+        wineryId,
+      })
+      .execute();
   }
 
   if (productionType) {
