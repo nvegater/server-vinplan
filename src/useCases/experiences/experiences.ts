@@ -109,8 +109,17 @@ export const paginateExperiences = async ({
     };
   }
 
+  const expsWithSortedSlots: PaginatedExperience[] = experiences.map((e) => {
+    const sortedSlots = e.slots.sort(function (a, b) {
+      // Turn your strings into dates, and then subtract them
+      // to get a value that is either negative, positive, or zero.
+      return a.startDateTime.getTime() - b.startDateTime.getTime();
+    });
+    return { ...e, slots: sortedSlots };
+  });
+
   return {
-    experiences: experiences,
+    experiences: expsWithSortedSlots,
     paginationConfig: {
       beforeCursor: newBeforeCursor,
       afterCursor: newAfterCursor,

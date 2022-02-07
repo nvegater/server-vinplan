@@ -83,8 +83,8 @@ export class PaginatedExperience {
   createdAt: Date;
   @Field(() => Valley, { nullable: true })
   valley?: Valley;
-  @Field(() => [ExperienceSlot], { nullable: true })
-  slots?: ExperienceSlot[];
+  @Field(() => [ExperienceSlot])
+  slots: ExperienceSlot[];
   @Field(() => [GetImage], { nullable: true })
   images?: GetImage[];
 }
