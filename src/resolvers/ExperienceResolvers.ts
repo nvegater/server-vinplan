@@ -4,9 +4,11 @@ import { Experience } from "../entities/Experience";
 import {
   CreateExperienceInputs,
   CreateRecurrentDatesInputs,
+  EditExperienceInputs,
   PaginatedExperiencesInputs,
 } from "./Inputs/CreateExperienceInputs";
 import {
+  EditExperienceResponse,
   ExperienceResponse,
   ExperiencesList,
   PaginatedExperiences,
@@ -18,6 +20,7 @@ import { createExperienceWinery } from "../useCases/experiences/createExperience
 import {
   getExperiencesListFromFuture,
   paginateExperiences,
+  editExperience,
 } from "../useCases/experiences/experiences";
 
 @Resolver(Experience)
@@ -43,6 +46,14 @@ export class ExperienceResolvers {
       createExperienceInputs,
       createRecurrentDatesInputs,
     });
+  }
+
+  @Authorized("owner")
+  @Mutation(() => EditExperienceResponse)
+  async editExperience(
+    @Arg("editExperienceInputs") editExperienceInputs: EditExperienceInputs
+  ): Promise<EditExperienceResponse> {
+    return await editExperience(editExperienceInputs);
   }
 
   @Query(() => PaginatedExperiences)

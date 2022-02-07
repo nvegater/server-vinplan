@@ -100,6 +100,14 @@ export class ExperienceResponse {
 }
 
 @ObjectType()
+export class EditExperienceResponse {
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
+  @Field(() => Boolean, { nullable: true })
+  successfulEdit?: boolean;
+}
+
+@ObjectType()
 export class PaginatedExperiences {
   @Field(() => [FieldError], { nullable: true })
   errors?: FieldError[];

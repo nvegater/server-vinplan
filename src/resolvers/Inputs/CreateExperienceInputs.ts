@@ -52,6 +52,20 @@ export class CreateExperienceInputs {
   pricePerPersonInDollars: number;
 }
 
+@InputType()
+export class EditExperienceInputs {
+  @Field()
+  experienceId!: number;
+  @Field(() => String, { nullable: true })
+  title?: string;
+  @Field(() => String, { nullable: true })
+  description?: string;
+  @Field(() => ExperienceType, { nullable: true })
+  experienceType?: ExperienceType;
+  @Field(() => Float, { nullable: true })
+  pricePerPersonInDollars?: number;
+}
+
 @InputType({
   description:
     "BefCur:null & AftCur:null => First Page N Results (N=limit) + AftCur:Y (if more results exist)." +

@@ -6,6 +6,7 @@ import { getConnection, getRepository, SelectQueryBuilder } from "typeorm";
 import { findWineriesByValley } from "./winery";
 import { buildPaginator } from "typeorm-cursor-pagination";
 import {
+  EditExperienceInputs,
   ExperiencesFilters,
   PaginatedExperiencesInputs,
 } from "../resolvers/Inputs/CreateExperienceInputs";
@@ -270,4 +271,52 @@ export const updateSlotVisitors = async (addedVisitors: number, id: number) => {
       .execute()
   );
   return updatedSlot;
+};
+
+export const editExperienceDb = async ({
+  experienceId,
+  title,
+  description,
+  experienceType,
+  pricePerPersonInDollars,
+}: EditExperienceInputs): Promise<boolean> => {
+  const qs = getConnection().createQueryBuilder().update(Experience);
+
+  if (title) {
+    await qs
+      .set({ title: title })
+      .where("id = :experienceId", {
+        experienceId,
+      })
+      .execute();
+  }
+
+  if (description) {
+    await qs
+      .set({ description: description })
+      .where("id = :experienceId", {
+        experienceId,
+      })
+      .execute();
+  }
+
+  if (experienceType) {
+    await qs
+      .set({ experienceType: experienceType })
+      .where("id = :experienceId", {
+        experienceId,
+      })
+      .execute();
+  }
+
+  if (pricePerPersonInDollars) {
+    await qs
+      .set({ pricePerPersonInDollars: pricePerPersonInDollars })
+      .where("id = :experienceId", {
+        experienceId,
+      })
+      .execute();
+  }
+
+  return true;
 };

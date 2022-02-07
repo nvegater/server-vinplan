@@ -1,15 +1,20 @@
 import { Experience } from "../../entities/Experience";
 import {
+  EditExperienceResponse,
   ExperienceListItem,
   ExperiencesList,
   PaginatedExperience,
   PaginatedExperiences,
 } from "../../resolvers/Outputs/CreateExperienceOutputs";
 import {
+  editExperienceDb,
   experiencesWithCursor_DS,
   getUpcomingWineryExperiences,
 } from "../../dataServices/experience";
-import { PaginatedExperiencesInputs } from "../../resolvers/Inputs/CreateExperienceInputs";
+import {
+  EditExperienceInputs,
+  PaginatedExperiencesInputs,
+} from "../../resolvers/Inputs/CreateExperienceInputs";
 import { customError } from "../../resolvers/Outputs/ErrorOutputs";
 import { getWineryById_DS } from "../../dataServices/winery";
 import { notEmpty } from "../../dataServices/utils";
@@ -127,4 +132,15 @@ export const paginateExperiences = async ({
       moreResults: moreResults,
     },
   };
+};
+
+export const editExperience = async (
+  inputs: EditExperienceInputs
+): Promise<EditExperienceResponse> => {
+  const isUpdatedExperience = await editExperienceDb(inputs);
+
+  if (!isUpdatedExperience)
+    return customError("editExperience", "Error updating experience");
+
+  return { successfulEdit: isUpdatedExperience };
 };
