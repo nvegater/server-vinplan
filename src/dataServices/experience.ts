@@ -3,10 +3,12 @@ import { Experience, ExperienceType } from "../entities/Experience";
 import { ExperienceSlot, SlotType } from "../entities/ExperienceSlot";
 import { typeReturn } from "./utils";
 import { getConnection, getRepository, SelectQueryBuilder } from "typeorm";
-import { Valley } from "../entities/Winery";
 import { findWineriesByValley } from "./winery";
 import { buildPaginator } from "typeorm-cursor-pagination";
-import { PaginatedExperiencesInputs } from "../resolvers/Inputs/CreateExperienceInputs";
+import {
+  ExperiencesFilters,
+  PaginatedExperiencesInputs,
+} from "../resolvers/Inputs/CreateExperienceInputs";
 
 interface CreateExperienceInputs {
   wineryId: number;
@@ -147,19 +149,18 @@ export const retrieveAllExperiencesFromWinery = async (wineryId: number) => {
   return await Experience.find({ where: { wineryId } });
 };
 
-const createQueryWithFilters = async (
-  experienceName: string | null,
-  experienceType: ExperienceType[] | null,
-  valley: Valley[] | null,
-  wineryIds: number[] | null,
-  getUpcomingSlots: boolean | null,
-  onlyWithAvailableSeats: boolean | null,
-  fromDateTime?: Date | null,
-  untilDateTime?: Date | null
-): Promise<SelectQueryBuilder<Experience>> => {
+const createQueryWithFilters = async ({
+  hasSlotsInFuture,
+  fromDateTime,
+  untilDateTime,
+  experienceName,
+  experienceType,
+  wineryIds,
+  valley,
+}: ExperiencesFilters): Promise<SelectQueryBuilder<Experience>> => {
   const qs = getRepository(Experience).createQueryBuilder("experience");
 
-  if (getUpcomingSlots) {
+  if (hasSlotsInFuture) {
     const now = new Date();
     qs.leftJoinAndSelect("experience.slots", "slot").where(
       'slot."startDateTime" > :starting ',
@@ -177,12 +178,6 @@ const createQueryWithFilters = async (
         ending: untilDateTime,
       });
     }
-  }
-
-  if (onlyWithAvailableSeats) {
-    qs.leftJoinAndSelect("experience.slots", "slot").where(
-      'slot."noOfAttendees" < slot."limitOfAttendees"'
-    );
   }
 
   if (experienceName) {
@@ -222,42 +217,29 @@ type ExperiencesCursorPagination = [
   boolean
 ];
 export const experiencesWithCursor_DS = async ({
-  paginationConfig,
-  experiencesFilters,
-  getUpcomingSlots,
-  onlyWithAvailableSeats,
+  pagination,
+  filters,
 }: PaginatedExperiencesInputs): Promise<ExperiencesCursorPagination> => {
-  const qs = await createQueryWithFilters(
-    experiencesFilters.experienceName,
-    experiencesFilters.experienceType,
-    experiencesFilters.valley,
-    experiencesFilters.wineryIds ?? null,
-    getUpcomingSlots ?? false,
-    onlyWithAvailableSeats ?? false,
-    experiencesFilters.fromDateTime ?? null,
-    experiencesFilters.untilDateTime ?? null
-  );
+  const qs = await createQueryWithFilters(filters);
 
   const paginator = buildPaginator({
     entity: Experience,
     paginationKeys: ["createdAt"],
     query: {
-      limit: paginationConfig.limit,
+      limit: pagination.limit,
       order: "DESC",
-      beforeCursor: paginationConfig.beforeCursor
-        ? paginationConfig.beforeCursor
+      beforeCursor: pagination.beforeCursor
+        ? pagination.beforeCursor
         : undefined,
-      afterCursor: paginationConfig.afterCursor
-        ? paginationConfig.afterCursor
-        : undefined,
+      afterCursor: pagination.afterCursor ? pagination.afterCursor : undefined,
     },
   });
 
   const { data, cursor: cursorObj } = await paginator.paginate(qs);
 
-  const experiences = data.slice(0, paginationConfig.limit);
+  const experiences = data.slice(0, pagination.limit);
 
-  const hasMore = experiences.length === paginationConfig.limit;
+  const hasMore = experiences.length === pagination.limit;
 
   return [experiences, cursorObj.beforeCursor, cursorObj.afterCursor, hasMore];
 };

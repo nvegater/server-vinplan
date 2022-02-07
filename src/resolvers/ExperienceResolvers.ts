@@ -4,12 +4,11 @@ import { Experience } from "../entities/Experience";
 import {
   CreateExperienceInputs,
   CreateRecurrentDatesInputs,
-  ExperienceWithSlotsInputs,
   PaginatedExperiencesInputs,
 } from "./Inputs/CreateExperienceInputs";
 import {
-  ExperiencesList,
   ExperienceResponse,
+  ExperiencesList,
   PaginatedExperiences,
   RecurrenceResponse,
 } from "./Outputs/CreateExperienceOutputs";
@@ -18,21 +17,11 @@ import { generateRecurrence } from "../useCases/experiences/recurrent/recurrence
 import { createExperienceWinery } from "../useCases/experiences/createExperience";
 import {
   getExperiencesListFromFuture,
-  getExperiencesWithBookableSlots,
-  getExperiencesWithEditableSlots,
-  getExperienceWithSlots,
-  getPaginatedExperiences,
+  paginateExperiences,
 } from "../useCases/experiences/experiences";
 
 @Resolver(Experience)
 export class ExperienceResolvers {
-  @Query(() => ExperienceResponse)
-  async experienceWithSlots(
-    @Arg("experienceWithSlotsInputs")
-    experienceWithSlotsInputs: ExperienceWithSlotsInputs
-  ): Promise<ExperienceResponse> {
-    return await getExperienceWithSlots(experienceWithSlotsInputs);
-  }
   @Authorized("owner")
   @Query(() => RecurrenceResponse)
   recurrentDates(
@@ -61,37 +50,7 @@ export class ExperienceResolvers {
     @Arg("paginatedExperiencesInputs")
     paginatedExperiencesInputs: PaginatedExperiencesInputs
   ): Promise<PaginatedExperiences> {
-    try {
-      return await getPaginatedExperiences(paginatedExperiencesInputs);
-    } catch (error) {
-      throw new Error(error);
-    }
-  }
-
-  // Requires Auth because is only for wineries and its an expensive operation
-  @Authorized("owner")
-  @Query(() => PaginatedExperiences)
-  async editableExperiences(
-    @Arg("paginatedExperiencesInputs")
-    paginatedExperiencesInputs: PaginatedExperiencesInputs
-  ): Promise<PaginatedExperiences> {
-    try {
-      return await getExperiencesWithEditableSlots(paginatedExperiencesInputs);
-    } catch (error) {
-      throw new Error(error);
-    }
-  }
-
-  @Query(() => PaginatedExperiences)
-  async bookableExperiences(
-    @Arg("paginatedExperiencesInputs")
-    paginatedExperiencesInputs: PaginatedExperiencesInputs
-  ): Promise<PaginatedExperiences> {
-    try {
-      return await getExperiencesWithBookableSlots(paginatedExperiencesInputs);
-    } catch (error) {
-      throw new Error(error);
-    }
+    return await paginateExperiences(paginatedExperiencesInputs);
   }
 
   @Authorized("owner")

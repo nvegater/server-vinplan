@@ -1,7 +1,6 @@
 import { Experience } from "../../entities/Experience";
 import {
   ExperienceListItem,
-  ExperienceResponse,
   ExperiencesList,
   PaginatedExperience,
   PaginatedExperiences,
@@ -9,13 +8,8 @@ import {
 import {
   experiencesWithCursor_DS,
   getUpcomingWineryExperiences,
-  getExperienceWithSlots_DS,
-  getSlotsStartingFrom,
 } from "../../dataServices/experience";
-import {
-  ExperienceWithSlotsInputs,
-  PaginatedExperiencesInputs,
-} from "../../resolvers/Inputs/CreateExperienceInputs";
+import { PaginatedExperiencesInputs } from "../../resolvers/Inputs/CreateExperienceInputs";
 import { customError } from "../../resolvers/Outputs/ErrorOutputs";
 import { getWineryById_DS } from "../../dataServices/winery";
 import { notEmpty } from "../../dataServices/utils";
@@ -55,139 +49,12 @@ async function includeDeps(paginatedExperiences: Experience[]) {
         createdAt: dbExp.createdAt,
         slots: dbExp.slots,
         images: gettableImages,
+        valley: winery.valley,
       } as PaginatedExperience;
     })
   );
   return experiences.filter(notEmpty);
 }
-
-export const getPaginatedExperiences = async (
-  paginatedExperiencesInputs: PaginatedExperiencesInputs
-): Promise<PaginatedExperiences> => {
-  const realLimit = Math.min(
-    20,
-    paginatedExperiencesInputs.paginationConfig.limit
-  );
-
-  const [paginatedExperiences, beforeCursor, afterCursor, moreResults] =
-    await experiencesWithCursor_DS({
-      ...paginatedExperiencesInputs,
-      paginationConfig: {
-        ...paginatedExperiencesInputs.paginationConfig,
-        limit: realLimit,
-      },
-    });
-
-  const experiences: PaginatedExperience[] = await includeDeps(
-    paginatedExperiences
-  );
-
-  return {
-    experiences: experiences,
-    paginationConfig: {
-      beforeCursor: beforeCursor,
-      afterCursor: afterCursor,
-      limit: realLimit,
-      moreResults: moreResults,
-    },
-  };
-};
-
-export const getExperiencesWithEditableSlots = async (
-  paginatedExperiencesInputs: PaginatedExperiencesInputs
-): Promise<PaginatedExperiences> => {
-  const realLimit = Math.min(
-    20,
-    paginatedExperiencesInputs.paginationConfig.limit
-  );
-  const [paginatedExperiences, beforeCursor, afterCursor, moreResults] =
-    await experiencesWithCursor_DS({
-      ...paginatedExperiencesInputs,
-      paginationConfig: {
-        ...paginatedExperiencesInputs.paginationConfig,
-        limit: realLimit,
-      },
-      getUpcomingSlots: true,
-    });
-
-  const experiences: PaginatedExperience[] = await includeDeps(
-    paginatedExperiences
-  );
-
-  return {
-    experiences: experiences,
-    paginationConfig: {
-      beforeCursor: beforeCursor,
-      afterCursor: afterCursor,
-      limit: realLimit,
-      moreResults: moreResults,
-    },
-  };
-};
-
-export const getExperiencesWithBookableSlots = async (
-  paginatedExperiencesInputs: PaginatedExperiencesInputs
-): Promise<PaginatedExperiences> => {
-  const realLimit = Math.min(
-    20,
-    paginatedExperiencesInputs.paginationConfig.limit
-  );
-
-  const [paginatedExperiences, beforeCursor, afterCursor, moreResults] =
-    await experiencesWithCursor_DS({
-      ...paginatedExperiencesInputs,
-      paginationConfig: {
-        ...paginatedExperiencesInputs.paginationConfig,
-        limit: realLimit,
-      },
-      getUpcomingSlots: true,
-    });
-
-  if (paginatedExperiences.length === 0) {
-    const errorObject = customError(
-      "experiencesPagination",
-      "Couldnt find any bookable experiences"
-    );
-
-    return {
-      ...errorObject,
-      paginationConfig: {
-        afterCursor,
-        beforeCursor,
-        limit: realLimit,
-        moreResults: false,
-      },
-    };
-  }
-  const experiences: PaginatedExperience[] = await includeDeps(
-    paginatedExperiences
-  );
-
-  if (experiences.length === 0) {
-    return {
-      ...customError(
-        "experiencesWinery",
-        "Couldnt attach winery information to the experience"
-      ),
-      paginationConfig: {
-        afterCursor,
-        beforeCursor,
-        limit: realLimit,
-        moreResults: false,
-      },
-    };
-  }
-
-  return {
-    experiences: experiences,
-    paginationConfig: {
-      afterCursor,
-      beforeCursor,
-      limit: realLimit,
-      moreResults: moreResults,
-    },
-  };
-};
 
 export const getExperiencesListFromFuture = async (
   wineryId: number
@@ -215,58 +82,40 @@ export const getExperiencesListFromFuture = async (
   };
 };
 
-export const getExperienceWithSlots = async ({
-  experienceId,
-  onlyBookableSlots,
-  fromDateTime,
-  untilDateTime,
-}: ExperienceWithSlotsInputs): Promise<ExperienceResponse> => {
-  const experience = await getExperienceWithSlots_DS(experienceId);
-  if (experience == null) {
-    return customError("experienceSlots", "Couldnt find an experience with id");
-  }
+export const paginateExperiences = async ({
+  pagination,
+  filters,
+}: PaginatedExperiencesInputs): Promise<PaginatedExperiences> => {
+  // In case the param Exceeds 20 exps
+  const realLimit = Math.min(20, pagination.limit);
 
-  const getImages: GetImage[] =
-    experience.images != null
-      ? experience.images.map((i) => ({
-          id: i.id,
-          imageName: i.imageName,
-          getUrl: getWineryImageGetURL(i.imageName, experience.winery.urlAlias),
-        }))
-      : [];
-
-  if (!onlyBookableSlots) {
-    return {
-      experience: {
-        ...experience,
-        wineryName: experience.winery.name,
-        images: getImages,
+  const [paginatedExperiences, newBeforeCursor, newAfterCursor, moreResults] =
+    await experiencesWithCursor_DS({
+      filters: filters,
+      pagination: {
+        ...pagination,
+        limit: realLimit,
       },
+    });
+
+  const experiences: PaginatedExperience[] = await includeDeps(
+    paginatedExperiences
+  );
+
+  if (experiences.length === 0) {
+    return {
+      ...customError("experiencesPagination", "Couldnt find any experiences"),
+      paginationConfig: { ...pagination, moreResults: false },
     };
   }
 
-  const from = fromDateTime ? fromDateTime : new Date();
-  const slotsFromTheFuture = await getSlotsStartingFrom(
-    experience.id,
-    from,
-    untilDateTime,
-    onlyBookableSlots
-  );
-
-  if (slotsFromTheFuture.length === 0) {
-    return customError(
-      "slots",
-      "There are no slots available for that Experience"
-    );
-  }
-
-  const expWBookableSlots: PaginatedExperience = {
-    ...experience,
-    wineryName: experience.winery.name,
-    valley: experience.winery.valley,
-    images: getImages,
-    slots: slotsFromTheFuture,
+  return {
+    experiences: experiences,
+    paginationConfig: {
+      beforeCursor: newBeforeCursor,
+      afterCursor: newAfterCursor,
+      limit: realLimit,
+      moreResults: moreResults,
+    },
   };
-
-  return { experience: expWBookableSlots };
 };

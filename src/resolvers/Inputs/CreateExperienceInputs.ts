@@ -82,6 +82,8 @@ export class ExperiencesFilters {
   fromDateTime: Date | null;
   @Field(() => Date, { nullable: true })
   untilDateTime: Date | null;
+  @Field(() => Boolean, { nullable: true })
+  hasSlotsInFuture?: boolean | null;
 }
 
 @InputType({
@@ -102,11 +104,7 @@ export class ExperiencesFilters {
 })
 export class PaginatedExperiencesInputs {
   @Field(() => CursorPaginationInput)
-  paginationConfig: CursorPaginationInput;
+  pagination: CursorPaginationInput;
   @Field(() => ExperiencesFilters)
-  experiencesFilters: ExperiencesFilters;
-  @Field(() => Boolean, { nullable: true })
-  getUpcomingSlots?: boolean | null;
-  @Field(() => Boolean, { nullable: true })
-  onlyWithAvailableSeats?: boolean | null;
+  filters: ExperiencesFilters;
 }
