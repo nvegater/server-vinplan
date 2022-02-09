@@ -195,6 +195,22 @@ async function createStripeCustomerAndPersistInWenoDB(
   });
 }
 
+// force the creation of the customer if there is not an existing one
+export const getExistingCustomer = async (
+  createCustomerInputs: CreateCustomerInputs
+): Promise<CustomerResponse> => {
+  const existingCustomer = await getCustomerByEmail(createCustomerInputs.email);
+  if (existingCustomer) {
+    return { customer: existingCustomer };
+  }
+
+  const weno_customer = await createStripeCustomerAndPersistInWenoDB(
+    createCustomerInputs
+  );
+
+  return { customer: weno_customer };
+};
+
 export const createCustomer = async (
   createCustomerInputs: CreateCustomerInputs
 ): Promise<CustomerResponse> => {

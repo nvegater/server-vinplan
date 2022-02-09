@@ -110,17 +110,10 @@ export const getWinery = async ({
     ? await getWineryByUsername_DS(creatorUsername)
     : null;
 
-  if (winery === null) {
-    return {
-      errors: [
-        { message: "Provide a username or a url alias", field: "winery" },
-      ],
-    };
+  if (winery == null) {
+    return customError("winery", "Not found");
   }
 
-  if (winery === undefined) {
-    return { errors: [{ message: "Not found", field: "winery" }] };
-  }
   return { winery: winery };
 };
 

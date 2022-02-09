@@ -13,6 +13,7 @@ import {
   createCustomer,
   generatePaymentLinkForReservation,
   getCustomerSubscription,
+  getExistingCustomer,
   onboardingUrlLink,
   retrieveSubscriptionsWithPrices,
   verifyCheckoutSessionStatus,
@@ -34,6 +35,14 @@ export class PaymentsResolvers {
     @Arg("createCustomerInputs") createCustomerInputs: CreateCustomerInputs
   ): Promise<CustomerResponse> {
     return await createCustomer({ ...createCustomerInputs });
+  }
+
+  @Authorized()
+  @Query(() => CustomerResponse)
+  async customer(
+    @Arg("createCustomerInputs") createCustomerInputs: CreateCustomerInputs
+  ): Promise<CustomerResponse> {
+    return await getExistingCustomer(createCustomerInputs);
   }
 
   @Query(() => ProductsResponse)
