@@ -38,7 +38,10 @@ export class CustomerResolvers {
   }
 
   @Authorized()
-  @Query(() => CustomerResponse)
+  @Query(() => CustomerResponse, {
+    description:
+      "This will create a customer if the given inputs dont match an existing one",
+  })
   async customer(
     @Arg("createCustomerInputs") createCustomerInputs: CreateCustomerInputs
   ): Promise<CustomerResponse> {
