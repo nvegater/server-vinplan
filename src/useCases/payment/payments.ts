@@ -11,6 +11,7 @@ import {
 import {
   CheckoutLinkResponse,
   CheckoutSessionResponse,
+  CustomerReservationResponse,
   CustomerResponse,
   OnboardingResponse,
   ProductsResponse,
@@ -37,6 +38,7 @@ import {
 import {
   confirmReservationPayment,
   createReservation,
+  reservationsByEmail,
 } from "../../dataServices/reservation";
 import { Reservation } from "../../entities/Reservation";
 import { ExperienceSlot } from "../../entities/ExperienceSlot";
@@ -93,6 +95,38 @@ export const retrieveSubscriptionsWithPrices =
       products: productsWithPrice,
     };
   };
+
+export const retrieveCustomerReservations = async (
+  email: string
+): Promise<CustomerReservationResponse> => {
+  const reservations = await reservationsByEmail(email);
+
+  if (reservations == null) {
+    return customError("reservations", "Error getting customer reservations");
+  }
+
+  const resWithImages: ReservationDts[] = await Promise.all(
+    reservations.map(async (cr) => {
+      const coverImage = await getExperienceCoverImageDB(cr.experienceId);
+      const wineryAlias = coverImage?.experience.winery.urlAlias;
+      return {
+        ...cr,
+        getUrl:
+          coverImage && wineryAlias
+            ? getWineryImageGetURL(coverImage.imageName, wineryAlias)
+            : undefined,
+      };
+    })
+  );
+
+  const resSortedWithImages = resWithImages.sort(
+    (a, b) => a.startDateTime.getTime() - b.startDateTime.getTime()
+  );
+
+  return { reservations: resSortedWithImages };
+};
+
+// use this as guide
 
 export const verifyCheckoutSessionStatus = async (
   sessionId: string

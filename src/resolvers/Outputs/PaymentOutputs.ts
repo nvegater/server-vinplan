@@ -69,6 +69,14 @@ export class ReservationDts {
 }
 
 @ObjectType()
+export class CustomerReservationResponse {
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
+  @Field(() => [ReservationDts], { nullable: true })
+  reservations?: ReservationDts[];
+}
+
+@ObjectType()
 export class CheckoutSessionResponse {
   @Field(() => [FieldError], { nullable: true })
   errors?: FieldError[];

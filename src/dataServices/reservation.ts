@@ -22,6 +22,12 @@ export const createReservation = async (props: CreateReservationInputs) => {
   return reservation;
 };
 
+export const reservationsByEmail = async (
+  email: string
+): Promise<Reservation[]> => {
+  return await Reservation.find({ where: { email } });
+};
+
 export const confirmReservationPayment = async (ids: number[]) => {
   return await Promise.all(
     ids.map(async (id) => {

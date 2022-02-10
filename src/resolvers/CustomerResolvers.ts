@@ -3,6 +3,7 @@ import { Customer } from "../entities/Customer";
 import {
   CheckoutLinkResponse,
   CheckoutSessionResponse,
+  CustomerReservationResponse,
   CustomerResponse,
   OnboardingResponse,
   ProductsResponse,
@@ -15,6 +16,7 @@ import {
   getCustomerSubscription,
   getExistingCustomer,
   onboardingUrlLink,
+  retrieveCustomerReservations,
   retrieveSubscriptionsWithPrices,
   verifyCheckoutSessionStatus,
 } from "../useCases/payment/payments";
@@ -37,7 +39,7 @@ export class CustomerResolvers {
     return await createCustomer({ ...createCustomerInputs });
   }
 
-  @Authorized()
+  @Authorized("owner", "visitor")
   @Query(() => CustomerResponse, {
     description:
       "This will create a customer if the given inputs dont match an existing one",
@@ -46,6 +48,14 @@ export class CustomerResolvers {
     @Arg("createCustomerInputs") createCustomerInputs: CreateCustomerInputs
   ): Promise<CustomerResponse> {
     return await getExistingCustomer(createCustomerInputs);
+  }
+
+  @Authorized("owner", "visitor")
+  @Query(() => CustomerReservationResponse)
+  async getCustomerReservations(
+    @Arg("email") email: string
+  ): Promise<CustomerReservationResponse> {
+    return await retrieveCustomerReservations(email);
   }
 
   @Query(() => ProductsResponse)
