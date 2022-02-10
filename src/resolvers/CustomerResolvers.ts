@@ -28,7 +28,7 @@ import {
  * 5. Provision the prduct after checking that the status is active and show Succesfull payment screen (Dashboard)
  * */
 @Resolver(Customer)
-export class PaymentsResolvers {
+export class CustomerResolvers {
   @Authorized()
   @Mutation(() => CustomerResponse)
   async createCustomer(

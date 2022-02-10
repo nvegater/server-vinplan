@@ -16,7 +16,7 @@ import { ExperienceResolvers } from "./resolvers/ExperienceResolvers";
 import { ReservationResolvers } from "./resolvers/ReservationResolvers";
 import { WineryResolvers } from "./resolvers/WineryResolvers";
 import { keycloakAuthChecker } from "./utils/auth/keycloak";
-import { PaymentsResolvers } from "./resolvers/PaymentsResolvers";
+import { CustomerResolvers } from "./resolvers/CustomerResolvers";
 import { PresignedResolver } from "./resolvers/PresignedUrlsResolvers";
 import { _prod_ } from "./constants";
 
@@ -36,7 +36,7 @@ const buildSchemas = async () => {
     PresignedResolver,
     ReservationResolvers,
     WineryResolvers,
-    PaymentsResolvers,
+    CustomerResolvers,
   ];
 
   return await buildSchema({
