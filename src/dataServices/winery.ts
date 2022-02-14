@@ -16,6 +16,12 @@ import { Amenity, WineryAmenity } from "../entities/WineryAmenity";
 
 export const getWineryByUsername_DS = async (creatorUsername: string) => {
   return await Winery.findOne({
+    relations: [
+      "productionType",
+      "wineType",
+      "supportedLanguages",
+      "amenities",
+    ],
     where: {
       creatorUsername: creatorUsername,
     },
@@ -24,6 +30,12 @@ export const getWineryByUsername_DS = async (creatorUsername: string) => {
 
 export const getWineryByAlias_DS = async (urlAlias: string) => {
   return await Winery.findOne({
+    relations: [
+      "productionType",
+      "wineType",
+      "supportedLanguages",
+      "amenities",
+    ],
     where: {
       urlAlias: urlAlias,
     },
@@ -46,39 +58,91 @@ export const getWineryById_DS = async (id: number) => {
 };
 
 interface CreateWineryProps_DS {
-  winery: CreateWineryInputs;
+  wineryInputs: CreateWineryInputs;
   user: UserInputs;
   stripeCustomerId: string;
 }
 type CreateWineryFn_DS = (props: CreateWineryProps_DS) => Promise<Winery>;
 export const createWinery_DS: CreateWineryFn_DS = async ({
-  winery,
+  wineryInputs,
   user,
   stripeCustomerId,
 }) => {
   const wineryEntity = Winery.create({
-    ...winery,
+    ...wineryInputs,
     stripe_customerId: stripeCustomerId,
     creatorUsername: user.username,
     creatorEmail: user.email,
-    subscription: winery.subscription,
-    wineType: [], // TODO: Nico make this fields optional
+    subscription: wineryInputs.subscription,
+    wineType: [],
     productionType: [],
     supportedLanguages: [],
-    amenities: [], // // TODO: Nico make this fields optional
+    amenities: [],
   });
   await wineryEntity.save();
 
-  const wineTypes = winery.wineType.map((wineType) => {
+  const wineTypes = wineryInputs.wineType.map((wineType) => {
     return WineType.create({
       wineryId: wineryEntity.id,
       wineType: wineType,
     });
   });
 
-  wineTypes.map(async (wineTypeEntity) => {
-    await wineTypeEntity.save();
+  await Promise.all(
+    wineTypes.map(async (wineTypeEntity) => {
+      await wineTypeEntity.save();
+    })
+  );
+  wineryEntity.wineType = wineTypes;
+
+  const productionTypes = wineryInputs.productionType.map((prodType) => {
+    return WineProductionType.create({
+      wineryId: wineryEntity.id,
+      productionType: prodType,
+    });
   });
+
+  await Promise.all(
+    productionTypes.map(async (e) => {
+      await e.save();
+    })
+  );
+  wineryEntity.productionType = productionTypes;
+
+  const languages = wineryInputs.supportedLanguages
+    ? wineryInputs.supportedLanguages.map((language) => {
+        return WineryLanguage.create({
+          wineryId: wineryEntity.id,
+          supportedLanguage: language,
+        });
+      })
+    : [];
+
+  await Promise.all(
+    languages.map(async (e) => {
+      await e.save();
+    })
+  );
+  wineryEntity.supportedLanguages = languages;
+
+  const amenities = wineryInputs.amenities
+    ? wineryInputs.amenities.map((amen) => {
+        return WineryAmenity.create({
+          wineryId: wineryEntity.id,
+          amenity: amen,
+        });
+      })
+    : [];
+
+  await Promise.all(
+    amenities.map(async (e) => {
+      await e.save();
+    })
+  );
+
+  wineryEntity.amenities = amenities;
+
+  await wineryEntity.save();
 
   return wineryEntity;
 };
@@ -260,25 +324,29 @@ export const editWineryDb = async ({
   }
 
   if (productionType) {
-    for (const newPt in productionType) {
-      await addProductionTypeIfMissing(newPt as ProductionType, wineryId);
+    for (let i = 0; i < productionType.length; i += 1) {
+      const prodType = productionType[i] as ProductionType;
+      await addProductionTypeIfMissing(prodType, wineryId);
     }
   }
 
   if (wineType) {
-    for (const newWT in wineType) {
-      await addWineTypeIfMissing(newWT as TypeWine, wineryId);
+    for (let i = 0; i < wineType.length; i += 1) {
+      const newWt = wineType[i] as TypeWine;
+      await addWineTypeIfMissing(newWt, wineryId);
     }
   }
 
   if (supportedLanguages) {
-    for (const newSL in supportedLanguages) {
+    for (let i = 0; i < supportedLanguages.length; i += 1) {
+      const newSL = supportedLanguages[i] as SupportedLanguage;
       await addSupportedLanguageIfMissing(newSL as SupportedLanguage, wineryId);
     }
   }
 
   if (amenities) {
-    for (const newAmen in amenities) {
+    for (let i = 0; i < amenities.length; i += 1) {
+      const newAmen = amenities[i] as Amenity;
       await addAmenititesIfMissing(newAmen as Amenity, wineryId);
     }
   }

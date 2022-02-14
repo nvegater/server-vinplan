@@ -3,7 +3,7 @@ import {
   CreateWineryInputs,
   EditWineryInputs,
 } from "../resolvers/Inputs/CreateWineryInputs";
-import { WineryResponse } from "../resolvers/Outputs/WineryOutputs";
+import { WineryDts, WineryResponse } from "../resolvers/Outputs/WineryOutputs";
 import { Winery } from "../entities/Winery";
 import {
   createWinery_DS,
@@ -22,6 +22,18 @@ import {
 } from "../dataServices/payment";
 import { customError } from "../resolvers/Outputs/ErrorOutputs";
 
+export const mapWineryToDts = (winery: Winery): WineryDts => ({
+  ...winery,
+  wineType: winery.wineType ? winery.wineType.map((w) => w.wineType) : [],
+  productionType: winery.productionType
+    ? winery.productionType.map((w) => w.productionType)
+    : [],
+  supportedLanguages: winery.supportedLanguages
+    ? winery.supportedLanguages?.map((w) => w.supportedLanguage)
+    : [],
+  amenities: winery.amenities ? winery.amenities?.map((w) => w.amenity) : [],
+});
+
 export const editWinery = async (
   inputs: EditWineryInputs
 ): Promise<WineryResponse> => {
@@ -31,7 +43,7 @@ export const editWinery = async (
     return customError("editWinery", "Error Editing winery");
   }
 
-  return { winery: updatedWinery };
+  return { winery: mapWineryToDts(updatedWinery) };
 };
 
 export const getWineriesNames = async () => {
@@ -51,8 +63,8 @@ export const createWinery = async ({
     email: user.email,
     metadata: { username: user.username },
   });
-  const createdWinery = await createWinery_DS({
-    winery,
+  await createWinery_DS({
+    wineryInputs: winery,
     user,
     stripeCustomerId: stripe_customer.id,
   });
@@ -92,7 +104,7 @@ export const createWinery = async ({
   });
 
   return stripe_checkoutSessionId.url
-    ? { sessionUrl: stripe_checkoutSessionId.url, winery: createdWinery }
+    ? { sessionUrl: stripe_checkoutSessionId.url }
     : {
         errors: [
           { field: "checkout", message: "Url not available for this checkout" },
@@ -103,7 +115,7 @@ export const createWinery = async ({
 export const getWinery = async ({
   urlAlias,
   creatorUsername,
-}: GetWineryInputs) => {
+}: GetWineryInputs): Promise<WineryResponse> => {
   const winery: Winery | undefined | null = urlAlias
     ? await getWineryByAlias_DS(urlAlias)
     : creatorUsername
@@ -114,7 +126,17 @@ export const getWinery = async ({
     return customError("winery", "Not found");
   }
 
-  return { winery: winery };
+  const wineryDts = {
+    ...winery,
+    wineType: winery.wineType.map((w) => w.wineType),
+    productionType: winery.productionType.map((w) => w.productionType),
+    supportedLanguages: winery.supportedLanguages?.map(
+      (w) => w.supportedLanguage
+    ),
+    amenities: winery.amenities?.map((w) => w.amenity),
+  };
+
+  return { winery: wineryDts };
 };
 
 export const confirmConnectedAccountCreation = async (
@@ -144,5 +166,6 @@ export const confirmConnectedAccountCreation = async (
     winery.accountCreatedTime === -1
       ? await updateWineryAccountCreationTime(wineryAlias, account.created)
       : winery;
-  return { winery: updatedWinery };
+
+  return { winery: mapWineryToDts(updatedWinery) };
 };

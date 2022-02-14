@@ -18,9 +18,9 @@ export class CreateWineryInputs {
   @Field(() => Valley)
   valley!: Valley;
   @Field(() => [ProductionType])
-  productionType!: ProductionType[];
+  productionType: ProductionType[];
   @Field(() => [TypeWine])
-  wineType!: TypeWine[];
+  wineType: TypeWine[];
   @Field(() => [SupportedLanguage], { nullable: true })
   supportedLanguages?: SupportedLanguage[];
   @Field(() => [Amenity], { nullable: true })
