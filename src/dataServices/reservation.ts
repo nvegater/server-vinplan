@@ -43,3 +43,16 @@ export const confirmReservationPayment = async (ids: number[]) => {
     })
   );
 };
+
+export const getReservationsFromExperienceIds = async (
+  experienceIds: number[]
+) => {
+  return await getConnection()
+    .createQueryBuilder(Reservation, "res")
+    .leftJoinAndSelect("res.slot", "slot") // to load the relationships
+    .where("res.experienceId IN (:...experienceIds)", {
+      experienceIds: experienceIds,
+    })
+    .orderBy("res.startDateTime")
+    .getMany();
+};

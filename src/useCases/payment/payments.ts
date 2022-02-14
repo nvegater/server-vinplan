@@ -15,7 +15,6 @@ import {
   CustomerResponse,
   OnboardingResponse,
   ProductsResponse,
-  ReservationDts,
 } from "../../resolvers/Outputs/PaymentOutputs";
 import { CreateCustomerInputs } from "../../resolvers/Inputs/CreateCustomerInputs";
 import { Product } from "../../entities/Product";
@@ -44,6 +43,7 @@ import { Reservation } from "../../entities/Reservation";
 import { ExperienceSlot } from "../../entities/ExperienceSlot";
 import { getWineryImageGetURL } from "../../dataServices/s3Utilities";
 import { getExperienceCoverImageDB } from "../../dataServices/pictures";
+import { ReservationDts } from "../../resolvers/ReservationResolvers";
 
 export const retrieveSubscriptionsWithPrices =
   async (): Promise<ProductsResponse> => {
