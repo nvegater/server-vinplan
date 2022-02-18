@@ -1,4 +1,4 @@
-FROM node:14
+FROM node:16
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -9,7 +9,7 @@ WORKDIR /usr/src/app
 # Cached if there is not change in package.json
 COPY package*.json ./
 
-RUN npm
+RUN npm install
 # Run TSC to generate the dist folder
 # If you are building your code for production
 # RUN npm ci --only=production
@@ -19,7 +19,7 @@ RUN npm
 COPY . .
 # Copy the production envs into the main envs so they get read
 COPY .env.production .env
-RUN npm build
+RUN npm run build
 
 ENV NODE_ENV production
 
