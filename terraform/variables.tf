@@ -41,9 +41,7 @@ variable "hostname" {
 variable "db_postgres" {
   default = "wenop"
 }
-variable "db_redis" {
-  default = "wenor"
-}
+
 variable "docker_tag_version" {
   default = "1.2.19"
 }
@@ -51,7 +49,7 @@ variable "docker_registry_prefix" {
   default = "nvegater/vinplan-server"
 }
 variable "domain_name" {
-  default = "test-vinplan.com"
+  default = "weno-dev.com"
 }
 variable "cert_maintainer_email" {
   default = "nico_vt@protonmail.com"
