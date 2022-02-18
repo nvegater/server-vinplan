@@ -3,13 +3,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Service } from "./Service";
-import { User } from "./User";
+
 import { Field, Int, ObjectType, registerEnumType } from "type-graphql";
 import { ProductionType, WineProductionType } from "./WineProductionType";
 import { TypeWine, WineType } from "./WineType";
@@ -17,6 +15,8 @@ import { Amenity, WineryAmenity } from "./WineryAmenity";
 import { WineryLanguage, SupportedLanguage } from "./WineryLanguage";
 import { Grape, WineGrapesProduction } from "./WineGrapesProduction";
 import { OtherServices, WineryOtherServices } from "./WineryOtherServices";
+import { Experience } from "./Experience";
+import { WineryImage } from "./Images";
 
 export enum Valley {
   "GUADALUPE" = "Guadalupe",
@@ -47,6 +47,38 @@ export class Winery extends BaseEntity {
   name!: string;
 
   @Field(() => String)
+  @Column({ unique: true })
+  urlAlias!: string;
+
+  @Field(() => String, { nullable: true })
+  @Column({ nullable: true }) // Take the one from stripe. In theory unique- In stripe we trust
+  stripe_customerId!: string;
+
+  @Field(() => String, { nullable: true })
+  @Column({ nullable: true })
+  subscription!: string;
+
+  @Field(() => String, { nullable: true })
+  @Column({ nullable: true })
+  accountId?: string;
+
+  @Field(() => Number, {
+    defaultValue: -1,
+    description:
+      "Time at which the connected account was created. Measured in seconds since the Unix epoch. The default -1 Means that the account is not created Yet",
+  })
+  @Column({ default: -1 })
+  accountCreatedTime?: number;
+
+  @Field(() => String)
+  @Column({ unique: true })
+  creatorUsername!: string;
+
+  @Field(() => String)
+  @Column({ unique: true })
+  creatorEmail!: string;
+
+  @Field(() => String)
   @Column()
   description!: string;
 
@@ -55,9 +87,15 @@ export class Winery extends BaseEntity {
   foundationYear: number;
 
   // Winery posts multiple wineEvents. Each wineEvent done by user.
-  @Field(() => [Service], { nullable: true })
-  @OneToMany(() => Service, (service) => service.winery)
-  services: Service[];
+  @Field(() => [Experience], { nullable: true })
+  @OneToMany(() => Experience, (exp) => exp.winery)
+  experiences: Experience[];
+
+  @Field(() => [WineryImage], { nullable: true })
+  @OneToMany(() => WineryImage, (wineryImage) => wineryImage.winery, {
+    nullable: true,
+  })
+  images: WineryImage[] | null;
 
   @Field(() => String, { nullable: true })
   @Column({ nullable: true })
@@ -164,13 +202,6 @@ export class Winery extends BaseEntity {
     nullable: true,
   })
   amenities?: WineryAmenity[];
-
-  //FK
-  @Column()
-  creatorId: number;
-
-  @ManyToOne(() => User, (user) => user.winery)
-  creator: User;
 
   @Field(() => Date)
   @CreateDateColumn()

@@ -1,13 +1,6 @@
 import { NonEmptyArray } from "type-graphql/dist/interfaces/NonEmptyArray";
-import { PostResolver } from "./resolvers/Post/postResolvers";
-import { UserResolver } from "./resolvers/User/userResolvers";
 import { buildSchema } from "type-graphql";
-import { Redis } from "ioredis";
-import { Express, Request, Response } from "express";
-import { WineryResolver } from "./resolvers/Winery/wineryResolvers";
-import { ServiceResolver } from "./resolvers/Service/serviceResolvers";
-import { PresignedResolver } from "./resolvers/PreSignedUrl/presigned";
-import { ReservationResolver } from "./resolvers/Reservations/reservations";
+import { Express } from "express";
 import {
   GrantedRequest,
   KeycloakContext,
@@ -19,7 +12,13 @@ import {
   PlaygroundConfig,
   ServerRegistration,
 } from "apollo-server-express";
-import { keycloakAuthChecker } from "./resolvers/Universal/utils";
+import { ExperienceResolvers } from "./resolvers/ExperienceResolvers";
+import { ReservationResolvers } from "./resolvers/ReservationResolvers";
+import { WineryResolvers } from "./resolvers/WineryResolvers";
+import { keycloakAuthChecker } from "./utils/auth/keycloak";
+import { CustomerResolvers } from "./resolvers/CustomerResolvers";
+import { PresignedResolver } from "./resolvers/PresignedUrlsResolvers";
+import { _prod_ } from "./constants";
 
 const registerServer = (app: Express) => ({
   app, // Http -express server
@@ -33,12 +32,11 @@ export const registerExpressServer: (app: Express) => ServerRegistration = (
 
 const buildSchemas = async () => {
   const entityResolvers: NonEmptyArray<Function> = [
-    PostResolver,
-    UserResolver,
-    WineryResolver,
-    ServiceResolver,
+    ExperienceResolvers,
     PresignedResolver,
-    ReservationResolver,
+    ReservationResolvers,
+    WineryResolvers,
+    CustomerResolvers,
   ];
 
   return await buildSchema({
@@ -46,12 +44,6 @@ const buildSchemas = async () => {
     validate: false,
     authChecker: keycloakAuthChecker,
   });
-};
-
-export type ApolloRedisContext = {
-  req: Request;
-  res: Response;
-  redis: Redis;
 };
 
 export type ApolloKeycloakContext = {
@@ -63,13 +55,7 @@ export const apolloKeycloakExpressContext =
     const graphqlSchemas = await buildSchemas();
     const playGroundConfig: PlaygroundConfig =
       process.env.NODE_ENV === "production"
-        ? {
-            settings: {
-              //default is 'omit'
-              // Always same credentials for multiple-playground requests in Dev mode.
-              "request.credentials": "include",
-            },
-          } // same is an not prod. Change to false
+        ? false
         : {
             settings: {
               //default is 'omit'
@@ -87,5 +73,6 @@ export const apolloKeycloakExpressContext =
       playground: playGroundConfig,
       typeDefs: [KeycloakTypeDefs],
       schemaDirectives: KeycloakSchemaDirectives,
+      introspection: !_prod_,
     };
   };
