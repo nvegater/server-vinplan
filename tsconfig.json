@@ -2,13 +2,7 @@
   "compilerOptions": {
     "target": "es6",
     "module": "commonjs",
-    "lib": [
-      "dom",
-      "es6",
-      "es2017",
-      "esnext.asynciterable",
-      "ES2020.Promise",
-    ],
+    "lib": ["dom", "es6", "es2017", "esnext.asynciterable", "ES2020.Promise"],
     "sourceMap": true,
     "outDir": "./dist",
     "moduleResolution": "node",
@@ -28,11 +22,6 @@
     "resolveJsonModule": true,
     "baseUrl": "."
   },
-  "exclude": [
-    "node_modules"
-  ],
-  "include": [
-    "./src/**/*.tsx",
-    "./src/**/*.ts"
-  ]
+  "exclude": ["node_modules"],
+  "include": ["./src/**/*.tsx", "./src/**/*.ts"]
 }

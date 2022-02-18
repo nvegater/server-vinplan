@@ -1,168 +1,213 @@
 import {
-    BaseEntity,
-    Column,
-    CreateDateColumn,
-    Entity,
-    ManyToOne,
-    OneToMany,
-    PrimaryGeneratedColumn,
-    UpdateDateColumn
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from "typeorm";
-import {Service} from "./Service";
-import {User} from "./User";
-import {Field, Int, ObjectType, registerEnumType} from "type-graphql";
-import {ProductionType, WineProductionType} from "./WineProductionType";
-import {TypeWine, WineType} from "./WineType";
-import {Amenity, WineryAmenity} from "./WineryAmenity";
-import {WineryLanguage, SupportedLanguage} from "./WineryLanguage";
-import {Grape, WineGrapesProduction} from "./WineGrapesProduction";
-import {OtherServices, WineryOtherServices} from "./WineryOtherServices";
+
+import { Field, Int, ObjectType, registerEnumType } from "type-graphql";
+import { ProductionType, WineProductionType } from "./WineProductionType";
+import { TypeWine, WineType } from "./WineType";
+import { Amenity, WineryAmenity } from "./WineryAmenity";
+import { WineryLanguage, SupportedLanguage } from "./WineryLanguage";
+import { Grape, WineGrapesProduction } from "./WineGrapesProduction";
+import { OtherServices, WineryOtherServices } from "./WineryOtherServices";
+import { Experience } from "./Experience";
+import { WineryImage } from "./Images";
 
 export enum Valley {
-    "GUADALUPE"="Guadalupe",
-    "SAN_ANT_MINAS"="San Antonio de las Minas",
-    "ENSENADA"="Ensenada",
-    "SANTO_TOMAS"="Santo Tomas",
-    "OJOS_NEGROS"="Ojos Negros",
-    "GRULLA"="La Grulla",
-    "SAN_VICENTE"="San Vicente",
-    "SAN_QUINTIN"="San Quintín",
-    "CALAFIA" = "Calafia"
+  "GUADALUPE" = "Guadalupe",
+  "SAN_ANT_MINAS" = "San Antonio de las Minas",
+  "ENSENADA" = "Ensenada",
+  "SANTO_TOMAS" = "Santo Tomas",
+  "OJOS_NEGROS" = "Ojos Negros",
+  "GRULLA" = "La Grulla",
+  "SAN_VICENTE" = "San Vicente",
+  "SAN_QUINTIN" = "San Quintín",
+  "CALAFIA" = "Calafia",
 }
 
 registerEnumType(Valley, {
-    name: "Valley",
-    description: "A winery is in an unique valley, valleys are not identifiable through addresses"
+  name: "Valley",
+  description:
+    "A winery is in an unique valley, valleys are not identifiable through addresses",
 });
 @ObjectType()
 @Entity()
 export class Winery extends BaseEntity {
+  @Field(() => Int)
+  @PrimaryGeneratedColumn()
+  id!: number;
 
-    @Field(() => Int)
-    @PrimaryGeneratedColumn()
-    id!: number;
+  @Field(() => String)
+  @Column({ unique: true })
+  name!: string;
 
-    @Field(() => String)
-    @Column({unique: true})
-    name!: string;
+  @Field(() => String)
+  @Column({ unique: true })
+  urlAlias!: string;
 
-    @Field(() => String)
-    @Column()
-    description!: string;
+  @Field(() => String, { nullable: true })
+  @Column({ nullable: true }) // Take the one from stripe. In theory unique- In stripe we trust
+  stripe_customerId!: string;
 
-    @Field(() => Int, {nullable: true})
-    @Column({type: "int", nullable: true})
-    foundationYear: number;
+  @Field(() => String, { nullable: true })
+  @Column({ nullable: true })
+  subscription!: string;
 
-    // Winery posts multiple wineEvents. Each wineEvent done by user.
-    @Field(() => [Service], {nullable: true})
-    @OneToMany(() => Service, service => service.winery)
-    services: Service[];
+  @Field(() => String, { nullable: true })
+  @Column({ nullable: true })
+  accountId?: string;
 
-    @Field(() => String, {nullable: true})
-    @Column({nullable: true})
-    googleMapsUrl: string;
+  @Field(() => Number, {
+    defaultValue: -1,
+    description:
+      "Time at which the connected account was created. Measured in seconds since the Unix epoch. The default -1 Means that the account is not created Yet",
+  })
+  @Column({ default: -1 })
+  accountCreatedTime?: number;
 
-    @Field(() => Int, {nullable: true})
-    @Column({nullable: true})
-    yearlyWineProduction: number;
+  @Field(() => String)
+  @Column({ unique: true })
+  creatorUsername!: string;
 
-    @Field({nullable: true})
-    @Column({nullable: true})
-    contactEmail: string;
+  @Field(() => String)
+  @Column({ unique: true })
+  creatorEmail!: string;
 
-    @Field({nullable: true})
-    @Column({nullable: true})
-    contactPhoneNumber: string;
+  @Field(() => String)
+  @Column()
+  description!: string;
 
-    @Field({nullable: true})
-    @Column({default: false, nullable: false})
-    verified: boolean;
+  @Field(() => Int, { nullable: true })
+  @Column({ type: "int", nullable: true })
+  foundationYear: number;
 
-    @Field({nullable: true})
-    @Column({default: false, nullable: false})
-    covidLabel: boolean;
+  // Winery posts multiple wineEvents. Each wineEvent done by user.
+  @Field(() => [Experience], { nullable: true })
+  @OneToMany(() => Experience, (exp) => exp.winery)
+  experiences: Experience[];
 
-    @Field({nullable: true})
-    urlImageCover : string;
+  @Field(() => [WineryImage], { nullable: true })
+  @OneToMany(() => WineryImage, (wineryImage) => wineryImage.winery, {
+    nullable: true,
+  })
+  images: WineryImage[] | null;
 
-    @Field({nullable: true})
-    @Column({nullable: true})
-    logo : string;
+  @Field(() => String, { nullable: true })
+  @Column({ nullable: true })
+  googleMapsUrl: string;
 
-    @Field({nullable: true})
-    @Column({nullable: true})
-    contactName: string;
+  @Field(() => Int, { nullable: true })
+  @Column({ nullable: true })
+  yearlyWineProduction: number;
 
-    @Field({nullable: true})
-    @Column({nullable: true})
-    productRegion: string;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  contactEmail: string;
 
-    @Field({nullable: true})
-    @Column({nullable: true})
-    postalAddress: string;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  contactPhoneNumber: string;
 
-    @Field({nullable: true})
-    @Column({nullable: true})
-    architecturalReferences: boolean;
+  @Field({ nullable: true })
+  @Column({ default: false, nullable: false })
+  verified: boolean;
 
-    @Field()
-    @Column({nullable: true})
-    younerFriendly: boolean;
-    
-    @Field()
-    @Column({nullable: true})
-    petFriendly: boolean;
+  @Field({ nullable: true })
+  @Column({ default: false, nullable: false })
+  covidLabel: boolean;
 
-    @Field()
-    @Column({nullable: true})
-    enologoName: string;
+  @Field({ nullable: true })
+  urlImageCover: string;
 
-    @Field()
-    @Column({nullable: true})
-    handicappedFriendly: boolean;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  logo: string;
 
-    @Field(() => [Grape], {nullable: true})
-    @OneToMany(() => WineGrapesProduction, wineGrapesProduction => wineGrapesProduction.winery)
-    wineGrapesProduction: Grape[];
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  contactName: string;
 
-    @Field(() => [ProductionType], {nullable: true})
-    @OneToMany(() => WineProductionType, wineProductionType => wineProductionType.winery)
-    productionType: WineProductionType[];
-    
-    @Field(() => [OtherServices], {nullable: true})
-    @OneToMany(() => WineryOtherServices, wineryOtherServices => wineryOtherServices.winery)
-    othersServices: OtherServices[];
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  productRegion: string;
 
-    @Field(() => Valley)
-    @Column('enum', {name: 'valley', enum: Valley})
-    valley: Valley;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  postalAddress: string;
 
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  architecturalReferences: boolean;
 
-    @Field(() => [TypeWine], {nullable: true})
-    @OneToMany(() => WineType, wineType => wineType.winery)
-    wineType: WineType[];
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  younerFriendly: boolean;
 
-    @Field(()=>[SupportedLanguage], {nullable: true})
-    @OneToMany(()=>WineryLanguage, serviceLanguage => serviceLanguage.winery, {nullable: true})
-    supportedLanguages?: WineryLanguage[];
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  petFriendly: boolean;
 
-    @Field(()=>[Amenity], {nullable: true})
-    @OneToMany(()=>WineryAmenity, wineryAmenity => wineryAmenity.winery, {nullable: true})
-    amenities?: WineryAmenity[];
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  enologoName: string;
 
-    //FK
-    @Column()
-    creatorId: number;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  handicappedFriendly: boolean;
 
-    @ManyToOne(() => User, user => user.winery)
-    creator: User;
+  @Field(() => [Grape], { nullable: true })
+  @OneToMany(
+    () => WineGrapesProduction,
+    (wineGrapesProduction) => wineGrapesProduction.winery
+  )
+  wineGrapesProduction: Grape[];
 
-    @Field(() => Date)
-    @CreateDateColumn()
-    createdAt: Date;
+  @Field(() => [ProductionType], { nullable: true })
+  @OneToMany(
+    () => WineProductionType,
+    (wineProductionType) => wineProductionType.winery
+  )
+  productionType: WineProductionType[];
 
-    @Field(() => Date)
-    @UpdateDateColumn()
-    updatedAt: Date;
+  @Field(() => [OtherServices], { nullable: true })
+  @OneToMany(
+    () => WineryOtherServices,
+    (wineryOtherServices) => wineryOtherServices.winery
+  )
+  othersServices: OtherServices[];
+
+  @Field(() => Valley)
+  @Column("enum", { name: "valley", enum: Valley })
+  valley: Valley;
+
+  @Field(() => [TypeWine], { nullable: true })
+  @OneToMany(() => WineType, (wineType) => wineType.winery)
+  wineType: WineType[];
+
+  @Field(() => [SupportedLanguage], { nullable: true })
+  @OneToMany(
+    () => WineryLanguage,
+    (serviceLanguage) => serviceLanguage.winery,
+    { nullable: true }
+  )
+  supportedLanguages?: WineryLanguage[];
+
+  @Field(() => [Amenity], { nullable: true })
+  @OneToMany(() => WineryAmenity, (wineryAmenity) => wineryAmenity.winery, {
+    nullable: true,
+  })
+  amenities?: WineryAmenity[];
+
+  @Field(() => Date)
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Field(() => Date)
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

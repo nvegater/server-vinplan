@@ -1,64 +1,76 @@
-import express, {Express, RequestHandler} from "express";
-import "reflect-metadata"
+import express, { Express, RequestHandler } from "express";
+import "reflect-metadata";
 // Read dotenv file and stick them as variables and throw error if an environment variable is not set
-import "dotenv-safe/config"
+import "dotenv-safe/config";
 
-import cors from "cors"
-import {corsConfig} from "./express-config";
+import cors from "cors";
+import { corsConfig } from "./express-config";
 
-import session from 'express-session';
-import connectRedis, {RedisStore} from 'connect-redis';
-import Redis, {Redis as RedisType} from 'ioredis';
-import {buildRedisSession} from "./redis-config";
+import expSession from "express-session";
 
-import {Connection, createConnection} from "typeorm";
-import typeOrmPostgresConfig from "./typeorm.config"
+import { createConnection } from "typeorm";
+import typeOrmPostgresConfig from "./typeorm.config";
 
-import {ApolloServer} from "apollo-server-express";
+import { ApolloServer, ApolloServerExpressConfig } from "apollo-server-express";
 import {
-    registerExpressServer,
-    apolloExpressRedisContext
+  apolloKeycloakExpressContext,
+  registerExpressServer,
 } from "./apollo-config";
-import {ApolloServerExpressConfig} from "apollo-server-express/dist/ApolloServer";
 
+import Keycloak from "keycloak-connect";
+import bodyParser from "body-parser";
+
+import keycloakConfig from "./keycloak.json";
+import { webhookListenerFn } from "./dataServices/payment";
 
 const start_server = async () => {
+  const app: Express = express();
 
-    const app: Express = express();
+  // CORS
+  const corsRequestHandler: RequestHandler = cors(corsConfig);
+  app.use(corsRequestHandler);
 
-    // CORS
-    const corsRequestHandler: RequestHandler = cors(corsConfig);
-    app.use(corsRequestHandler)
+  app.set("trust proxy", 1);
 
-    // Redis
-    const redisStore: RedisStore = connectRedis(session)
-    const redisClient: RedisType = new Redis(process.env.REDIS_URL)
-    app.set("trust proxy", 1);
-    const redisRequestHandler: RequestHandler = session(buildRedisSession(redisStore, redisClient));
-    app.use(redisRequestHandler);
+  // TypeORM
+  await createConnection(typeOrmPostgresConfig);
 
-    // TypeORM
-    const postgresConnection:Connection = await createConnection(typeOrmPostgresConfig);
-    // when pushing the docker image
-    // this will run everything from the migration folder
-    await postgresConnection.runMigrations();
+  // Keycloak
+  const memoryStore = new expSession.MemoryStore();
 
-    //await Post.delete({});
-    // npx typeorm migration:create -n FakePosts <----for migrations
-
-    // Apollo
-    const apolloConfig: ApolloServerExpressConfig = await apolloExpressRedisContext(redisClient);
-
-    new ApolloServer(apolloConfig)
-        .applyMiddleware(registerExpressServer(app))
-
-    // Start server
-    app.listen(process.env.PORT, () => {
-        console.log("Server started in localhost: 4000");
+  app.use(
+    expSession({
+      secret: process.env.KEYCLOAK_SECRET || "",
+      resave: false,
+      saveUninitialized: true,
+      store: memoryStore,
     })
-}
+  );
 
-start_server()
-    .catch((err) => {
-        console.log(err)
-    });
+  const keycloak = new Keycloak({ store: memoryStore }, keycloakConfig);
+
+  app.use(keycloak.middleware({ admin: "/graphql" }));
+  app.use("/graphql", keycloak.middleware());
+
+  const apolloKeycloakConfig: ApolloServerExpressConfig =
+    await apolloKeycloakExpressContext();
+
+  new ApolloServer(apolloKeycloakConfig).applyMiddleware(
+    registerExpressServer(app)
+  );
+
+  app.post(
+    "/webhook",
+    bodyParser.raw({ type: "application/json" }),
+    (req, res) => webhookListenerFn(req, res)
+  );
+
+  // Start server
+  app.listen(process.env.PORT, () => {
+    console.log("Server started in localhost: 4000");
+  });
+};
+
+start_server().catch((err) => {
+  console.log(err);
+});
