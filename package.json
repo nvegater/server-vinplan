@@ -52,6 +52,7 @@
     "exceljs": "^4.2.1",
     "express": "^4.17.1",
     "express-session": "^1.17.2",
+    "facturapi": "^3.2.0",
     "graphql": "^15.7.2",
     "keycloak-connect": "^15.0.2",
     "keycloak-connect-graphql": "^0.7.0",

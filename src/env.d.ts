@@ -19,5 +19,7 @@ declare namespace NodeJS {
     KEYCLOAK_SECRET: string;
     STRIPE_PRIVATE_KEY: string;
     STRIPE_PUBLIC_KEY: string;
+    STRIPE_WEBHOOK_SECRET: string;
+    FACTURAPI_KEY: string;
   }
 }
