@@ -15,7 +15,9 @@ export const keycloakAuthChecker: AuthChecker<ApolloKeycloakContext> = (
   { context },
   roles
 ) => {
-  return context.kauth.isAuthenticated()
+  const authenticated = context.kauth.isAuthenticated();
+  console.log(authenticated)
+  return authenticated
     ? checkRightRoles(context.kauth, roles)
     : false;
 };

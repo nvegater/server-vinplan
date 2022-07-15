@@ -220,6 +220,8 @@ async function createStripeCustomerAndPersistInWenoDB(
       : null,
   });
 
+  console.log(stripe_customer)
+
   return await createCustomer_DS({
     stripeCustomerId: stripe_customer.id,
     email: stripe_customer.email as string,

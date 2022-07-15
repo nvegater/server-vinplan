@@ -1,20 +1,11 @@
-import { Arg, Authorized, Int, Mutation, Query, Resolver } from "type-graphql";
-import { getPresignedUrl } from "../dataServices/s3Utilities";
-import {
-  GetPreSignedUrlResponse,
-  ImageGalleryResponse,
-  InsertImageResponse,
-} from "./Outputs/presignedOutputs";
-import { UploadType } from "./Inputs/presignedInputs";
-import {
-  addWineryImageToExperience,
-  getWineryImages,
-  saveWineryImage,
-} from "../useCases/pictures/pictures";
+import {Arg, Int, Mutation, Query, Resolver} from "type-graphql";
+import {getPresignedUrl} from "../dataServices/s3Utilities";
+import {GetPreSignedUrlResponse, ImageGalleryResponse, InsertImageResponse,} from "./Outputs/presignedOutputs";
+import {UploadType} from "./Inputs/presignedInputs";
+import {addWineryImageToExperience, getWineryImages, saveWineryImage,} from "../useCases/pictures/pictures";
 
 @Resolver(GetPreSignedUrlResponse)
 export class PresignedResolver {
-  @Authorized("owner")
   @Mutation(() => GetPreSignedUrlResponse)
   async preSignedUrl(
     @Arg("fileNames", () => [String]) fileNames: string[],
@@ -37,7 +28,6 @@ export class PresignedResolver {
     }
   }
 
-  @Authorized("owner")
   @Mutation(() => InsertImageResponse)
   async saveImages(
     @Arg("wineryId", () => Int, { nullable: true }) wineryId: number,
@@ -47,7 +37,6 @@ export class PresignedResolver {
     return await saveWineryImage(wineryId, wineryAlias, imageNames);
   }
 
-  @Authorized("owner")
   @Query(() => ImageGalleryResponse)
   async wineryImages(
     @Arg("wineryId", () => Int, { nullable: true }) wineryId: number,
@@ -56,7 +45,6 @@ export class PresignedResolver {
     return await getWineryImages(wineryId, wineryAlias);
   }
 
-  @Authorized("owner")
   @Mutation(() => InsertImageResponse)
   async addImageToExperience(
     @Arg("wineryImageId", () => Int, { nullable: true }) wineryImageId: number,

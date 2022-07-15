@@ -1,5 +1,5 @@
-import { Arg, Authorized, Int, Mutation, Query, Resolver } from "type-graphql";
-import { Experience } from "../entities/Experience";
+import {Arg, Int, Mutation, Query, Resolver} from "type-graphql";
+import {Experience} from "../entities/Experience";
 
 import {
   CreateExperienceInputs,
@@ -15,17 +15,12 @@ import {
   RecurrenceResponse,
 } from "./Outputs/CreateExperienceOutputs";
 
-import { generateRecurrence } from "../useCases/experiences/recurrent/recurrenceRules";
-import { createExperienceWinery } from "../useCases/experiences/createExperience";
-import {
-  getExperiencesListFromFuture,
-  paginateExperiences,
-  editExperience,
-} from "../useCases/experiences/experiences";
+import {generateRecurrence} from "../useCases/experiences/recurrent/recurrenceRules";
+import {createExperienceWinery} from "../useCases/experiences/createExperience";
+import {editExperience, getExperiencesListFromFuture, paginateExperiences,} from "../useCases/experiences/experiences";
 
 @Resolver(Experience)
 export class ExperienceResolvers {
-  @Authorized("owner")
   @Query(() => RecurrenceResponse)
   recurrentDates(
     @Arg("createRecurrentDatesInputs")
@@ -34,7 +29,6 @@ export class ExperienceResolvers {
     return generateRecurrence({ ...createRecurrentDatesInputs });
   }
 
-  @Authorized("owner")
   @Mutation(() => ExperienceResponse)
   async createExperience(
     @Arg("createExperienceInputs")
@@ -48,7 +42,6 @@ export class ExperienceResolvers {
     });
   }
 
-  @Authorized("owner")
   @Mutation(() => EditExperienceResponse)
   async editExperience(
     @Arg("editExperienceInputs") editExperienceInputs: EditExperienceInputs
@@ -64,7 +57,6 @@ export class ExperienceResolvers {
     return await paginateExperiences(paginatedExperiencesInputs);
   }
 
-  @Authorized("owner")
   @Query(() => ExperiencesList)
   async experiencesList(
     @Arg("wineryId", () => Int) wineryId: number

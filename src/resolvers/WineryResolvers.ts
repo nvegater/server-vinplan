@@ -1,20 +1,17 @@
-import { Arg, Authorized, Mutation, Query, Resolver } from "type-graphql";
-import { Winery } from "../entities/Winery";
+import {Arg, Mutation, Query, Resolver} from "type-graphql";
+import {Winery} from "../entities/Winery";
 
-import {
-  CreateWineryInputs,
-  EditWineryInputs,
-} from "./Inputs/CreateWineryInputs";
-import { GetWineryInputs, UserInputs } from "./Inputs/UserInputs";
+import {CreateWineryInputs, EditWineryInputs,} from "./Inputs/CreateWineryInputs";
+import {GetWineryInputs, UserInputs} from "./Inputs/UserInputs";
 
-import { WineryResponse } from "./Outputs/WineryOutputs";
+import {WineryResponse} from "./Outputs/WineryOutputs";
 
 import {
   confirmConnectedAccountCreation,
-  editWinery,
-  getWinery,
-  getWineriesNames,
   createWinery,
+  editWinery,
+  getWineriesNames,
+  getWinery,
 } from "../useCases/winery";
 
 @Resolver(Winery)
@@ -24,7 +21,6 @@ export class WineryResolvers {
     return await getWineriesNames();
   }
 
-  @Authorized("owner", "visitor")
   @Query(() => WineryResponse)
   async winery(
     @Arg("getWineryInputs") getWineryInputs: GetWineryInputs
@@ -40,7 +36,6 @@ export class WineryResolvers {
     return await createWinery({ user: userInputs, winery: createWineryInputs });
   }
 
-  @Authorized("owner")
   @Mutation(() => WineryResponse)
   async editWinery(
     @Arg("editWineryInputs") editWineryInputs: EditWineryInputs
@@ -48,7 +43,6 @@ export class WineryResolvers {
     return await editWinery(editWineryInputs);
   }
 
-  @Authorized("owner")
   @Mutation(() => WineryResponse, {
     description:
       "Trigger: winery information Page. " +

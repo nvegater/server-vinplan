@@ -1,5 +1,5 @@
-import { Arg, Authorized, Int, Mutation, Query, Resolver } from "type-graphql";
-import { Customer } from "../entities/Customer";
+import {Arg, Int, Mutation, Query, Resolver} from "type-graphql";
+import {Customer} from "../entities/Customer";
 import {
   CheckoutLinkResponse,
   CheckoutSessionResponse,
@@ -8,7 +8,7 @@ import {
   OnboardingResponse,
   ProductsResponse,
 } from "./Outputs/PaymentOutputs";
-import { CreateCustomerInputs } from "./Inputs/CreateCustomerInputs";
+import {CreateCustomerInputs} from "./Inputs/CreateCustomerInputs";
 
 import {
   createCustomer,
@@ -31,7 +31,6 @@ import {
  * */
 @Resolver(Customer)
 export class CustomerResolvers {
-  @Authorized()
   @Mutation(() => CustomerResponse)
   async createCustomer(
     @Arg("createCustomerInputs") createCustomerInputs: CreateCustomerInputs
@@ -39,7 +38,6 @@ export class CustomerResolvers {
     return await createCustomer({ ...createCustomerInputs });
   }
 
-  @Authorized("owner", "visitor")
   @Query(() => CustomerResponse, {
     description:
       "This will create a customer if the given inputs dont match an existing one",
@@ -50,7 +48,6 @@ export class CustomerResolvers {
     return await getExistingCustomer(createCustomerInputs);
   }
 
-  @Authorized("owner", "visitor")
   @Query(() => CustomerReservationResponse)
   async getCustomerReservations(
     @Arg("email") email: string
@@ -87,7 +84,6 @@ export class CustomerResolvers {
     });
   }
 
-  @Authorized("owner")
   @Query(() => String)
   async getSubscriptionStatus(
     @Arg("customerId") customerId: string
@@ -95,7 +91,6 @@ export class CustomerResolvers {
     return await getCustomerSubscription(customerId);
   }
 
-  @Authorized("owner")
   @Mutation(() => OnboardingResponse)
   async wineryOnboarding(
     @Arg("wineryAlias") wineryAlias: string

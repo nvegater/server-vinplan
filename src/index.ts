@@ -18,6 +18,7 @@ import {
 } from "./apollo-config";
 
 import Keycloak from "keycloak-connect";
+// @ts-ignore
 import bodyParser from "body-parser";
 
 import keycloakConfig from "./keycloak.json";

@@ -1,6 +1,5 @@
 import {
   Arg,
-  Authorized,
   Field,
   Float,
   Int,
@@ -66,7 +65,6 @@ export class ReservedSlotsResponse {
 
 @Resolver(Reservation)
 export class ReservationResolvers {
-  @Authorized("owner")
   @Query(() => ReservedSlotsResponse)
   async reservedSlots(
     @Arg("wineryId", () => Int)
@@ -75,7 +73,6 @@ export class ReservationResolvers {
     return await getReservedSlots(wineryId);
   }
 
-  @Authorized("owner")
   @Query(() => ReservedSlotsResponse)
   async experienceReservedSlots(
     @Arg("experienceId", () => Int)

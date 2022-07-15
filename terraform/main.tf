@@ -57,7 +57,6 @@ data "template_file" "cloud-init-yaml" {
     init_ssh_public_key = var.ssh_public_key
     hostname = var.hostname
     postgres = var.db_postgres
-    redis = var.db_redis
     docker_tag_version = var.docker_tag_version
     docker_registry_prefix = var.docker_registry_prefix
     domain_name = var.domain_name
