@@ -16,25 +16,3 @@ services:
       POSTGRES_USER: "root"
       POSTGRES_PASSWORD: "toor"
       POSTGRES_DB: "wenop"
-
-  keycloak:
-    image: quay.io/keycloak/keycloak:legacy
-#    command:
-#      - "--spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true"
-
-    environment:
-      DB_VENDOR: POSTGRES
-      DB_ADDR: postgres
-      DB_DATABASE: wenop
-      DB_USER: root
-      DB_SCHEMA: public
-      DB_PASSWORD: "toor"
-      KEYCLOAK_USER: admin
-      KEYCLOAK_PASSWORD: Pa55w0rd
-      JAVA_OPTS_APPEND: ""
-      # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
-      JDBC_PARAMS: "spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true"
-    ports:
-      - 8080:8080
-    depends_on:
-      - postgres

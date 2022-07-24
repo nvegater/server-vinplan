@@ -2,12 +2,6 @@ import { NonEmptyArray } from "type-graphql/dist/interfaces/NonEmptyArray";
 import { buildSchema } from "type-graphql";
 import { Express } from "express";
 import {
-  GrantedRequest,
-  KeycloakContext,
-  KeycloakSchemaDirectives,
-  KeycloakTypeDefs,
-} from "keycloak-connect-graphql";
-import {
   ApolloServerExpressConfig,
   PlaygroundConfig,
   ServerRegistration,
@@ -15,7 +9,6 @@ import {
 import { ExperienceResolvers } from "./resolvers/ExperienceResolvers";
 import { ReservationResolvers } from "./resolvers/ReservationResolvers";
 import { WineryResolvers } from "./resolvers/WineryResolvers";
-import { keycloakAuthChecker } from "./utils/auth/keycloak";
 import { CustomerResolvers } from "./resolvers/CustomerResolvers";
 import { PresignedResolver } from "./resolvers/PresignedUrlsResolvers";
 import { _prod_ } from "./constants";
@@ -42,15 +35,10 @@ const buildSchemas = async () => {
   return await buildSchema({
     resolvers: entityResolvers,
     validate: false,
-    authChecker: keycloakAuthChecker,
   });
 };
 
-export type ApolloKeycloakContext = {
-  kauth: KeycloakContext;
-};
-
-export const apolloKeycloakExpressContext =
+export const configureApolloServer =
   async (): Promise<ApolloServerExpressConfig> => {
     const graphqlSchemas = await buildSchemas();
     const playGroundConfig: PlaygroundConfig =
@@ -65,14 +53,7 @@ export const apolloKeycloakExpressContext =
           };
     return {
       schema: graphqlSchemas,
-      context: ({ req }) => {
-        return {
-          kauth: new KeycloakContext({ req: req as GrantedRequest }),
-        };
-      },
       playground: playGroundConfig,
-      typeDefs: [KeycloakTypeDefs],
-      schemaDirectives: KeycloakSchemaDirectives,
       introspection: !_prod_,
     };
   };

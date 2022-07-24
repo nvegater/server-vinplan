@@ -6,22 +6,14 @@ import "dotenv-safe/config";
 import cors from "cors";
 import { corsConfig } from "./express-config";
 
-import expSession from "express-session";
-
 import { createConnection } from "typeorm";
 import typeOrmPostgresConfig from "./typeorm.config";
 
 import { ApolloServer, ApolloServerExpressConfig } from "apollo-server-express";
-import {
-  apolloKeycloakExpressContext,
-  registerExpressServer,
-} from "./apollo-config";
+import { configureApolloServer, registerExpressServer } from "./apollo-config";
 
-import Keycloak from "keycloak-connect";
-// @ts-ignore
-import bodyParser from "body-parser";
+import { raw } from "body-parser";
 
-import keycloakConfig from "./keycloak.json";
 import { webhookListenerFn } from "./dataServices/payment";
 
 const start_server = async () => {
@@ -36,34 +28,12 @@ const start_server = async () => {
   // TypeORM
   await createConnection(typeOrmPostgresConfig);
 
-  // Keycloak
-  const memoryStore = new expSession.MemoryStore();
+  const apolloConfig: ApolloServerExpressConfig = await configureApolloServer();
 
-  app.use(
-    expSession({
-      secret: process.env.KEYCLOAK_SECRET || "",
-      resave: false,
-      saveUninitialized: true,
-      store: memoryStore,
-    })
-  );
+  new ApolloServer(apolloConfig).applyMiddleware(registerExpressServer(app));
 
-  const keycloak = new Keycloak({ store: memoryStore }, keycloakConfig);
-
-  app.use(keycloak.middleware({ admin: "/graphql" }));
-  app.use("/graphql", keycloak.middleware());
-
-  const apolloKeycloakConfig: ApolloServerExpressConfig =
-    await apolloKeycloakExpressContext();
-
-  new ApolloServer(apolloKeycloakConfig).applyMiddleware(
-    registerExpressServer(app)
-  );
-
-  app.post(
-    "/webhook",
-    bodyParser.raw({ type: "application/json" }),
-    (req, res) => webhookListenerFn(req, res)
+  app.post("/webhook", raw({ type: "application/json" }), (req, res) =>
+    webhookListenerFn(req, res)
   );
 
   // Start server
